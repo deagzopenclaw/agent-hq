@@ -1,0 +1,11 @@
+{
+  "name": "agent-hq-standalone",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Pixel-art Hermes Agent HQ dashboard with real backend state hooks.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  }
+}
