@@ -8,6 +8,8 @@ import { spawn } from 'node:child_process';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const HERMES_ROOT = process.env.HERMES_ROOT || '/home/deagz/.hermes/hermes-agent';
+const HERMES_API_BASE_URL = (process.env.HERMES_API_BASE_URL || '').replace(/\/+$/, '');
+const HERMES_API_KEY = process.env.HERMES_API_KEY || '';
 const HOST = process.env.HOST || '0.0.0.0';
 const PORT = Number(process.env.PORT || 7777);
 
@@ -73,6 +75,67 @@ function fallbackHQState(reason = 'Hermes backend is not mounted in this environ
     alerts: [{ level: 'warning', message: `Real Hermes backend unavailable: ${reason}` }],
     logs: ['Railway preview mode: UI deployed without local Hermes runtime mounted.'],
   };
+}
+
+function apiHeaders(extra = {}) {
+  return {
+    ...extra,
+    ...(HERMES_API_KEY ? { authorization: `Bearer ${HERMES_API_KEY}` } : {}),
+  };
+}
+
+async function hermesApiFetch(pathname, options = {}) {
+  if (!HERMES_API_BASE_URL) throw new Error('HERMES_API_BASE_URL is not configured');
+  const response = await fetch(`${HERMES_API_BASE_URL}${pathname}`, {
+    ...options,
+    headers: apiHeaders(options.headers || {}),
+  });
+  const text = await response.text();
+  let data = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+  }
+  if (!response.ok) {
+    const message = data?.error?.message || data?.error || data?.detail || text || `HTTP ${response.status}`;
+    throw new Error(`Hermes API ${pathname} failed: ${message}`);
+  }
+  return data || {};
+}
+
+async function runHermesApiState() {
+  let health = null;
+  let capabilities = null;
+  try {
+    health = await hermesApiFetch('/health/detailed');
+  } catch {
+    health = await hermesApiFetch('/health');
+  }
+  try {
+    capabilities = await hermesApiFetch('/v1/capabilities');
+  } catch {
+    capabilities = null;
+  }
+
+  const state = fallbackHQState(`connected through remote Hermes API at ${HERMES_API_BASE_URL}`);
+  state.truth_contract = `Connected to Hermes through HERMES_API_BASE_URL (${HERMES_API_BASE_URL}). Showing real connection health; live city/agent telemetry is limited unless the API exposes HQ state.`;
+  state.telemetry.gateway_running = true;
+  state.telemetry.gateway_state = health?.status || health?.state || (health?.ok === false ? 'unhealthy' : 'api-connected');
+  state.telemetry.connected_platforms = Array.isArray(health?.platforms)
+    ? health.platforms.length
+    : Number(health?.connected_platforms || 0);
+  state.telemetry.active_sessions = Number(health?.active_sessions || 0);
+  state.telemetry.total_sessions = Number(health?.total_sessions || 0);
+  state.alerts = [{ level: 'ok', message: `Hermes API reachable at ${HERMES_API_BASE_URL}` }];
+  state.logs = [
+    `Hermes API mode enabled: ${HERMES_API_BASE_URL}`,
+    `Health: ${JSON.stringify(health).slice(0, 500)}`,
+    capabilities ? `Capabilities: ${JSON.stringify(capabilities).slice(0, 500)}` : 'Capabilities endpoint unavailable or disabled.',
+  ];
+  return state;
 }
 
 function runPythonHQState() {
@@ -159,6 +222,20 @@ function runHermesChat(prompt) {
   });
 }
 
+async function runHermesApiChat(prompt) {
+  const data = await hermesApiFetch('/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      model: process.env.HERMES_API_MODEL || 'hermes-agent',
+      messages: [{ role: 'user', content: prompt }],
+      stream: false,
+    }),
+  });
+  const output = data?.choices?.[0]?.message?.content || data?.output_text || data?.response || '';
+  return { output: output || JSON.stringify(data), rawOutput: JSON.stringify(data), stderr: '' };
+}
+
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -186,10 +263,24 @@ const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
 
     if (req.method === 'GET' && url.pathname === '/api/health') {
-      return sendJSON(res, 200, { ok: true, hermesRoot: HERMES_ROOT, port: PORT });
+      return sendJSON(res, 200, {
+        ok: true,
+        mode: HERMES_API_BASE_URL ? 'hermes-api' : 'local-hermes-root',
+        hermesRoot: HERMES_ROOT,
+        hermesApiBaseUrl: HERMES_API_BASE_URL || null,
+        port: PORT,
+      });
     }
 
     if (req.method === 'GET' && url.pathname === '/api/hq/state') {
+      if (HERMES_API_BASE_URL) {
+        try {
+          const state = await runHermesApiState();
+          return sendJSON(res, 200, state);
+        } catch (err) {
+          return sendJSON(res, 200, fallbackHQState(err.message || String(err)));
+        }
+      }
       if (!existsSync(HERMES_ROOT)) return sendJSON(res, 200, fallbackHQState(`missing ${HERMES_ROOT}`));
       try {
         const state = await runPythonHQState();
@@ -200,15 +291,19 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && url.pathname === '/api/chat') {
+      const raw = await collectBody(req);
+      const body = raw ? JSON.parse(raw) : {};
+      const prompt = String(body.prompt || '').trim();
+      if (!prompt) return sendJSON(res, 400, { error: 'Prompt is required' });
+      if (HERMES_API_BASE_URL) {
+        const result = await runHermesApiChat(prompt);
+        return sendJSON(res, 200, result);
+      }
       if (!existsSync(HERMES_ROOT)) {
         return sendJSON(res, 503, {
           error: `Hermes chat is not available on this Railway runtime because ${HERMES_ROOT} is not mounted.`,
         });
       }
-      const raw = await collectBody(req);
-      const body = raw ? JSON.parse(raw) : {};
-      const prompt = String(body.prompt || '').trim();
-      if (!prompt) return sendJSON(res, 400, { error: 'Prompt is required' });
       const result = await runHermesChat(prompt);
       return sendJSON(res, 200, result);
     }
@@ -222,5 +317,6 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`Agent HQ standalone site → http://127.0.0.1:${PORT}`);
-  console.log(`Serving real Hermes state from ${HERMES_ROOT}`);
+  if (HERMES_API_BASE_URL) console.log(`Connecting to Hermes API at ${HERMES_API_BASE_URL}`);
+  else console.log(`Serving real Hermes state from ${HERMES_ROOT}`);
 });
