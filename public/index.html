@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agent HQ — Real Autonomous Ops City</title>
+    <title>Agent HQ — Hermes Control Center</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
@@ -15,83 +15,83 @@
           <p class="truth">Loading real backend state…</p>
         </div>
         <div class="hud-actions">
-            <button id="syncBtn">Refresh</button>
+          <button id="syncBtn">Refresh</button>
           <a href="/api/hq/state" target="_blank">Raw state</a>
         </div>
       </header>
 
-      <main class="layout">
+      <main class="hq-layout">
+        <aside class="control-center" aria-label="Agent HQ control center">
+          <div class="control-title">
+            <span class="tiny-led"></span>
+            <div>
+              <b>Control Center</b>
+              <small>Open one station at a time</small>
+            </div>
+          </div>
+
+          <details class="nav-section" open>
+            <summary>Chat</summary>
+            <div class="chat-panel compact-panel">
+              <div id="chatHistory" class="chat-history"></div>
+              <form id="chatForm">
+                <input id="chatInput" autocomplete="off" placeholder="Message Hermes…" />
+                <button>Send</button>
+              </form>
+            </div>
+          </details>
+
+          <details class="nav-section" open>
+            <summary>Ecosystem</summary>
+            <div class="compact-panel selected-card">
+              <p class="panel-kicker">Selected</p>
+              <div id="selected">Click a building or agent.</div>
+            </div>
+          </details>
+
+          <details class="nav-section">
+            <summary>Agents</summary>
+            <div class="compact-panel agent-roster-panel">
+              <p class="panel-kicker">Agents at work</p>
+              <div id="agentRoster"></div>
+            </div>
+          </details>
+
+          <details class="nav-section">
+            <summary>Telemetry</summary>
+            <div class="compact-panel metrics">
+              <p class="panel-kicker">Live telemetry</p>
+              <div id="metrics"></div>
+            </div>
+          </details>
+
+          <details class="nav-section">
+            <summary>Activity</summary>
+            <div class="compact-panel log-panel">
+              <p class="panel-kicker">Activity stream</p>
+              <pre id="logs">No logs loaded yet.</pre>
+            </div>
+          </details>
+
+          <details class="nav-section">
+            <summary>Alerts</summary>
+            <div class="compact-panel alerts">
+              <p class="panel-kicker">Alerts</p>
+              <div id="alerts"></div>
+            </div>
+          </details>
+        </aside>
+
         <section class="city-shell">
           <div class="world" id="world">
-            <div class="terrain"></div>
-            <canvas id="cityCanvas" width="1280" height="720" aria-label="Detailed pixel-art AI ecosystem city"></canvas>
-            <div class="forest"></div>
-            <div class="road road-main-v"></div>
-            <div class="road road-main-h"></div>
-            <div class="road road-diag-a"></div>
-            <div class="road road-diag-b"></div>
+            <canvas id="cityCanvas" width="1280" height="720" aria-label="Textured pixel-art Hermes agent city"></canvas>
             <svg class="streams" viewBox="0 0 100 100" preserveAspectRatio="none" id="streams"></svg>
-            <div id="buildings"></div>
-            <div id="agents"></div>
-            <div class="lamp l1"></div><div class="lamp l2"></div><div class="lamp l3"></div><div class="lamp l4"></div>
+            <div id="buildings" aria-label="Clickable city buildings"></div>
+            <div id="agents" aria-label="Clickable agents"></div>
           </div>
         </section>
-
-        <aside class="side-panel">
-          <section class="panel selected-card">
-            <p class="panel-kicker">Selected</p>
-            <div id="selected">Click a building or agent.</div>
-          </section>
-
-          <section class="panel agent-roster-panel">
-            <p class="panel-kicker">Agents at work</p>
-            <div id="agentRoster"></div>
-          </section>
-
-          <section class="panel metrics">
-            <p class="panel-kicker">Live telemetry</p>
-            <div id="metrics"></div>
-          </section>
-
-          <section class="panel alerts">
-            <p class="panel-kicker">Alerts</p>
-            <div id="alerts"></div>
-          </section>
-        </aside>
       </main>
-
-      <section class="bottom-dock">
-        <div class="panel log-panel">
-          <p class="panel-kicker">Activity</p>
-          <pre id="logs">No logs loaded yet.</pre>
-        </div>
-        <div class="panel chat-panel">
-          <p class="panel-kicker">Chat with Hermes</p>
-          <div id="chatHistory" class="chat-history"></div>
-          <form id="chatForm">
-            <input id="chatInput" autocomplete="off" placeholder="Message Hermes…" />
-            <button>Send</button>
-          </form>
-        </div>
-      </section>
     </div>
-
-    <template id="buildingTemplate">
-      <button class="building">
-        <span class="roof"></span>
-        <span class="tower"><span class="windows"></span></span>
-        <span class="sign"></span>
-        <span class="load"><i></i></span>
-      </button>
-    </template>
-
-    <template id="agentTemplate">
-      <button class="agent">
-        <span class="head"></span>
-        <span class="body"></span>
-        <span class="tag"></span>
-      </button>
-    </template>
 
     <script src="/app.js" type="module"></script>
   </body>

@@ -38,6 +38,43 @@ function collectBody(req, maxBytes = 128_000) {
   });
 }
 
+function fallbackHQState(reason = 'Hermes backend is not mounted in this environment') {
+  const departments = [
+    ['executive-headquarters', 'Executive Headquarters', 'mainframe', 0],
+    ['research-labs', 'Research Labs', 'research', 0],
+    ['coding-towers', 'Coding Towers', 'coding', 0],
+    ['deployment-facilities', 'Deployment Facilities', 'deployment', 0],
+    ['automation-plants', 'Automation Plants', 'automation', 0],
+    ['data-warehouses', 'Data Warehouses', 'data', 0],
+    ['analytics-centers', 'Analytics Centers', 'analytics', 0],
+    ['security-divisions', 'Security Divisions', 'security', 0],
+    ['support-offices', 'Support Offices', 'support', 0],
+    ['marketing-studios', 'Marketing Studios', 'marketing', 0],
+    ['media-rooms', 'Media Rooms', 'media', 0],
+    ['finance-centers', 'Finance Centers', 'finance', 0],
+  ].map(([id, name, kind, load]) => ({
+    id, name, kind, x: 0, y: 0, load, active_agents: 0, sessions: 0,
+    tool_calls: 0, tokens: 0, status: 'idle',
+  }));
+  return {
+    generated_at: Date.now() / 1000,
+    truth_contract: `Railway UI is live, but real Hermes backend data is unavailable here: ${reason}. No fake agent work is being shown.`,
+    telemetry: {
+      gateway_running: false,
+      gateway_state: 'unavailable-on-railway',
+      active_sessions: 0,
+      total_sessions: 0,
+      enabled_cron_jobs: 0,
+      tracked_processes: 0,
+      connected_platforms: 0,
+    },
+    departments,
+    agents: [],
+    alerts: [{ level: 'warning', message: `Real Hermes backend unavailable: ${reason}` }],
+    logs: ['Railway preview mode: UI deployed without local Hermes runtime mounted.'],
+  };
+}
+
 function runPythonHQState() {
   return new Promise((resolve, reject) => {
     const code = `
@@ -153,11 +190,21 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'GET' && url.pathname === '/api/hq/state') {
-      const state = await runPythonHQState();
-      return sendJSON(res, 200, state);
+      if (!existsSync(HERMES_ROOT)) return sendJSON(res, 200, fallbackHQState(`missing ${HERMES_ROOT}`));
+      try {
+        const state = await runPythonHQState();
+        return sendJSON(res, 200, state);
+      } catch (err) {
+        return sendJSON(res, 200, fallbackHQState(err.message || String(err)));
+      }
     }
 
     if (req.method === 'POST' && url.pathname === '/api/chat') {
+      if (!existsSync(HERMES_ROOT)) {
+        return sendJSON(res, 503, {
+          error: `Hermes chat is not available on this Railway runtime because ${HERMES_ROOT} is not mounted.`,
+        });
+      }
       const raw = await collectBody(req);
       const body = raw ? JSON.parse(raw) : {};
       const prompt = String(body.prompt || '').trim();
