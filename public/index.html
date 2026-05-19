@@ -4,55 +4,58 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agent HQ — Hermes Control Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <div id="app">
       <header class="top-hud">
-        <div>
-          <p class="eyebrow">Live Hermes workspace</p>
-          <h1>Agent HQ</h1>
-          <p class="truth">Loading real backend state…</p>
+        <div class="brand-lockup">
+          <span class="brand-orb" aria-hidden="true">H</span>
+          <div>
+            <p class="eyebrow">Live Hermes workspace</p>
+            <h1>Agent HQ</h1>
+            <p class="truth">Loading real backend state…</p>
+          </div>
         </div>
         <div class="hud-actions">
-          <button id="syncBtn">Refresh</button>
-          <a href="/api/hq/state" target="_blank">Raw state</a>
+          <button id="openChatBtn" class="chat-launch" type="button">Open chat</button>
+          <button id="syncBtn" type="button">Refresh state</button>
+          <a href="/api/hq/state" target="_blank" rel="noreferrer">Raw state</a>
         </div>
       </header>
 
+      <section class="summary-grid" aria-label="Workspace summary">
+        <article class="stat-card"><span>Agents</span><b id="statAgents">—</b><small id="statAgentsHint">online + idle</small></article>
+        <article class="stat-card"><span>Active districts</span><b id="statDistricts">—</b><small>departments with real activity</small></article>
+        <article class="stat-card"><span>Sessions</span><b id="statSessions">—</b><small>current / total</small></article>
+        <article class="stat-card"><span>Gateway</span><b id="statGateway">—</b><small id="statGatewayHint">connection state</small></article>
+      </section>
+
       <main class="hq-layout">
-        <aside class="control-center" aria-label="Agent HQ control center">
+        <aside class="control-center" aria-label="Agent HQ ecosystem controls">
           <div class="control-title">
             <span class="tiny-led"></span>
             <div>
-              <b>Control Center</b>
-              <small>Open one station at a time</small>
+              <b>Ecosystem Deck</b>
+              <small>HQ map, active agents, telemetry, and alerts. Chat is separate.</small>
             </div>
           </div>
 
           <details class="nav-section" open>
-            <summary>Chat</summary>
-            <div class="chat-panel compact-panel">
-              <div id="chatHistory" class="chat-history"></div>
-              <form id="chatForm">
-                <input id="chatInput" autocomplete="off" placeholder="Message Hermes…" />
-                <button>Send</button>
-              </form>
+            <summary>Selection</summary>
+            <div class="compact-panel selected-card">
+              <p class="panel-kicker">Selected</p>
+              <div id="selected">Click a district or active agent.</div>
             </div>
           </details>
 
           <details class="nav-section" open>
-            <summary>Ecosystem</summary>
-            <div class="compact-panel selected-card">
-              <p class="panel-kicker">Selected</p>
-              <div id="selected">Click a building or agent.</div>
-            </div>
-          </details>
-
-          <details class="nav-section">
             <summary>Agents</summary>
             <div class="compact-panel agent-roster-panel">
-              <p class="panel-kicker">Agents at work</p>
+              <p class="panel-kicker">Agents actually reported by backend</p>
               <div id="agentRoster"></div>
             </div>
           </details>
@@ -82,16 +85,47 @@
           </details>
         </aside>
 
-        <section class="city-shell">
+        <section class="city-shell" aria-label="Hermes ecosystem map">
+          <div class="city-header">
+            <div>
+              <p class="eyebrow">Operations ecosystem</p>
+              <h2>Pixel worksite</h2>
+            </div>
+            <div class="legend">
+              <span><i class="dot live"></i> working</span>
+              <span><i class="dot warm"></i> loaded</span>
+              <span><i class="dot idle"></i> idle</span>
+            </div>
+          </div>
           <div class="world" id="world">
-            <canvas id="cityCanvas" width="1280" height="720" aria-label="Textured pixel-art Hermes agent city"></canvas>
+            <canvas id="cityCanvas" width="1280" height="720" aria-label="Detailed pixelated Hermes ecosystem with moving real agents"></canvas>
             <svg class="streams" viewBox="0 0 100 100" preserveAspectRatio="none" id="streams"></svg>
-            <div id="buildings" aria-label="Clickable city buildings"></div>
-            <div id="agents" aria-label="Clickable agents"></div>
+            <div id="buildings" aria-label="Clickable ecosystem districts"></div>
+            <div id="agents" aria-label="Clickable moving agents"></div>
           </div>
         </section>
       </main>
     </div>
+
+    <button id="floatingChatBtn" class="floating-chat" type="button" aria-label="Open Hermes chat">Chat</button>
+    <div id="chatBackdrop" class="chat-backdrop" hidden></div>
+    <aside id="chatDrawer" class="chat-drawer" aria-label="Hermes chat panel" aria-hidden="true">
+      <div class="chat-drawer-header">
+        <div>
+          <p class="eyebrow">Separate channel</p>
+          <h2>Hermes Chat</h2>
+          <small>Independent from the HQ ecosystem view.</small>
+        </div>
+        <button id="closeChatBtn" type="button" aria-label="Close chat">×</button>
+      </div>
+      <div class="chat-panel">
+        <div id="chatHistory" class="chat-history" aria-live="polite"></div>
+        <form id="chatForm">
+          <input id="chatInput" autocomplete="off" placeholder="Message Hermes…" />
+          <button type="submit">Send</button>
+        </form>
+      </div>
+    </aside>
 
     <script src="/app.js" type="module"></script>
   </body>

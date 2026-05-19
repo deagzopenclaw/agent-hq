@@ -1,6 +1,6 @@
 # Agent HQ
 
-Standalone local dashboard for visualizing Hermes Agent backend state as a pixel-art AI ecosystem city.
+Standalone local dashboard for visualizing Hermes Agent backend state as a polished dark-mode command center with a live runtime topology map.
 
 ## Local run
 
