@@ -21,7 +21,6 @@
           </div>
         </div>
         <div class="hud-actions">
-          <button id="openChatBtn" class="chat-launch" type="button">Open chat</button>
           <button id="syncBtn" type="button">Refresh state</button>
           <a href="/api/hq/state" target="_blank" rel="noreferrer">Raw state</a>
         </div>
@@ -36,15 +35,27 @@
 
       <main class="hq-layout">
         <aside class="control-center" aria-label="Agent HQ ecosystem controls">
+          <details class="nav-section action-menu" open>
+            <summary>HQ menu</summary>
+            <div class="compact-panel menu-panel">
+              <button id="openChatBtn" type="button">Open chat drawer</button>
+              <button id="focusMapBtn" type="button">Focus pixel worksite</button>
+              <button id="openAgentsBtn" type="button">Open agents</button>
+              <button id="openTelemetryBtn" type="button">Open telemetry</button>
+              <button id="openActivityBtn" type="button">Open activity</button>
+              <a href="/api/hq/state" target="_blank" rel="noreferrer">Raw backend state</a>
+            </div>
+          </details>
+
           <div class="control-title">
             <span class="tiny-led"></span>
             <div>
               <b>Ecosystem Deck</b>
-              <small>HQ map, active agents, telemetry, and alerts. Chat is separate.</small>
+              <small>Map controls, real agents, telemetry, and alerts. Chat opens from the HQ menu.</small>
             </div>
           </div>
 
-          <details class="nav-section" open>
+          <details class="nav-section section-selection" open>
             <summary>Selection</summary>
             <div class="compact-panel selected-card">
               <p class="panel-kicker">Selected</p>
@@ -52,7 +63,7 @@
             </div>
           </details>
 
-          <details class="nav-section" open>
+          <details class="nav-section section-agents" open>
             <summary>Agents</summary>
             <div class="compact-panel agent-roster-panel">
               <p class="panel-kicker">Agents actually reported by backend</p>
@@ -60,7 +71,7 @@
             </div>
           </details>
 
-          <details class="nav-section">
+          <details class="nav-section section-telemetry">
             <summary>Telemetry</summary>
             <div class="compact-panel metrics">
               <p class="panel-kicker">Live telemetry</p>
@@ -68,7 +79,7 @@
             </div>
           </details>
 
-          <details class="nav-section">
+          <details class="nav-section section-activity">
             <summary>Activity</summary>
             <div class="compact-panel log-panel">
               <p class="panel-kicker">Activity stream</p>
@@ -76,7 +87,7 @@
             </div>
           </details>
 
-          <details class="nav-section">
+          <details class="nav-section section-alerts">
             <summary>Alerts</summary>
             <div class="compact-panel alerts">
               <p class="panel-kicker">Alerts</p>
@@ -98,7 +109,7 @@
             </div>
           </div>
           <div class="world" id="world">
-            <canvas id="cityCanvas" width="1280" height="720" aria-label="Detailed pixelated Hermes ecosystem with moving real agents"></canvas>
+            <canvas id="cityCanvas" width="1920" height="1080" aria-label="Spacious detailed pixelated Hermes ecosystem with moving real agents"></canvas>
             <svg class="streams" viewBox="0 0 100 100" preserveAspectRatio="none" id="streams"></svg>
             <div id="buildings" aria-label="Clickable ecosystem districts"></div>
             <div id="agents" aria-label="Clickable moving agents"></div>
@@ -107,7 +118,6 @@
       </main>
     </div>
 
-    <button id="floatingChatBtn" class="floating-chat" type="button" aria-label="Open Hermes chat">Chat</button>
     <div id="chatBackdrop" class="chat-backdrop" hidden></div>
     <aside id="chatDrawer" class="chat-drawer" aria-label="Hermes chat panel" aria-hidden="true">
       <div class="chat-drawer-header">
