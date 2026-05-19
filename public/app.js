@@ -26,9 +26,8 @@ const chatDrawer = document.querySelector('#chatDrawer');
 const chatBackdrop = document.querySelector('#chatBackdrop');
 const openChatBtn = document.querySelector('#openChatBtn');
 const focusMapBtn = document.querySelector('#focusMapBtn');
-const openAgentsBtn = document.querySelector('#openAgentsBtn');
-const openTelemetryBtn = document.querySelector('#openTelemetryBtn');
-const openActivityBtn = document.querySelector('#openActivityBtn');
+const menuTabs = document.querySelectorAll('.menu-tab');
+const menuPanels = document.querySelectorAll('.menu-panel-tab');
 const closeChatBtn = document.querySelector('#closeChatBtn');
 
 function fmt(n) {
@@ -87,22 +86,28 @@ function agentDetails(agent) {
 }
 
 const CITY_SLOTS = {
-  'executive-headquarters': { x: 795, y: 100, w: 330, h: 218, floors: 8, form: 'hq' },
-  'research-labs': { x: 245, y: 112, w: 198, h: 142, floors: 2, form: 'dome' },
-  'coding-towers': { x: 510, y: 318, w: 154, h: 178, floors: 6, form: 'tower' },
-  'deployment-facilities': { x: 1256, y: 152, w: 212, h: 154, floors: 3, form: 'factory' },
-  'automation-plants': { x: 1542, y: 370, w: 164, h: 150, floors: 2, form: 'plant' },
-  'data-warehouses': { x: 246, y: 620, w: 214, h: 142, floors: 2, form: 'warehouse' },
-  'analytics-centers': { x: 820, y: 585, w: 196, h: 144, floors: 3, form: 'stepped' },
-  'security-divisions': { x: 1346, y: 750, w: 196, h: 150, floors: 4, form: 'fort' },
-  'support-offices': { x: 560, y: 840, w: 184, h: 128, floors: 3, form: 'office' },
-  'marketing-studios': { x: 1010, y: 842, w: 188, h: 126, floors: 2, form: 'studio' },
-  'media-rooms': { x: 140, y: 875, w: 166, h: 108, floors: 2, form: 'media' },
-  'finance-centers': { x: 1540, y: 615, w: 152, h: 114, floors: 2, form: 'vault' },
+  'executive-headquarters': { x: 795, y: 72, w: 330, h: 218, floors: 8, form: 'hq' },
+  'research-labs': { x: 225, y: 128, w: 198, h: 142, floors: 2, form: 'dome' },
+  'coding-towers': { x: 500, y: 345, w: 154, h: 178, floors: 6, form: 'tower' },
+  'deployment-facilities': { x: 1292, y: 135, w: 212, h: 154, floors: 3, form: 'factory' },
+  'automation-plants': { x: 1570, y: 392, w: 164, h: 150, floors: 2, form: 'plant' },
+  'data-warehouses': { x: 250, y: 660, w: 214, h: 142, floors: 2, form: 'warehouse' },
+  'analytics-centers': { x: 802, y: 690, w: 196, h: 144, floors: 3, form: 'stepped' },
+  'security-divisions': { x: 1335, y: 812, w: 196, h: 150, floors: 4, form: 'fort' },
+  'support-offices': { x: 560, y: 872, w: 184, h: 128, floors: 3, form: 'office' },
+  'marketing-studios': { x: 1042, y: 872, w: 188, h: 126, floors: 2, form: 'studio' },
+  'media-rooms': { x: 122, y: 890, w: 166, h: 108, floors: 2, form: 'media' },
+  'finance-centers': { x: 1548, y: 646, w: 152, h: 114, floors: 2, form: 'vault' },
 };
 function citySlot(dept) { return CITY_SLOTS[dept.id] || { x: 860, y: 480, w: 180, h: 130, floors: 2 }; }
 
+function selectMenuPanel(name) {
+  menuTabs.forEach((tab) => tab.classList.toggle('active', tab.dataset.panel === name));
+  menuPanels.forEach((panel) => panel.classList.toggle('active', panel.dataset.panel === name));
+}
+
 function showDepartment(dept) {
+  selectMenuPanel('selection');
   selectedEl.innerHTML = `
     <div class="card-title"><span>${String(dept.sessions || 0).padStart(2, '0')}</span>${dept.name}</div>
     <p class="green">${String(dept.status || 'idle').toUpperCase()}</p>
@@ -114,6 +119,7 @@ function showDepartment(dept) {
 }
 
 function showAgent(agent) {
+  selectMenuPanel('selection');
   const details = agentDetails(agent);
   selectedEl.innerHTML = `
     <div class="card-title"><span>Agent</span>${agent.name}</div>
@@ -137,51 +143,54 @@ function text(ctx, value, x, y, size = 14, color = '#f4f4f4', align = 'left', fo
 }
 
 function drawTexture(ctx, t) {
-  // Spacious forest worksite field inspired by the reference: solid color base + pixel texture only.
-  rect(ctx, 0, 0, WORLD_W, WORLD_H, '#233a2d');
-  rect(ctx, 24, 24, WORLD_W - 48, WORLD_H - 48, '#263f30');
-  strokeRect(ctx, 24, 24, WORLD_W - 48, WORLD_H - 48, '#121f18', 2);
-  for (let y = 28; y < WORLD_H - 24; y += 7) {
-    for (let x = 28; x < WORLD_W - 24; x += 7) {
-      const v = (x * 13 + y * 29 + Math.floor(t / 1200)) % 47;
-      if (v === 0) rect(ctx, x, y, 3, 2, '#314f3a');
-      if (v === 5) rect(ctx, x + 2, y + 1, 2, 3, '#1d3025');
-      if (v === 11) rect(ctx, x + 1, y + 4, 4, 1, '#49623c');
-      if (v === 19) rect(ctx, x + 4, y + 2, 2, 2, '#5e4a32');
-      if (v === 31) rect(ctx, x + 2, y + 2, 1, 1, '#9e824c');
+  // Rich pixel grass: layered moss, stones, flowers, and hand-placed-looking texture.
+  rect(ctx, 0, 0, WORLD_W, WORLD_H, '#22382b');
+  rect(ctx, 22, 22, WORLD_W - 44, WORLD_H - 44, '#294632');
+  strokeRect(ctx, 22, 22, WORLD_W - 44, WORLD_H - 44, '#101c15', 2);
+  for (let y = 26; y < WORLD_H - 22; y += 5) {
+    for (let x = 26; x < WORLD_W - 22; x += 5) {
+      const v = (x * 17 + y * 31 + Math.floor(t / 1500)) % 83;
+      if (v < 2) rect(ctx, x, y, 3, 2, '#35583a');
+      else if (v === 9) rect(ctx, x + 1, y + 1, 2, 3, '#1a2d21');
+      else if (v === 18) rect(ctx, x + 2, y, 3, 1, '#527343');
+      else if (v === 27) rect(ctx, x + 1, y + 3, 2, 2, '#6e5a38');
+      else if (v === 44) rect(ctx, x + 3, y + 2, 1, 1, '#d6ad55');
+      else if (v === 61) rect(ctx, x, y + 2, 1, 1, '#c57b7b');
     }
   }
-  // Larger spaced forest clumps, rocks, and dirt patches to keep detail without cramming the campus.
-  for (let i = 0; i < 135; i++) {
-    const x = 42 + ((i * 157) % (WORLD_W - 96));
-    const y = 48 + ((i * 91) % (WORLD_H - 112));
-    const c = i % 5 === 0 ? '#17261d' : i % 5 === 1 ? '#3f5d36' : i % 5 === 2 ? '#6a5134' : i % 5 === 3 ? '#7c6c57' : '#263f45';
-    rect(ctx, x, y, 5 + (i % 4), 2 + (i % 3), c);
+  // Tree clusters mostly around edges and empty fields.
+  for (let i = 0; i < 150; i++) {
+    const x = 42 + ((i * 223) % (WORLD_W - 92));
+    const y = 42 + ((i * 149) % (WORLD_H - 104));
+    if (x > 700 && x < 1230 && y > 50 && y < 670) continue;
+    if (x > 470 && x < 700 && y > 320 && y < 545) continue;
+    drawTree(ctx, x, y, i % 4);
   }
-  for (let i = 0; i < 105; i++) {
-    const x = 58 + ((i * 211) % (WORLD_W - 140));
-    const y = 64 + ((i * 127) % (WORLD_H - 150));
-    rect(ctx, x + 4, y + 13, 8, 4, '#132015');
-    rect(ctx, x + 6, y + 7, 4, 9, '#513b25');
-    rect(ctx, x, y + 6, 16, 8, '#33572d');
-    rect(ctx, x + 3, y, 10, 9, '#4f7d3c');
-    rect(ctx, x + 7, y + 2, 3, 3, '#8fc36a');
+  // Boulders, wildflowers, small stumps.
+  for (let i = 0; i < 110; i++) {
+    const x = 54 + ((i * 181) % (WORLD_W - 120));
+    const y = 58 + ((i * 107) % (WORLD_H - 134));
+    if (i % 3 === 0) { rect(ctx, x, y, 9, 5, '#7c8074'); rect(ctx, x + 2, y + 1, 5, 2, '#b1b7aa'); }
+    else if (i % 3 === 1) { rect(ctx, x, y, 3, 3, '#d6ad55'); rect(ctx, x + 6, y + 2, 2, 2, '#c57b7b'); rect(ctx, x + 3, y + 5, 2, 2, '#81d672'); }
+    else { rect(ctx, x, y, 6, 5, '#624527'); rect(ctx, x + 1, y, 4, 1, '#a07442'); }
   }
 }
 
 function drawRoad(ctx, x, y, w, h, vertical = false) {
-  rect(ctx, x - 5, y - 5, w + 10, h + 10, '#111a16');
-  rect(ctx, x, y, w, h, '#57636d');
-  rect(ctx, x + 5, y + 5, w - 10, h - 10, '#3f4954');
-  rect(ctx, x + 9, y + 9, w - 18, h - 18, '#2d3440');
+  // Clean asphalt roads: consistent border, shoulder, lane marks, no messy nested overlaps.
+  rect(ctx, x - 6, y - 6, w + 12, h + 12, '#111813');
+  rect(ctx, x - 2, y - 2, w + 4, h + 4, '#6f766c');
+  rect(ctx, x, y, w, h, '#303943');
+  rect(ctx, x + 5, y + 5, w - 10, h - 10, '#3d4650');
   const stripe = vertical ? h : w;
-  for (let i = 20; i < stripe - 20; i += 44) {
-    if (vertical) rect(ctx, x + w / 2 - 2, y + i, 4, 20, '#d8c48b');
-    else rect(ctx, x + i, y + h / 2 - 2, 20, 4, '#d8c48b');
+  for (let i = 28; i < stripe - 28; i += 58) {
+    if (vertical) rect(ctx, x + Math.floor(w / 2) - 3, y + i, 6, 26, '#dec987');
+    else rect(ctx, x + i, y + Math.floor(h / 2) - 3, 26, 6, '#dec987');
   }
-  for (let i = 8; i < stripe - 8; i += 30) {
-    if (vertical) { rect(ctx, x + 8, y + i, 4, 4, '#19202a'); rect(ctx, x + w - 12, y + i + 12, 4, 4, '#19202a'); }
-    else { rect(ctx, x + i, y + 8, 4, 4, '#19202a'); rect(ctx, x + i + 12, y + h - 12, 4, 4, '#19202a'); }
+  const curb = vertical ? h : w;
+  for (let i = 0; i < curb; i += 28) {
+    if (vertical) { rect(ctx, x - 2, y + i, 3, 12, '#cfd2c8'); rect(ctx, x + w - 1, y + i + 14, 3, 12, '#cfd2c8'); }
+    else { rect(ctx, x + i, y - 2, 12, 3, '#cfd2c8'); rect(ctx, x + i + 14, y + h - 1, 12, 3, '#cfd2c8'); }
   }
 }
 
@@ -344,16 +353,74 @@ function drawAgentSprite(ctx, agent, index, t) {
   }
 }
 
-function drawLamp(ctx, x, y, on = true) {
-  rect(ctx, x, y, 4, 22, '#1b2026');
-  rect(ctx, x - 4, y - 3, 12, 6, on ? '#d6ad55' : '#6f6654');
-  if (on) { rect(ctx, x - 8, y + 3, 20, 2, '#8b7a43'); rect(ctx, x - 5, y + 7, 14, 2, '#6f6a42'); }
+function drawTree(ctx, x, y, variant = 0) {
+  rect(ctx, x + 6, y + 14, 5, 10, '#563d24');
+  rect(ctx, x + 2, y + 9, 14, 9, variant % 2 ? '#315f31' : '#3f7138');
+  rect(ctx, x + 5, y + 3, 10, 10, variant % 2 ? '#4f8a42' : '#5c9445');
+  rect(ctx, x, y + 14, 18, 6, '#274a2b');
+  rect(ctx, x + 8, y + 6, 3, 3, '#9bc76a');
 }
 
-function drawFence(ctx, x, y, w, h) {
-  for (let xx = x; xx <= x + w; xx += 22) rect(ctx, xx, y, 4, h, '#b8c0b4');
-  rect(ctx, x, y + 8, w, 4, '#d0d7cb');
-  rect(ctx, x, y + h - 10, w, 4, '#8e978e');
+function drawStonePath(ctx, points, width = 34) {
+  for (let i = 0; i < points.length - 1; i++) {
+    const [x1, y1] = points[i]; const [x2, y2] = points[i + 1];
+    if (Math.abs(x1 - x2) > Math.abs(y1 - y2)) drawPathSegment(ctx, Math.min(x1, x2), y1 - width / 2, Math.abs(x2 - x1), width, false);
+    else drawPathSegment(ctx, x1 - width / 2, Math.min(y1, y2), width, Math.abs(y2 - y1), true);
+  }
+}
+
+function drawPathSegment(ctx, x, y, w, h, vertical = false) {
+  rect(ctx, x - 3, y - 3, w + 6, h + 6, '#18261a');
+  rect(ctx, x, y, w, h, '#a88d62');
+  rect(ctx, x + 4, y + 4, w - 8, h - 8, '#c4aa76');
+  const length = vertical ? h : w;
+  for (let i = 6; i < length - 6; i += 18) {
+    if (vertical) rect(ctx, x + 6 + (i % 3), y + i, w - 12, 2, '#8a704a');
+    else rect(ctx, x + i, y + 6 + (i % 3), 2, h - 12, '#8a704a');
+  }
+}
+
+function drawFlowerBed(ctx, x, y, w, h) {
+  rect(ctx, x, y, w, h, '#24452b'); strokeRect(ctx, x, y, w, h, '#162617', 1);
+  for (let i = 0; i < Math.floor(w / 10); i++) {
+    const px = x + 6 + i * 10; const py = y + 5 + ((i * 7) % Math.max(6, h - 10));
+    rect(ctx, px, py, 3, 3, i % 2 ? '#d6ad55' : '#c57b7b');
+    rect(ctx, px + 4, py + 2, 2, 2, '#81d672');
+  }
+}
+
+function drawFountain(ctx, cx, cy, t) {
+  rect(ctx, cx - 58, cy + 34, 116, 12, '#17251f');
+  rect(ctx, cx - 52, cy - 18, 104, 58, '#c6d0ca');
+  rect(ctx, cx - 44, cy - 10, 88, 42, '#3e8fa3');
+  rect(ctx, cx - 34, cy - 4, 68, 28, '#61bfd3');
+  strokeRect(ctx, cx - 52, cy - 18, 104, 58, '#eff6f0', 2);
+  rect(ctx, cx - 11, cy - 44, 22, 34, '#d6d8ce'); strokeRect(ctx, cx - 11, cy - 44, 22, 34, '#77827d', 1);
+  const pulse = Math.floor(t / 120) % 4;
+  rect(ctx, cx - 3, cy - 70 - pulse, 6, 25 + pulse, '#b8f4ff');
+  rect(ctx, cx - 22 - pulse, cy - 50, 6, 18, '#82ddeb');
+  rect(ctx, cx + 16 + pulse, cy - 50, 6, 18, '#82ddeb');
+  rect(ctx, cx - 46, cy + 2, 8, 4, '#eaf7ff'); rect(ctx, cx + 36, cy + 16, 8, 4, '#eaf7ff');
+}
+
+function drawCityHall(ctx, x, y) {
+  const w = 330; const h = 150;
+  rect(ctx, x + 22, y + h + 10, w - 44, 12, '#17251d');
+  rect(ctx, x + 20, y + 40, w - 40, h - 42, '#755f47');
+  rect(ctx, x + 34, y + 52, w - 68, h - 60, '#a98a63');
+  rect(ctx, x + 56, y + 26, w - 112, 26, '#d6c198');
+  rect(ctx, x + 78, y + 8, w - 156, 24, '#8f5f3e');
+  rect(ctx, x + 92, y - 8, w - 184, 18, '#d6ad55');
+  for (let i = 0; i < 5; i++) {
+    const px = x + 70 + i * 42;
+    rect(ctx, px, y + 58, 18, 76, '#efe4c8');
+    rect(ctx, px - 4, y + 52, 26, 8, '#6e5741');
+    rect(ctx, px - 2, y + 130, 22, 8, '#6e5741');
+  }
+  rect(ctx, x + w / 2 - 24, y + 94, 48, 46, '#2f2520'); strokeRect(ctx, x + w / 2 - 24, y + 94, 48, 46, '#d6ad55', 1);
+  rect(ctx, x + w / 2 - 8, y - 34, 16, 26, '#6f4a37');
+  rect(ctx, x + w / 2 - 18, y - 48, 36, 16, '#d6ad55');
+  text(ctx, 'CITY HALL', x + w / 2, y + 35, 15, '#fff1d6', 'center', 'mono');
 }
 
 function drawPixelEcosystem(t = performance.now()) {
@@ -361,57 +428,67 @@ function drawPixelEcosystem(t = performance.now()) {
   const ctx = cityCtx; ctx.imageSmoothingEnabled = false;
   drawTexture(ctx, t);
 
-  // Reference-inspired spacious road network: HQ block at top center, big crossroad, branches to districts.
-  drawRoad(ctx, 920, 250, 76, 760, true);
-  drawRoad(ctx, 160, 510, 1600, 74, false);
-  drawRoad(ctx, 790, 250, 330, 54, false);
-  drawRoad(ctx, 330, 235, 56, 320, true);
-  drawRoad(ctx, 1338, 250, 56, 320, true);
-  drawRoad(ctx, 300, 745, 430, 54, false);
-  drawRoad(ctx, 1120, 745, 520, 54, false);
-  drawRoad(ctx, 310, 760, 54, 260, true);
-  drawRoad(ctx, 1510, 565, 54, 360, true);
+  // Clean campus road plan: one main boulevard, two avenues, tidy branch roads to districts.
+  drawRoad(ctx, 914, 300, 92, 710, true);
+  drawRoad(ctx, 150, 570, 1620, 82, false);
+  drawRoad(ctx, 250, 835, 1390, 72, false);
+  drawRoad(ctx, 315, 210, 62, 360, true);
+  drawRoad(ctx, 1395, 210, 62, 360, true);
+  drawRoad(ctx, 1540, 585, 62, 300, true);
+  drawRoad(ctx, 560, 585, 58, 310, true);
+  drawRoad(ctx, 1190, 585, 58, 310, true);
+  drawRoad(ctx, 760, 302, 400, 58, false);
 
-  // HQ fenced garden, fountain, paths, and lamps echo the provided example while staying generated in canvas.
-  drawFence(ctx, 720, 326, 470, 170);
-  rect(ctx, 790, 372, 330, 70, '#2e4b33');
-  rect(ctx, 878, 442, 150, 34, '#546f41');
-  rect(ctx, 945, 464, 30, 30, '#2e6278'); strokeRect(ctx, 945, 464, 30, 30, '#cdd9d8', 1);
-  rect(ctx, 953, 456, 14, 10, '#82c7d8');
-  for (const [lx, ly] of [[706,326],[1188,326],[706,480],[1188,480],[862,496],[1042,496],[900,312],[1016,312]]) drawLamp(ctx, lx, ly, true);
+  // Civic center in front of HQ: cleaned-up plaza, city hall, fountain, flowers, lamps.
+  drawPathSegment(ctx, 735, 326, 450, 220, false);
+  drawStonePath(ctx, [[960, 292], [960, 350], [960, 548], [960, 650]], 38);
+  drawStonePath(ctx, [[795, 548], [1126, 548]], 32);
+  drawFlowerBed(ctx, 742, 338, 92, 42); drawFlowerBed(ctx, 1086, 338, 92, 42);
+  drawFlowerBed(ctx, 742, 492, 110, 36); drawFlowerBed(ctx, 1068, 492, 110, 36);
+  drawCityHall(ctx, 795, 350);
+  drawFountain(ctx, 960, 548, t);
+  for (const [lx, ly] of [[730,330],[1184,330],[730,525],[1184,525],[870,625],[1050,625],[880,318],[1036,318]]) drawLamp(ctx, lx, ly, true);
 
-  // Real backend activity gets subtle moving packets; no fake workers.
+  // Pretty landscaping: hedges, benches, ponds, farms, tiny parking lots.
+  rect(ctx, 704, 314, 512, 8, '#1d361f'); rect(ctx, 704, 646, 512, 8, '#1d361f');
+  for (let x = 710; x < 1210; x += 24) { rect(ctx, x, 316, 10, 8, '#47723d'); rect(ctx, x + 7, 646, 10, 8, '#47723d'); }
+  for (let i = 0; i < 10; i++) { rect(ctx, 670 + i * 28, 675, 18, 7, '#6f4a31'); rect(ctx, 672 + i * 28, 682, 3, 7, '#362416'); rect(ctx, 682 + i * 28, 682, 3, 7, '#362416'); }
+  rect(ctx, 1215, 700, 118, 66, '#386f7f'); rect(ctx, 1223, 708, 102, 50, '#5fb8c8'); strokeRect(ctx, 1215, 700, 118, 66, '#d7e5e1', 1);
+  for (let i = 0; i < 5; i++) rect(ctx, 1238 + i * 17, 722 + (i % 2) * 8, 10, 4, '#eaf7ff');
+
+  // Real backend activity: subtle packets on neat underground paths, not ugly road streaks.
   const activeDepts = (currentState.departments || []).filter(d => (d.tool_calls || d.active_agents || d.sessions) > 0);
   for (const dept of activeDepts) {
     const slot = citySlot(dept); const sx = slot.x + slot.w / 2; const sy = slot.y + slot.h / 2;
-    const mx = 958; const my = 548;
-    strokeRect(ctx, Math.min(sx, mx), Math.min(sy, my), Math.abs(sx - mx) || 2, 2, '#273d33', 1);
-    strokeRect(ctx, mx, Math.min(sy, my), 2, Math.abs(sy - my) || 2, '#273d33', 1);
-    const k = ((t / 34 + hashString(dept.id)) % 100) / 100;
+    const mx = 960; const my = 610;
+    strokeRect(ctx, Math.min(sx, mx), Math.min(sy, my), Math.abs(sx - mx) || 2, 2, '#1e3a2d', 1);
+    strokeRect(ctx, mx, Math.min(sy, my), 2, Math.abs(sy - my) || 2, '#1e3a2d', 1);
+    const k = ((t / 36 + hashString(dept.id)) % 100) / 100;
     rect(ctx, sx + (mx - sx) * k, sy + (my - sy) * k, 5, 5, colorFor(dept.load || 0));
   }
 
-  // Fewer but richer props: signs, crates, rocks, small consoles, benches.
-  for (let i = 0; i < 44; i++) {
-    const x = 70 + ((i * 193) % (WORLD_W - 160)); const y = 86 + ((i * 131) % (WORLD_H - 190));
-    if (x > 680 && x < 1220 && y > 260 && y < 530) continue;
+  // Curated props: not overcrowded, but visually rich.
+  for (let i = 0; i < 56; i++) {
+    const x = 72 + ((i * 239) % (WORLD_W - 160)); const y = 90 + ((i * 173) % (WORLD_H - 210));
+    if (x > 680 && x < 1230 && y > 285 && y < 680) continue;
     const colors = ['#465b8b','#6b8f74','#8c5a3c','#8a647d','#7b6550'];
-    rect(ctx, x, y, 14, 10, colors[i % colors.length]); strokeRect(ctx, x, y, 14, 10, '#18251d', 1);
-    if (i % 6 === 0) { rect(ctx, x + 4, y - 8, 8, 8, '#d6ad55'); rect(ctx, x + 7, y, 2, 10, '#161d16'); }
+    if (i % 4 === 0) drawLamp(ctx, x, y, true);
+    else { rect(ctx, x, y, 15, 11, colors[i % colors.length]); strokeRect(ctx, x, y, 15, 11, '#18251d', 1); rect(ctx, x + 3, y + 3, 9, 2, '#d6ad55'); }
   }
-  for (let i = 0; i < 28; i++) {
-    const x = 95 + ((i * 251) % (WORLD_W - 210)); const y = 105 + ((i * 167) % (WORLD_H - 230));
-    rect(ctx, x, y, 24, 15, '#20272d'); strokeRect(ctx, x, y, 24, 15, '#8f97a8', 1);
-    rect(ctx, x + 4, y + 4, 13, 2, i % 3 ? '#81d672' : '#d6ad55');
-    rect(ctx, x + 4, y + 9, 8, 2, '#6fbfc8');
+  for (let i = 0; i < 34; i++) {
+    const x = 95 + ((i * 271) % (WORLD_W - 210)); const y = 110 + ((i * 191) % (WORLD_H - 230));
+    if (x > 690 && x < 1215 && y > 300 && y < 675) continue;
+    rect(ctx, x, y, 26, 16, '#20272d'); strokeRect(ctx, x, y, 26, 16, '#8f97a8', 1);
+    rect(ctx, x + 5, y + 4, 14, 2, i % 3 ? '#81d672' : '#d6ad55');
+    rect(ctx, x + 5, y + 9, 9, 2, '#6fbfc8');
   }
 
   for (const dept of currentState.departments || []) drawBuilding(ctx, citySlot(dept), dept, t);
   let globalIndex = 0;
   for (const agent of currentState.agents || []) drawAgentSprite(ctx, agent, globalIndex++, t);
-  text(ctx, 'HERMES AGENT HQ — SPACIOUS PIXEL WORKSITE', 48, 42, 20, '#f5f0e6', 'left');
+  text(ctx, 'HERMES AGENT HQ — CIVIC PIXEL CAMPUS', 48, 42, 20, '#f5f0e6', 'left');
   text(ctx, `${(currentState.agents || []).length} real backend agents/sessions · ${(currentState.departments || []).filter(d => d.active_agents > 0).length} active districts`, 50, 70, 12, '#d8c48b', 'left', 'mono');
-  if (!(currentState.agents || []).length) text(ctx, 'No real active agents reported by backend — scenic worksite only; no fake workers.', WORLD_W / 2, WORLD_H / 2, 16, '#d8c48b', 'center', 'mono');
+  if (!(currentState.agents || []).length) text(ctx, 'No real active agents reported by backend — scenic campus only; no fake workers.', WORLD_W / 2, WORLD_H / 2, 16, '#d8c48b', 'center', 'mono');
 }
 
 function animationLoop(t) {
@@ -503,11 +580,12 @@ function closeChat() {
   chatDrawer.setAttribute('aria-hidden', 'true');
   chatBackdrop.hidden = true;
 }
+menuTabs.forEach((tab) => tab.addEventListener('click', () => {
+  selectMenuPanel(tab.dataset.panel);
+  if (tab.dataset.panel === 'chat') openChat();
+}));
 openChatBtn?.addEventListener('click', openChat);
 focusMapBtn?.addEventListener('click', () => document.querySelector('#world')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
-openAgentsBtn?.addEventListener('click', () => { const el = document.querySelector('.section-agents'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } });
-openTelemetryBtn?.addEventListener('click', () => { const el = document.querySelector('.section-telemetry'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } });
-openActivityBtn?.addEventListener('click', () => { const el = document.querySelector('.section-activity'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } });
 closeChatBtn?.addEventListener('click', closeChat);
 chatBackdrop?.addEventListener('click', closeChat);
 document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeChat(); });

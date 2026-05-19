@@ -34,73 +34,62 @@
       </section>
 
       <main class="hq-layout">
-        <aside class="control-center" aria-label="Agent HQ ecosystem controls">
-          <details class="nav-section action-menu" open>
-            <summary>HQ menu</summary>
-            <div class="compact-panel menu-panel">
-              <button id="openChatBtn" type="button">Open chat drawer</button>
-              <button id="focusMapBtn" type="button">Focus pixel worksite</button>
-              <button id="openAgentsBtn" type="button">Open agents</button>
-              <button id="openTelemetryBtn" type="button">Open telemetry</button>
-              <button id="openActivityBtn" type="button">Open activity</button>
-              <a href="/api/hq/state" target="_blank" rel="noreferrer">Raw backend state</a>
-            </div>
-          </details>
-
-          <div class="control-title">
+        <aside class="control-center left-command-menu" aria-label="Agent HQ command menu">
+          <div class="left-menu-head">
             <span class="tiny-led"></span>
             <div>
-              <b>Ecosystem Deck</b>
-              <small>Map controls, real agents, telemetry, and alerts. Chat opens from the HQ menu.</small>
+              <b>HQ Menu</b>
+              <small>Open chat, agents, status, and tools here.</small>
             </div>
           </div>
 
-          <details class="nav-section section-selection" open>
-            <summary>Selection</summary>
-            <div class="compact-panel selected-card">
-              <p class="panel-kicker">Selected</p>
-              <div id="selected">Click a district or active agent.</div>
-            </div>
-          </details>
+          <nav class="menu-tabs" aria-label="HQ menu tabs">
+            <button class="menu-tab active" data-panel="selection" type="button">Selection</button>
+            <button class="menu-tab" data-panel="chat" type="button">Chat</button>
+            <button class="menu-tab" data-panel="agents" type="button">Agents</button>
+            <button class="menu-tab" data-panel="telemetry" type="button">Telemetry</button>
+            <button class="menu-tab" data-panel="activity" type="button">Activity</button>
+            <button class="menu-tab" data-panel="alerts" type="button">Alerts</button>
+          </nav>
 
-          <details class="nav-section section-agents" open>
-            <summary>Agents</summary>
-            <div class="compact-panel agent-roster-panel">
-              <p class="panel-kicker">Agents actually reported by backend</p>
-              <div id="agentRoster"></div>
-            </div>
-          </details>
-
-          <details class="nav-section section-telemetry">
-            <summary>Telemetry</summary>
-            <div class="compact-panel metrics">
+          <div class="menu-tab-panels">
+            <section class="menu-panel-tab active" data-panel="selection">
+              <p class="panel-kicker">Selected item</p>
+              <div class="compact-panel selected-card"><div id="selected">Click a district or active agent.</div></div>
+              <button id="focusMapBtn" class="wide-menu-action" type="button">Center pixel worksite</button>
+              <a class="wide-menu-action" href="/api/hq/state" target="_blank" rel="noreferrer">Raw backend state</a>
+            </section>
+            <section class="menu-panel-tab" data-panel="chat">
+              <p class="panel-kicker">Hermes channel</p>
+              <div class="compact-panel">
+                <p>Chat opens as a drawer from this left menu so the dashboard stays clean.</p>
+                <button id="openChatBtn" class="wide-menu-action" type="button">Open chat drawer</button>
+              </div>
+            </section>
+            <section class="menu-panel-tab" data-panel="agents">
+              <p class="panel-kicker">Real backend agents</p>
+              <div class="compact-panel agent-roster-panel"><div id="agentRoster"></div></div>
+            </section>
+            <section class="menu-panel-tab" data-panel="telemetry">
               <p class="panel-kicker">Live telemetry</p>
-              <div id="metrics"></div>
-            </div>
-          </details>
-
-          <details class="nav-section section-activity">
-            <summary>Activity</summary>
-            <div class="compact-panel log-panel">
+              <div class="compact-panel metrics"><div id="metrics"></div></div>
+            </section>
+            <section class="menu-panel-tab" data-panel="activity">
               <p class="panel-kicker">Activity stream</p>
-              <pre id="logs">No logs loaded yet.</pre>
-            </div>
-          </details>
-
-          <details class="nav-section section-alerts">
-            <summary>Alerts</summary>
-            <div class="compact-panel alerts">
+              <div class="compact-panel log-panel"><pre id="logs">No logs loaded yet.</pre></div>
+            </section>
+            <section class="menu-panel-tab" data-panel="alerts">
               <p class="panel-kicker">Alerts</p>
-              <div id="alerts"></div>
-            </div>
-          </details>
+              <div class="compact-panel alerts"><div id="alerts"></div></div>
+            </section>
+          </div>
         </aside>
 
         <section class="city-shell" aria-label="Hermes ecosystem map">
           <div class="city-header">
             <div>
-              <p class="eyebrow">Operations ecosystem</p>
-              <h2>Pixel worksite</h2>
+              <p class="eyebrow">Operations campus</p>
+              <h2>Pixel worksite — expanded city grounds</h2>
             </div>
             <div class="legend">
               <span><i class="dot live"></i> working</span>
