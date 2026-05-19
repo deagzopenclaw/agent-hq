@@ -2,8 +2,8 @@ const stateUrl = '/api/hq/state';
 let currentState = null;
 let currentAgentsByDepartment = new Map();
 let animationStarted = false;
-const WORLD_W = 1920;
-const WORLD_H = 1080;
+const WORLD_W = 2560;
+const WORLD_H = 1440;
 
 const cityCanvas = document.querySelector('#cityCanvas');
 const cityCtx = cityCanvas?.getContext('2d');
@@ -86,20 +86,20 @@ function agentDetails(agent) {
 }
 
 const CITY_SLOTS = {
-  'executive-headquarters': { x: 795, y: 72, w: 330, h: 218, floors: 8, form: 'hq' },
-  'research-labs': { x: 225, y: 128, w: 198, h: 142, floors: 2, form: 'dome' },
-  'coding-towers': { x: 500, y: 345, w: 154, h: 178, floors: 6, form: 'tower' },
-  'deployment-facilities': { x: 1292, y: 135, w: 212, h: 154, floors: 3, form: 'factory' },
-  'automation-plants': { x: 1570, y: 392, w: 164, h: 150, floors: 2, form: 'plant' },
-  'data-warehouses': { x: 250, y: 660, w: 214, h: 142, floors: 2, form: 'warehouse' },
-  'analytics-centers': { x: 802, y: 690, w: 196, h: 144, floors: 3, form: 'stepped' },
-  'security-divisions': { x: 1335, y: 812, w: 196, h: 150, floors: 4, form: 'fort' },
-  'support-offices': { x: 560, y: 872, w: 184, h: 128, floors: 3, form: 'office' },
-  'marketing-studios': { x: 1042, y: 872, w: 188, h: 126, floors: 2, form: 'studio' },
-  'media-rooms': { x: 122, y: 890, w: 166, h: 108, floors: 2, form: 'media' },
-  'finance-centers': { x: 1548, y: 646, w: 152, h: 114, floors: 2, form: 'vault' },
+  'executive-headquarters': { x: 1115, y: 80, w: 330, h: 218, floors: 8, form: 'hq' },
+  'research-labs': { x: 330, y: 150, w: 198, h: 142, floors: 2, form: 'dome' },
+  'coding-towers': { x: 690, y: 410, w: 154, h: 178, floors: 6, form: 'tower' },
+  'deployment-facilities': { x: 1770, y: 165, w: 212, h: 154, floors: 3, form: 'factory' },
+  'automation-plants': { x: 2135, y: 510, w: 164, h: 150, floors: 2, form: 'plant' },
+  'data-warehouses': { x: 360, y: 880, w: 214, h: 142, floors: 2, form: 'warehouse' },
+  'analytics-centers': { x: 1085, y: 935, w: 196, h: 144, floors: 3, form: 'stepped' },
+  'security-divisions': { x: 1845, y: 1075, w: 196, h: 150, floors: 4, form: 'fort' },
+  'support-offices': { x: 760, y: 1182, w: 184, h: 128, floors: 3, form: 'office' },
+  'marketing-studios': { x: 1390, y: 1182, w: 188, h: 126, floors: 2, form: 'studio' },
+  'media-rooms': { x: 160, y: 1190, w: 166, h: 108, floors: 2, form: 'media' },
+  'finance-centers': { x: 2140, y: 865, w: 152, h: 114, floors: 2, form: 'vault' },
 };
-function citySlot(dept) { return CITY_SLOTS[dept.id] || { x: 860, y: 480, w: 180, h: 130, floors: 2 }; }
+function citySlot(dept) { return CITY_SLOTS[dept.id] || { x: 1190, y: 690, w: 180, h: 130, floors: 2 }; }
 
 function selectMenuPanel(name) {
   menuTabs.forEach((tab) => tab.classList.toggle('active', tab.dataset.panel === name));
@@ -143,54 +143,53 @@ function text(ctx, value, x, y, size = 14, color = '#f4f4f4', align = 'left', fo
 }
 
 function drawTexture(ctx, t) {
-  // Rich pixel grass: layered moss, stones, flowers, and hand-placed-looking texture.
-  rect(ctx, 0, 0, WORLD_W, WORLD_H, '#22382b');
-  rect(ctx, 22, 22, WORLD_W - 44, WORLD_H - 44, '#294632');
-  strokeRect(ctx, 22, 22, WORLD_W - 44, WORLD_H - 44, '#101c15', 2);
-  for (let y = 26; y < WORLD_H - 22; y += 5) {
-    for (let x = 26; x < WORLD_W - 22; x += 5) {
-      const v = (x * 17 + y * 31 + Math.floor(t / 1500)) % 83;
-      if (v < 2) rect(ctx, x, y, 3, 2, '#35583a');
-      else if (v === 9) rect(ctx, x + 1, y + 1, 2, 3, '#1a2d21');
-      else if (v === 18) rect(ctx, x + 2, y, 3, 1, '#527343');
-      else if (v === 27) rect(ctx, x + 1, y + 3, 2, 2, '#6e5a38');
-      else if (v === 44) rect(ctx, x + 3, y + 2, 1, 1, '#d6ad55');
-      else if (v === 61) rect(ctx, x, y + 2, 1, 1, '#c57b7b');
+  // Smaller pixel scale: denser grass, shade, flowers, rocks, and forest details.
+  rect(ctx, 0, 0, WORLD_W, WORLD_H, '#203629');
+  rect(ctx, 24, 24, WORLD_W - 48, WORLD_H - 48, '#294934');
+  strokeRect(ctx, 24, 24, WORLD_W - 48, WORLD_H - 48, '#101c15', 2);
+  for (let y = 28; y < WORLD_H - 24; y += 4) {
+    for (let x = 28; x < WORLD_W - 24; x += 4) {
+      const v = (x * 19 + y * 37 + Math.floor(t / 1800)) % 101;
+      if (v < 2) rect(ctx, x, y, 2, 1, '#365d3c');
+      else if (v === 7) rect(ctx, x + 1, y + 1, 1, 2, '#1a2c21');
+      else if (v === 16) rect(ctx, x + 2, y, 2, 1, '#557a46');
+      else if (v === 31) rect(ctx, x + 1, y + 2, 2, 1, '#6d5736');
+      else if (v === 53) rect(ctx, x + 2, y + 2, 1, 1, '#d6ad55');
+      else if (v === 79) rect(ctx, x, y + 1, 1, 1, '#c57b7b');
     }
   }
-  // Tree clusters mostly around edges and empty fields.
-  for (let i = 0; i < 150; i++) {
-    const x = 42 + ((i * 223) % (WORLD_W - 92));
-    const y = 42 + ((i * 149) % (WORLD_H - 104));
-    if (x > 700 && x < 1230 && y > 50 && y < 670) continue;
-    if (x > 470 && x < 700 && y > 320 && y < 545) continue;
+  for (let i = 0; i < 230; i++) {
+    const x = 46 + ((i * 229) % (WORLD_W - 110));
+    const y = 50 + ((i * 157) % (WORLD_H - 120));
+    // Keep civic core and building pads readable.
+    if (x > 940 && x < 1630 && y > 40 && y < 820) continue;
+    if (x > 620 && x < 930 && y > 360 && y < 650) continue;
+    if (x > 1700 && x < 2030 && y > 120 && y < 350) continue;
     drawTree(ctx, x, y, i % 4);
   }
-  // Boulders, wildflowers, small stumps.
-  for (let i = 0; i < 110; i++) {
-    const x = 54 + ((i * 181) % (WORLD_W - 120));
-    const y = 58 + ((i * 107) % (WORLD_H - 134));
-    if (i % 3 === 0) { rect(ctx, x, y, 9, 5, '#7c8074'); rect(ctx, x + 2, y + 1, 5, 2, '#b1b7aa'); }
-    else if (i % 3 === 1) { rect(ctx, x, y, 3, 3, '#d6ad55'); rect(ctx, x + 6, y + 2, 2, 2, '#c57b7b'); rect(ctx, x + 3, y + 5, 2, 2, '#81d672'); }
-    else { rect(ctx, x, y, 6, 5, '#624527'); rect(ctx, x + 1, y, 4, 1, '#a07442'); }
+  for (let i = 0; i < 210; i++) {
+    const x = 54 + ((i * 193) % (WORLD_W - 120));
+    const y = 58 + ((i * 113) % (WORLD_H - 134));
+    if (i % 4 === 0) { rect(ctx, x, y, 7, 4, '#7c8074'); rect(ctx, x + 2, y + 1, 3, 1, '#b1b7aa'); }
+    else if (i % 4 === 1) { rect(ctx, x, y, 2, 2, '#d6ad55'); rect(ctx, x + 5, y + 2, 2, 2, '#c57b7b'); rect(ctx, x + 2, y + 5, 2, 1, '#81d672'); }
+    else if (i % 4 === 2) { rect(ctx, x, y, 5, 4, '#624527'); rect(ctx, x + 1, y, 3, 1, '#a07442'); }
+    else { rect(ctx, x, y, 8, 2, '#375832'); rect(ctx, x + 3, y + 2, 5, 2, '#2a452b'); }
   }
 }
 
+function drawRoadOutline(ctx, roads) {
+  for (const [x, y, w, h] of roads) rect(ctx, x - 5, y - 5, w + 10, h + 10, '#111813');
+  for (const [x, y, w, h] of roads) rect(ctx, x - 1, y - 1, w + 2, h + 2, '#777f74');
+}
+
 function drawRoad(ctx, x, y, w, h, vertical = false) {
-  // Clean asphalt roads: consistent border, shoulder, lane marks, no messy nested overlaps.
-  rect(ctx, x - 6, y - 6, w + 12, h + 12, '#111813');
-  rect(ctx, x - 2, y - 2, w + 4, h + 4, '#6f766c');
-  rect(ctx, x, y, w, h, '#303943');
-  rect(ctx, x + 5, y + 5, w - 10, h - 10, '#3d4650');
+  // Clean road segments that meet without messy overlapping borders.
+  rect(ctx, x, y, w, h, '#2d3540');
+  rect(ctx, x + 4, y + 4, w - 8, h - 8, '#3a4550');
   const stripe = vertical ? h : w;
-  for (let i = 28; i < stripe - 28; i += 58) {
-    if (vertical) rect(ctx, x + Math.floor(w / 2) - 3, y + i, 6, 26, '#dec987');
-    else rect(ctx, x + i, y + Math.floor(h / 2) - 3, 26, 6, '#dec987');
-  }
-  const curb = vertical ? h : w;
-  for (let i = 0; i < curb; i += 28) {
-    if (vertical) { rect(ctx, x - 2, y + i, 3, 12, '#cfd2c8'); rect(ctx, x + w - 1, y + i + 14, 3, 12, '#cfd2c8'); }
-    else { rect(ctx, x + i, y - 2, 12, 3, '#cfd2c8'); rect(ctx, x + i + 14, y + h - 1, 12, 3, '#cfd2c8'); }
+  for (let i = 34; i < stripe - 34; i += 72) {
+    if (vertical) rect(ctx, x + Math.floor(w / 2) - 2, y + i, 4, 28, '#dec987');
+    else rect(ctx, x + i, y + Math.floor(h / 2) - 2, 28, 4, '#dec987');
   }
 }
 
@@ -428,66 +427,71 @@ function drawPixelEcosystem(t = performance.now()) {
   const ctx = cityCtx; ctx.imageSmoothingEnabled = false;
   drawTexture(ctx, t);
 
-  // Clean campus road plan: one main boulevard, two avenues, tidy branch roads to districts.
-  drawRoad(ctx, 914, 300, 92, 710, true);
-  drawRoad(ctx, 150, 570, 1620, 82, false);
-  drawRoad(ctx, 250, 835, 1390, 72, false);
-  drawRoad(ctx, 315, 210, 62, 360, true);
-  drawRoad(ctx, 1395, 210, 62, 360, true);
-  drawRoad(ctx, 1540, 585, 62, 300, true);
-  drawRoad(ctx, 560, 585, 58, 310, true);
-  drawRoad(ctx, 1190, 585, 58, 310, true);
-  drawRoad(ctx, 760, 302, 400, 58, false);
+  // Clean non-overlapping road plan. Outlines are drawn once first, then asphalt, so intersections stay tidy.
+  const roads = [
+    [1700, 350, 92, 900, true],       // central boulevard, clear of analytics/marketing buildings
+    [190, 750, 2180, 82, false],      // main avenue through open campus field
+    [320, 1330, 1880, 72, false],     // lower avenue below the southern buildings
+    [585, 260, 62, 490, true],        // west avenue, clear of research building
+    [2025, 260, 62, 490, true],       // east avenue, clear of deployment building
+    [2350, 775, 62, 315, true],       // finance/plant spur, clear of finance building
+    [610, 790, 58, 360, true],        // code/support spur in open space
+    [1660, 790, 58, 360, true],       // marketing/security spur in open space
+    [1060, 330, 430, 58, false],      // HQ connector below HQ
+  ];
+  drawRoadOutline(ctx, roads);
+  for (const [x, y, w, h, vertical] of roads) drawRoad(ctx, x, y, w, h, vertical);
 
-  // Civic center in front of HQ: cleaned-up plaza, city hall, fountain, flowers, lamps.
-  drawPathSegment(ctx, 735, 326, 450, 220, false);
-  drawStonePath(ctx, [[960, 292], [960, 350], [960, 548], [960, 650]], 38);
-  drawStonePath(ctx, [[795, 548], [1126, 548]], 32);
-  drawFlowerBed(ctx, 742, 338, 92, 42); drawFlowerBed(ctx, 1086, 338, 92, 42);
-  drawFlowerBed(ctx, 742, 492, 110, 36); drawFlowerBed(ctx, 1068, 492, 110, 36);
-  drawCityHall(ctx, 795, 350);
-  drawFountain(ctx, 960, 548, t);
-  for (const [lx, ly] of [[730,330],[1184,330],[730,525],[1184,525],[870,625],[1050,625],[880,318],[1036,318]]) drawLamp(ctx, lx, ly, true);
+  // Civic center: separated from HQ, detailed but not covering the backend buildings.
+  drawPathSegment(ctx, 1010, 440, 540, 255, false);
+  drawStonePath(ctx, [[1280, 300], [1280, 470], [1280, 695], [1280, 832]], 34);
+  drawStonePath(ctx, [[1035, 685], [1525, 685]], 30);
+  drawFlowerBed(ctx, 1025, 456, 130, 42); drawFlowerBed(ctx, 1395, 456, 130, 42);
+  drawFlowerBed(ctx, 1025, 635, 140, 36); drawFlowerBed(ctx, 1385, 635, 140, 36);
+  drawCityHall(ctx, 1115, 470);
+  drawFountain(ctx, 1280, 715, t);
+  for (const [lx, ly] of [[1005,445],[1548,445],[1005,675],[1548,675],[1190,835],[1370,835],[1190,395],[1370,395]]) drawLamp(ctx, lx, ly, true);
 
-  // Pretty landscaping: hedges, benches, ponds, farms, tiny parking lots.
-  rect(ctx, 704, 314, 512, 8, '#1d361f'); rect(ctx, 704, 646, 512, 8, '#1d361f');
-  for (let x = 710; x < 1210; x += 24) { rect(ctx, x, 316, 10, 8, '#47723d'); rect(ctx, x + 7, 646, 10, 8, '#47723d'); }
-  for (let i = 0; i < 10; i++) { rect(ctx, 670 + i * 28, 675, 18, 7, '#6f4a31'); rect(ctx, 672 + i * 28, 682, 3, 7, '#362416'); rect(ctx, 682 + i * 28, 682, 3, 7, '#362416'); }
-  rect(ctx, 1215, 700, 118, 66, '#386f7f'); rect(ctx, 1223, 708, 102, 50, '#5fb8c8'); strokeRect(ctx, 1215, 700, 118, 66, '#d7e5e1', 1);
-  for (let i = 0; i < 5; i++) rect(ctx, 1238 + i * 17, 722 + (i % 2) * 8, 10, 4, '#eaf7ff');
+  // Landscaping and shade details.
+  rect(ctx, 970, 418, 620, 8, '#1d361f'); rect(ctx, 970, 842, 620, 8, '#1d361f');
+  for (let x = 980; x < 1580; x += 22) { rect(ctx, x, 420, 9, 8, '#47723d'); rect(ctx, x + 7, 842, 9, 8, '#47723d'); }
+  for (let i = 0; i < 12; i++) { rect(ctx, 900 + i * 32, 875, 18, 7, '#6f4a31'); rect(ctx, 902 + i * 32, 882, 3, 7, '#362416'); rect(ctx, 912 + i * 32, 882, 3, 7, '#362416'); }
+  rect(ctx, 1650, 900, 146, 78, '#386f7f'); rect(ctx, 1660, 910, 126, 58, '#5fb8c8'); strokeRect(ctx, 1650, 900, 146, 78, '#d7e5e1', 1);
+  for (let i = 0; i < 7; i++) rect(ctx, 1678 + i * 16, 930 + (i % 2) * 8, 9, 3, '#eaf7ff');
 
-  // Real backend activity: subtle packets on neat underground paths, not ugly road streaks.
+  // Active backend packet paths are subtle and don't draw over the road surface.
   const activeDepts = (currentState.departments || []).filter(d => (d.tool_calls || d.active_agents || d.sessions) > 0);
   for (const dept of activeDepts) {
     const slot = citySlot(dept); const sx = slot.x + slot.w / 2; const sy = slot.y + slot.h / 2;
-    const mx = 960; const my = 610;
+    const mx = 1280; const my = 790;
     strokeRect(ctx, Math.min(sx, mx), Math.min(sy, my), Math.abs(sx - mx) || 2, 2, '#1e3a2d', 1);
     strokeRect(ctx, mx, Math.min(sy, my), 2, Math.abs(sy - my) || 2, '#1e3a2d', 1);
     const k = ((t / 36 + hashString(dept.id)) % 100) / 100;
-    rect(ctx, sx + (mx - sx) * k, sy + (my - sy) * k, 5, 5, colorFor(dept.load || 0));
+    rect(ctx, sx + (mx - sx) * k, sy + (my - sy) * k, 4, 4, colorFor(dept.load || 0));
   }
 
-  // Curated props: not overcrowded, but visually rich.
-  for (let i = 0; i < 56; i++) {
-    const x = 72 + ((i * 239) % (WORLD_W - 160)); const y = 90 + ((i * 173) % (WORLD_H - 210));
-    if (x > 680 && x < 1230 && y > 285 && y < 680) continue;
+  // Curated props away from building pads.
+  for (let i = 0; i < 92; i++) {
+    const x = 78 + ((i * 263) % (WORLD_W - 170)); const y = 100 + ((i * 181) % (WORLD_H - 230));
+    if (x > 930 && x < 1600 && y > 390 && y < 880) continue;
     const colors = ['#465b8b','#6b8f74','#8c5a3c','#8a647d','#7b6550'];
-    if (i % 4 === 0) drawLamp(ctx, x, y, true);
-    else { rect(ctx, x, y, 15, 11, colors[i % colors.length]); strokeRect(ctx, x, y, 15, 11, '#18251d', 1); rect(ctx, x + 3, y + 3, 9, 2, '#d6ad55'); }
+    if (i % 5 === 0) drawLamp(ctx, x, y, true);
+    else { rect(ctx, x, y, 13, 9, colors[i % colors.length]); strokeRect(ctx, x, y, 13, 9, '#18251d', 1); rect(ctx, x + 3, y + 3, 7, 1, '#d6ad55'); }
   }
-  for (let i = 0; i < 34; i++) {
-    const x = 95 + ((i * 271) % (WORLD_W - 210)); const y = 110 + ((i * 191) % (WORLD_H - 230));
-    if (x > 690 && x < 1215 && y > 300 && y < 675) continue;
-    rect(ctx, x, y, 26, 16, '#20272d'); strokeRect(ctx, x, y, 26, 16, '#8f97a8', 1);
-    rect(ctx, x + 5, y + 4, 14, 2, i % 3 ? '#81d672' : '#d6ad55');
-    rect(ctx, x + 5, y + 9, 9, 2, '#6fbfc8');
+  for (let i = 0; i < 54; i++) {
+    const x = 105 + ((i * 277) % (WORLD_W - 230)); const y = 118 + ((i * 199) % (WORLD_H - 250));
+    if (x > 930 && x < 1600 && y > 390 && y < 880) continue;
+    rect(ctx, x, y, 24, 14, '#20272d'); strokeRect(ctx, x, y, 24, 14, '#8f97a8', 1);
+    rect(ctx, x + 5, y + 4, 13, 2, i % 3 ? '#81d672' : '#d6ad55');
+    rect(ctx, x + 5, y + 9, 8, 2, '#6fbfc8');
   }
 
+  // Backend departments drawn after roads/plaza so every building remains visible.
   for (const dept of currentState.departments || []) drawBuilding(ctx, citySlot(dept), dept, t);
   let globalIndex = 0;
   for (const agent of currentState.agents || []) drawAgentSprite(ctx, agent, globalIndex++, t);
-  text(ctx, 'HERMES AGENT HQ — CIVIC PIXEL CAMPUS', 48, 42, 20, '#f5f0e6', 'left');
-  text(ctx, `${(currentState.agents || []).length} real backend agents/sessions · ${(currentState.departments || []).filter(d => d.active_agents > 0).length} active districts`, 50, 70, 12, '#d8c48b', 'left', 'mono');
+  text(ctx, 'HERMES AGENT HQ — HIGH DETAIL PIXEL CAMPUS', 54, 46, 20, '#f5f0e6', 'left');
+  text(ctx, `${(currentState.agents || []).length} real backend agents/sessions · ${(currentState.departments || []).filter(d => d.active_agents > 0).length} active districts`, 56, 74, 12, '#d8c48b', 'left', 'mono');
   if (!(currentState.agents || []).length) text(ctx, 'No real active agents reported by backend — scenic campus only; no fake workers.', WORLD_W / 2, WORLD_H / 2, 16, '#d8c48b', 'center', 'mono');
 }
 
