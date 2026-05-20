@@ -88,20 +88,35 @@ function agentDetails(agent) {
 }
 
 const CITY_SLOTS = {
-  'executive-headquarters': { x: 1090, y: 86, w: 380, h: 260, floors: 9, form: 'hq' },
-  'research-labs': { x: 205, y: 150, w: 260, h: 178, floors: 3, form: 'dome' },
-  'deployment-facilities': { x: 1785, y: 145, w: 286, h: 184, floors: 4, form: 'factory' },
-  'coding-towers': { x: 555, y: 458, w: 220, h: 224, floors: 7, form: 'tower' },
-  'automation-plants': { x: 2115, y: 472, w: 244, h: 184, floors: 3, form: 'plant' },
-  'data-warehouses': { x: 250, y: 845, w: 286, h: 176, floors: 3, form: 'warehouse' },
-  'analytics-centers': { x: 1000, y: 958, w: 260, h: 180, floors: 4, form: 'stepped' },
-  'finance-centers': { x: 2080, y: 830, w: 220, h: 152, floors: 3, form: 'vault' },
-  'media-rooms': { x: 145, y: 1192, w: 220, h: 138, floors: 3, form: 'media' },
-  'support-offices': { x: 615, y: 1184, w: 238, h: 158, floors: 4, form: 'office' },
-  'marketing-studios': { x: 1370, y: 1180, w: 246, h: 160, floors: 3, form: 'studio' },
-  'security-divisions': { x: 1875, y: 1120, w: 250, h: 166, floors: 5, form: 'fort' },
+  'executive-headquarters': { x: 1070, y: 70, w: 420, h: 250, floors: 8, form: 'hq' },
+  'research-labs': { x: 225, y: 145, w: 300, h: 220, floors: 3, form: 'dome' },
+  'coding-towers': { x: 610, y: 370, w: 270, h: 250, floors: 7, form: 'tower' },
+  'deployment-facilities': { x: 1780, y: 145, w: 330, h: 230, floors: 3, form: 'factory' },
+  'automation-plants': { x: 2100, y: 490, w: 300, h: 230, floors: 3, form: 'plant' },
+  'data-warehouses': { x: 230, y: 790, w: 340, h: 230, floors: 2, form: 'warehouse' },
+  'analytics-centers': { x: 1025, y: 930, w: 330, h: 230, floors: 4, form: 'stepped' },
+  'security-divisions': { x: 1740, y: 1035, w: 335, h: 235, floors: 4, form: 'fort' },
+  'support-offices': { x: 635, y: 1160, w: 310, h: 205, floors: 3, form: 'office' },
+  'marketing-studios': { x: 1345, y: 1160, w: 315, h: 205, floors: 2, form: 'studio' },
+  'media-rooms': { x: 60, y: 1160, w: 305, h: 190, floors: 2, form: 'media' },
+  'finance-centers': { x: 2145, y: 835, w: 310, h: 205, floors: 2, form: 'vault' },};
+const SLOT_ALIASES = {
+  mainframe: 'executive-headquarters', executive: 'executive-headquarters', headquarters: 'executive-headquarters', hq: 'executive-headquarters',
+  research: 'research-labs', coding: 'coding-towers', code: 'coding-towers', deployment: 'deployment-facilities', deploy: 'deployment-facilities',
+  automation: 'automation-plants', data: 'data-warehouses', analytics: 'analytics-centers', security: 'security-divisions',
+  support: 'support-offices', marketing: 'marketing-studios', media: 'media-rooms', finance: 'finance-centers',
 };
-function citySlot(dept) { return CITY_SLOTS[dept.id] || { x: 1190, y: 690, w: 180, h: 130, floors: 2 }; }
+function slugify(value = '') { return String(value).toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+function citySlot(dept = {}) {
+  const keys = [dept.id, dept.kind, dept.slug, dept.name, slugify(dept.name)].filter(Boolean).map((value) => String(value).toLowerCase());
+  for (const key of keys) {
+    if (CITY_SLOTS[key]) return CITY_SLOTS[key];
+    if (SLOT_ALIASES[key] && CITY_SLOTS[SLOT_ALIASES[key]]) return CITY_SLOTS[SLOT_ALIASES[key]];
+  }
+  const seed = hashString(dept.name || dept.id || 'unknown');
+  const fallbackSlots = Object.values(CITY_SLOTS);
+  return fallbackSlots[seed % fallbackSlots.length];
+}
 
 function setCommandMenu(open) {
   commandMenu?.classList.toggle('open', open);
@@ -151,6 +166,27 @@ function text(ctx, value, x, y, size = 14, color = '#f4f4f4', align = 'left', fo
   ctx.fillText(value, Math.round(x), Math.round(y));
 }
 
+function isoPoly(ctx, points, color, stroke = '#141b1f') {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(Math.round(points[0][0]), Math.round(points[0][1]));
+  for (let i = 1; i < points.length; i++) ctx.lineTo(Math.round(points[i][0]), Math.round(points[i][1]));
+  ctx.closePath();
+  ctx.fill();
+  if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke(); }
+}
+function drawIsoBlock(ctx, x, y, w, h, depth, face, side, top, stroke = '#141b1f') {
+  rect(ctx, x + depth + 10, y + depth + h - 4, w, 18, '#111a16');
+  isoPoly(ctx, [[x, y], [x + w, y], [x + w + depth, y + depth], [x + depth, y + depth]], top, stroke);
+  isoPoly(ctx, [[x + w, y], [x + w + depth, y + depth], [x + w + depth, y + h + depth], [x + w, y + h]], side, stroke);
+  isoPoly(ctx, [[x, y], [x + w, y], [x + w, y + h], [x, y + h]], face, stroke);
+}
+function drawBuildingPad(ctx, slot, labelColor = '#273a2d') {
+  rect(ctx, slot.x - 8, slot.y + slot.h - 35, slot.w + 16, 42, '#142217');
+  rect(ctx, slot.x, slot.y + slot.h - 31, slot.w, 32, labelColor);
+  rect(ctx, slot.x + 8, slot.y + slot.h - 23, slot.w - 16, 16, '#bfa875');
+  strokeRect(ctx, slot.x, slot.y + slot.h - 31, slot.w, 32, '#101812', 1);
+}
 function drawTexture(ctx, t) {
   // Smaller pixel scale: denser grass, shade, flowers, rocks, and forest details.
   rect(ctx, 0, 0, WORLD_W, WORLD_H, '#203629');
@@ -230,85 +266,90 @@ function buildingPalette(dept, form) {
 
 function drawBuilding(ctx, slot, dept, t) {
   const load = Number(dept.load || 0);
-  const active = Number(dept.active_agents || 0) > 0 || Number(dept.tool_calls || 0) > 0;
+  const active = Number(dept.active_agents || 0) > 0 || Number(dept.tool_calls || 0) > 0 || Number(dept.sessions || 0) > 0;
   const accent = colorFor(load);
   const form = slot.form || 'office';
   const [base, face, side, trim] = buildingPalette(dept, form);
   const cx = slot.x + slot.w / 2;
-  const ground = slot.y + slot.h - 16;
   const floors = slot.floors || 2;
-  const bw = form === 'hq' ? 230 : Math.min(slot.w - 34, 74 + floors * 10);
-  const bh = form === 'hq' ? 166 : Math.min(slot.h - 18, 58 + floors * 19);
-  const left = cx - bw / 2;
-  const top = ground - bh;
+  const bw = form === 'hq' ? 284 : Math.min(slot.w - 76, 118 + floors * 18);
+  const bh = form === 'hq' ? 172 : Math.min(slot.h - 64, 80 + floors * 22);
+  const depth = form === 'hq' ? 34 : 24;
+  const ground = slot.y + slot.h - 46;
+  const left = Math.round(cx - bw / 2 - depth / 2);
+  const top = Math.round(ground - bh);
 
-  // 3D pixel footprint: cast shadow, back wall, face, side face, bevels.
-  rect(ctx, slot.x + 8, ground + 10, slot.w - 16, 10, '#18251d');
-  rect(ctx, left + 18, top + 18, bw, bh, '#18251d');
-  rect(ctx, left + 9, top + 9, bw, bh, side);
-  rect(ctx, left, top, bw, bh, base);
-  rect(ctx, left + 7, top + 7, bw - 14, bh - 14, face);
-  rect(ctx, left + bw - 18, top + 11, 18, bh - 11, side);
-  rect(ctx, left + 11, top + bh - 16, bw - 11, 16, '#26323a');
-  rect(ctx, left + 6, top + 6, bw - 20, 5, '#cbd7ca');
-  strokeRect(ctx, left, top, bw, bh, active ? accent : '#1b252b', active ? 2 : 1);
+  drawBuildingPad(ctx, slot, active ? '#2d4632' : '#26382b');
+
+  // Strong angled pixel block: roof/top face + front face + right side face.
+  drawIsoBlock(ctx, left, top, bw, bh, depth, face, side, base, active ? accent : '#151d20');
+  rect(ctx, left + 6, top + 8, bw - 12, 5, '#eef0d6');
+  rect(ctx, left + bw - 18, top + depth + 10, 10, bh - 20, '#182229');
+  rect(ctx, left + 8, top + bh - 18, bw - 14, 18, '#26313a');
 
   if (form === 'hq') {
-    rect(ctx, left - 48, top + 62, 48, bh - 48, '#344f68'); strokeRect(ctx, left - 48, top + 62, 48, bh - 48, '#18222a', 1);
-    rect(ctx, left + bw, top + 62, 48, bh - 48, '#29435c'); strokeRect(ctx, left + bw, top + 62, 48, bh - 48, '#18222a', 1);
-    rect(ctx, left + 44, top - 40, bw - 88, 40, '#476d8d'); strokeRect(ctx, left + 44, top - 40, bw - 88, 40, '#18222a', 1);
-    rect(ctx, cx - 20, top - 82, 40, 42, '#365a77'); strokeRect(ctx, cx - 20, top - 82, 40, 42, '#18222a', 1);
-    rect(ctx, cx - 9, top - 100, 18, 18, active ? '#d6ad55' : '#7f8c8d');
-    text(ctx, 'HQ', cx, top - 32, 20, '#f5f0e6', 'center', 'mono');
+    drawIsoBlock(ctx, left - 58, top + 56, 58, bh - 48, 18, '#557fa3', '#29435c', '#3f5f7c', '#172129');
+    drawIsoBlock(ctx, left + bw + depth - 4, top + 56, 58, bh - 48, 18, '#456c8d', '#20364f', '#365a77', '#172129');
+    drawIsoBlock(ctx, left + 56, top - 46, bw - 112, 46, 24, '#6c91b1', '#385975', '#4f7595', '#172129');
+    drawIsoBlock(ctx, cx - 28, top - 104, 56, 60, 16, '#496b87', '#29435c', '#6f8da8', '#172129');
+    rect(ctx, cx - 12, top - 122, 24, 18, active ? '#d6ad55' : '#7f8c8d');
+    rect(ctx, cx - 2, top - 140, 4, 18, '#d6ad55'); rect(ctx, cx + 2, top - 138, 26, 10, '#c57b7b');
+    text(ctx, 'HQ', cx, top - 34, 22, '#fff1d6', 'center', 'mono');
   } else if (form === 'tower') {
-    rect(ctx, left + bw * .31, top - 50, bw * .38, 50, '#3c517d'); strokeRect(ctx, left + bw * .31, top - 50, bw * .38, 50, '#18222a', 1);
-    rect(ctx, left + bw * .43, top - 64, bw * .14, 14, active ? '#6fbfc8' : '#738099');
+    drawIsoBlock(ctx, left + bw * .31, top - 58, bw * .38, 58, 18, '#7d93ca', '#33476f', '#52699b', '#172129');
+    rect(ctx, left + bw * .43, top - 76, bw * .14, 18, active ? '#6fbfc8' : '#738099');
   } else if (form === 'dome') {
-    rect(ctx, left + 12, top - 26, bw - 24, 26, '#88b18b'); strokeRect(ctx, left + 12, top - 26, bw - 24, 26, '#213526', 1);
-    rect(ctx, left + 32, top - 42, bw - 64, 16, '#b7cfae');
+    drawIsoBlock(ctx, left + 12, top - 34, bw - 24, 34, 18, '#a2c79f', '#405f4b', '#b7cfae', '#213526');
+    rect(ctx, left + 40, top - 54, bw - 80, 20, '#d1dfbf');
   } else if (form === 'factory' || form === 'plant') {
-    for (let i = 0; i < 3; i++) { rect(ctx, left + 18 + i * 32, top - 38 - i * 6, 17, 38 + i * 6, side); strokeRect(ctx, left + 18 + i * 32, top - 38 - i * 6, 17, 38 + i * 6, '#2c211a', 1); }
-    if (active) rect(ctx, left + 24 + (Math.floor(t / 180) % 3) * 32, top - 47, 9, 6, trim);
+    for (let i = 0; i < 3; i++) drawIsoBlock(ctx, left + 20 + i * 44, top - 44 - i * 8, 20, 44 + i * 8, 8, side, '#2c211a', trim, '#241912');
+    if (active) rect(ctx, left + 28 + (Math.floor(t / 180) % 3) * 44, top - 56, 10, 7, trim);
   } else if (form === 'fort') {
-    rect(ctx, left - 20, top - 12, 20, bh + 12, '#633a37'); rect(ctx, left + bw, top - 12, 20, bh + 12, '#4d2d2c');
-    for (let i = 0; i < 5; i++) rect(ctx, left + i * (bw / 5), top - 18, 20, 18, '#9d6660');
+    drawIsoBlock(ctx, left - 28, top - 18, 28, bh + 18, 10, '#9d6660', '#4d2d2c', '#7a4b47', '#2b1918');
+    drawIsoBlock(ctx, left + bw + depth - 2, top - 18, 28, bh + 18, 10, '#8d5550', '#4d2d2c', '#7a4b47', '#2b1918');
+    for (let i = 0; i < 5; i++) rect(ctx, left + i * (bw / 5), top - 24, 22, 18, '#b47770');
   } else if (form === 'vault') {
-    rect(ctx, left + 22, top - 24, bw - 44, 24, '#989da4'); strokeRect(ctx, left + 22, top - 24, bw - 44, 24, '#323842', 1);
-    rect(ctx, cx - 22, ground - 36, 44, 36, '#323842'); strokeRect(ctx, cx - 22, ground - 36, 44, 36, '#d8c48b', 1);
+    drawIsoBlock(ctx, left + 26, top - 30, bw - 52, 30, 16, '#b3b7bd', '#41454d', '#d7dbe0', '#323842');
+    rect(ctx, cx - 26, ground - 42, 52, 42, '#323842'); strokeRect(ctx, cx - 26, ground - 42, 52, 42, '#d8c48b', 2);
+    rect(ctx, cx - 8, ground - 26, 16, 16, '#d8c48b');
   } else if (form === 'studio' || form === 'media') {
-    rect(ctx, left + bw - 36, top - 28, 30, 28, side); strokeRect(ctx, left + bw - 36, top - 28, 30, 28, '#2a2530', 1);
-    rect(ctx, left + bw - 28, top - 21, 15, 13, active ? '#c57b7b' : '#8a7a66');
+    drawIsoBlock(ctx, left + bw - 46, top - 34, 42, 34, 14, '#b083a5', '#5b3e52', '#d1a0c2', '#2a2530');
+    rect(ctx, left + bw - 34, top - 25, 18, 15, active ? '#c57b7b' : '#8a7a66');
   } else if (form === 'stepped') {
-    rect(ctx, left + 22, top - 28, bw - 44, 28, '#6e859f'); strokeRect(ctx, left + 22, top - 28, bw - 44, 28, '#263544', 1);
-    rect(ctx, left + 42, top - 48, bw - 84, 20, '#8ea5bc');
+    drawIsoBlock(ctx, left + 26, top - 34, bw - 52, 34, 18, '#8ea5bc', '#394b60', '#9fb4c8', '#263544');
+    drawIsoBlock(ctx, left + 54, top - 60, bw - 108, 26, 14, '#9fb4c8', '#4a5f76', '#bfd0dd', '#263544');
   }
 
-  const winW = form === 'hq' ? 12 : 10;
-  const stepX = form === 'hq' ? 18 : 16;
-  const stepY = form === 'hq' ? 14 : 15;
-  for (let yy = top + 14; yy < ground - 14; yy += stepY) {
-    for (let xx = left + 16; xx < left + bw - 18; xx += stepX) {
-      const lit = active || ((xx + yy + load + Math.floor(t / 520)) % 6) === 0;
-      rect(ctx, xx, yy, winW, 7, lit ? accent : side);
-      rect(ctx, xx + 1, yy + 1, winW - 3, 2, lit ? '#f5f0e6' : base);
+  const winW = form === 'hq' ? 14 : 12;
+  const stepX = form === 'hq' ? 23 : 20;
+  const stepY = form === 'hq' ? 18 : 17;
+  for (let yy = top + 22; yy < ground - 20; yy += stepY) {
+    for (let xx = left + 18; xx < left + bw - 24; xx += stepX) {
+      const lit = active || ((Math.round(xx) + Math.round(yy) + load + Math.floor(t / 520)) % 7) === 0;
+      rect(ctx, xx, yy, winW, 8, lit ? accent : side);
+      rect(ctx, xx + 2, yy + 2, winW - 5, 2, lit ? '#fff6d8' : base);
     }
   }
-  for (let i = 0; i < Math.floor(bw / 18); i++) rect(ctx, left + 8 + i * 18, ground - 8, 9, 3, trim);
+  // Side-face windows aligned with the fake perspective.
+  for (let yy = top + depth + 25; yy < ground - 18; yy += 22) {
+    rect(ctx, left + bw + depth - 17, yy, 8, 8, active ? accent : '#1f2a32');
+  }
+  for (let i = 0; i < Math.floor(bw / 20); i++) rect(ctx, left + 10 + i * 20, ground - 10, 10, 4, trim);
 
-  if (dept.kind === 'coding') { text(ctx, '</>', cx, top - 39, 10, '#e3f6e9', 'center', 'mono'); }
-  if (dept.kind === 'security') { rect(ctx, left + bw + 24, top + 10, 10, 34, '#432626'); rect(ctx, left + bw + 26, top + 4, 6, 6, active ? '#e15f5f' : '#79543a'); }
-  if (dept.kind === 'research') { rect(ctx, left - 24, top + 24, 17, 25, '#405f4b'); strokeRect(ctx, left - 24, top + 24, 17, 25, '#d6ad55', 1); }
+  if (dept.kind === 'coding' || /code|coding/i.test(dept.name || '')) text(ctx, '</>', cx, top - 48, 13, '#e3f6e9', 'center', 'mono');
+  if (dept.kind === 'security' || /security/i.test(dept.name || '')) { rect(ctx, left + bw + depth + 28, top + 12, 12, 42, '#432626'); rect(ctx, left + bw + depth + 31, top + 5, 7, 7, active ? '#e15f5f' : '#79543a'); }
+  if (dept.kind === 'research' || /research/i.test(dept.name || '')) { rect(ctx, left - 34, top + 28, 22, 32, '#405f4b'); strokeRect(ctx, left - 34, top + 28, 22, 32, '#d6ad55', 1); rect(ctx, left - 29, top + 34, 12, 3, '#b8f4ff'); }
   if (active) {
-    const spark = Math.floor(t / 160) % 4;
-    rect(ctx, left + bw + 14 + spark * 3, top + 26, 3, 3, accent);
-    rect(ctx, left - 14 - spark * 2, top + 48, 3, 3, trim);
+    const spark = Math.floor(t / 140) % 5;
+    rect(ctx, left + bw + depth + 12 + spark * 3, top + 24, 3, 3, accent);
+    rect(ctx, left - 16 - spark * 2, top + 48, 3, 3, trim);
   }
 
-  rect(ctx, cx - 16, ground - 22, 32, 22, '#20272d'); strokeRect(ctx, cx - 16, ground - 22, 32, 22, active ? accent : '#14191d', 1);
-  drawTerminal(ctx, slot.x + 15, slot.y + slot.h - 34, active, t);
-  rect(ctx, slot.x + slot.w - 48, slot.y + 14, 34, 16, '#20272d'); strokeRect(ctx, slot.x + slot.w - 48, slot.y + 14, 34, 16, trim, 1);
-  text(ctx, shortName(dept.name), cx, slot.y + 4, form === 'hq' ? 16 : 13, '#f5f0e6', 'center');
-  text(ctx, `${dept.status || 'idle'} · ${load}%`, cx, slot.y + (form === 'hq' ? 25 : 21), 10, active ? accent : '#d8c48b', 'center', 'mono');
+  rect(ctx, cx - 20, ground - 27, 40, 27, '#20272d'); strokeRect(ctx, cx - 20, ground - 27, 40, 27, active ? accent : '#14191d', 1);
+  drawTerminal(ctx, slot.x + 18, slot.y + slot.h - 74, active, t);
+  rect(ctx, slot.x + slot.w - 82, slot.y + slot.h - 76, 60, 24, '#20272d'); strokeRect(ctx, slot.x + slot.w - 82, slot.y + slot.h - 76, 60, 24, trim, 1);
+  text(ctx, shortName(dept.name), cx, slot.y + slot.h - 28, form === 'hq' ? 17 : 15, '#fff1d6', 'center', 'mono');
+  text(ctx, `${dept.status || 'idle'} · ${load}%`, cx, slot.y + slot.h - 10, 11, active ? accent : '#d8c48b', 'center', 'mono');
 }
 
 function agentPosition(agent, index, t) {
@@ -475,19 +516,27 @@ function drawPixelEcosystem(t = performance.now()) {
   const ctx = cityCtx; ctx.imageSmoothingEnabled = false;
   drawTexture(ctx, t);
 
-  // Clean campus road plan: one loop + short spurs with blank plazas at intersections so borders do not pile up.
+  // Clean campus road plan: separated ring roads and short building spurs.
+  // No roads cross through City Hall, the fountain, or department building pads.
   const roads = [
-    [150, 720, 2260, 72, false],      // main east/west avenue through open grass
-    [1246, 350, 72, 690, true],       // civic spine between HQ, City Hall, and fountain
-    [500, 720, 72, 560, true],        // west/south spur, clear of buildings
-    [1705, 720, 72, 560, true],       // east/south spur, clear of buildings
-    [785, 360, 990, 60, false],       // north campus connector below HQ
-    [2085, 720, 60, 260, true],       // finance spur
+    [80, 690, 690, 62, false],        // west campus road
+    [1770, 690, 690, 62, false],      // east campus road
+    [600, 1048, 980, 62, false],      // south campus road
+    [940, 340, 680, 54, false],       // north civic road below HQ
+    [560, 395, 58, 292, true],        // code/research vertical spur
+    [2015, 395, 58, 292, true],       // deploy/automation vertical spur
+    [415, 752, 58, 245, true],        // data spur
+    [2220, 752, 58, 230, true],       // finance spur
+    [795, 1110, 58, 170, true],       // support spur
+    [1508, 1110, 58, 170, true],      // marketing spur
+    [1855, 900, 58, 180, true],       // security spur
   ];
   drawRoadOutline(ctx, roads);
   for (const [x, y, w, h, vertical] of roads) drawRoad(ctx, x, y, w, h, vertical);
-  for (const [x, y, w, h] of [[1234,708,98,98],[488,708,96,96],[1693,708,96,96],[1234,396,98,42]]) { rect(ctx, x, y, w, h, '#3a4550'); strokeRect(ctx, x, y, w, h, '#777f74', 1); }
-
+  // small tidy intersection caps, so asphalt joins look intentional instead of stacked/overlapped
+  for (const [x, y, w, h] of [[545,690,88,62],[2000,690,88,62],[400,735,88,74],[2205,735,88,74],[780,1048,88,62],[1492,1048,88,62],[1840,1048,88,62]]) {
+    rect(ctx, x, y, w, h, '#3a4550'); strokeRect(ctx, x, y, w, h, '#777f74', 1);
+  }
   // Civic center: detailed but parked in the open middle, away from department building pads.
   drawPathSegment(ctx, 1040, 455, 480, 222, false);
   drawStonePath(ctx, [[1280, 348], [1280, 468], [1280, 677], [1280, 820]], 28);
