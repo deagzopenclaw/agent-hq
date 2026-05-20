@@ -29,6 +29,8 @@ const focusMapBtn = document.querySelector('#focusMapBtn');
 const menuTabs = document.querySelectorAll('.menu-tab');
 const menuPanels = document.querySelectorAll('.menu-panel-tab');
 const closeChatBtn = document.querySelector('#closeChatBtn');
+const hqMenuToggle = document.querySelector('#hqMenuToggle');
+const commandMenu = document.querySelector('.left-command-menu');
 
 function fmt(n) {
   const num = Number(n || 0);
@@ -86,22 +88,29 @@ function agentDetails(agent) {
 }
 
 const CITY_SLOTS = {
-  'executive-headquarters': { x: 1115, y: 80, w: 330, h: 218, floors: 8, form: 'hq' },
-  'research-labs': { x: 330, y: 150, w: 198, h: 142, floors: 2, form: 'dome' },
-  'coding-towers': { x: 690, y: 410, w: 154, h: 178, floors: 6, form: 'tower' },
-  'deployment-facilities': { x: 1770, y: 165, w: 212, h: 154, floors: 3, form: 'factory' },
-  'automation-plants': { x: 2135, y: 510, w: 164, h: 150, floors: 2, form: 'plant' },
-  'data-warehouses': { x: 360, y: 880, w: 214, h: 142, floors: 2, form: 'warehouse' },
-  'analytics-centers': { x: 1085, y: 935, w: 196, h: 144, floors: 3, form: 'stepped' },
-  'security-divisions': { x: 1845, y: 1075, w: 196, h: 150, floors: 4, form: 'fort' },
-  'support-offices': { x: 760, y: 1182, w: 184, h: 128, floors: 3, form: 'office' },
-  'marketing-studios': { x: 1390, y: 1182, w: 188, h: 126, floors: 2, form: 'studio' },
-  'media-rooms': { x: 160, y: 1190, w: 166, h: 108, floors: 2, form: 'media' },
-  'finance-centers': { x: 2140, y: 865, w: 152, h: 114, floors: 2, form: 'vault' },
+  'executive-headquarters': { x: 1090, y: 86, w: 380, h: 260, floors: 9, form: 'hq' },
+  'research-labs': { x: 205, y: 150, w: 260, h: 178, floors: 3, form: 'dome' },
+  'deployment-facilities': { x: 1785, y: 145, w: 286, h: 184, floors: 4, form: 'factory' },
+  'coding-towers': { x: 555, y: 458, w: 220, h: 224, floors: 7, form: 'tower' },
+  'automation-plants': { x: 2115, y: 472, w: 244, h: 184, floors: 3, form: 'plant' },
+  'data-warehouses': { x: 250, y: 845, w: 286, h: 176, floors: 3, form: 'warehouse' },
+  'analytics-centers': { x: 1000, y: 958, w: 260, h: 180, floors: 4, form: 'stepped' },
+  'finance-centers': { x: 2080, y: 830, w: 220, h: 152, floors: 3, form: 'vault' },
+  'media-rooms': { x: 145, y: 1192, w: 220, h: 138, floors: 3, form: 'media' },
+  'support-offices': { x: 615, y: 1184, w: 238, h: 158, floors: 4, form: 'office' },
+  'marketing-studios': { x: 1370, y: 1180, w: 246, h: 160, floors: 3, form: 'studio' },
+  'security-divisions': { x: 1875, y: 1120, w: 250, h: 166, floors: 5, form: 'fort' },
 };
 function citySlot(dept) { return CITY_SLOTS[dept.id] || { x: 1190, y: 690, w: 180, h: 130, floors: 2 }; }
 
+function setCommandMenu(open) {
+  commandMenu?.classList.toggle('open', open);
+  hqMenuToggle?.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (hqMenuToggle) hqMenuToggle.textContent = open ? 'Menu ▴' : 'Menu ▾';
+}
+
 function selectMenuPanel(name) {
+  setCommandMenu(true);
   menuTabs.forEach((tab) => tab.classList.toggle('active', tab.dataset.panel === name));
   menuPanels.forEach((panel) => panel.classList.toggle('active', panel.dataset.panel === name));
 }
@@ -389,37 +398,76 @@ function drawFlowerBed(ctx, x, y, w, h) {
 }
 
 function drawFountain(ctx, cx, cy, t) {
-  rect(ctx, cx - 58, cy + 34, 116, 12, '#17251f');
-  rect(ctx, cx - 52, cy - 18, 104, 58, '#c6d0ca');
-  rect(ctx, cx - 44, cy - 10, 88, 42, '#3e8fa3');
-  rect(ctx, cx - 34, cy - 4, 68, 28, '#61bfd3');
-  strokeRect(ctx, cx - 52, cy - 18, 104, 58, '#eff6f0', 2);
-  rect(ctx, cx - 11, cy - 44, 22, 34, '#d6d8ce'); strokeRect(ctx, cx - 11, cy - 44, 22, 34, '#77827d', 1);
-  const pulse = Math.floor(t / 120) % 4;
-  rect(ctx, cx - 3, cy - 70 - pulse, 6, 25 + pulse, '#b8f4ff');
-  rect(ctx, cx - 22 - pulse, cy - 50, 6, 18, '#82ddeb');
-  rect(ctx, cx + 16 + pulse, cy - 50, 6, 18, '#82ddeb');
-  rect(ctx, cx - 46, cy + 2, 8, 4, '#eaf7ff'); rect(ctx, cx + 36, cy + 16, 8, 4, '#eaf7ff');
+  const pulse = Math.floor(t / 110) % 5;
+  // Deep pixel basin with side faces, rim shine, animated spray, and water caustics.
+  rect(ctx, cx - 74, cy + 42, 148, 16, '#111d18');
+  rect(ctx, cx - 68, cy - 24, 136, 70, '#8e9a95');
+  rect(ctx, cx - 60, cy - 18, 120, 58, '#d6ded9');
+  rect(ctx, cx - 52, cy - 9, 104, 42, '#2c7f96');
+  rect(ctx, cx - 43, cy - 2, 86, 30, '#58c0d2');
+  rect(ctx, cx - 36, cy + 5, 72, 18, '#8be6ef');
+  rect(ctx, cx + 52, cy - 18, 8, 58, '#6f7775');
+  rect(ctx, cx - 60, cy + 34, 120, 7, '#5c6764');
+  strokeRect(ctx, cx - 68, cy - 24, 136, 70, '#f1faf4', 2);
+  for (let i = 0; i < 9; i++) {
+    const wx = cx - 42 + i * 11;
+    rect(ctx, wx, cy + 5 + ((i + pulse) % 3) * 5, 7, 3, i % 2 ? '#eafaff' : '#b8f4ff');
+  }
+  rect(ctx, cx - 14, cy - 56, 28, 42, '#cfd4cc');
+  rect(ctx, cx - 9, cy - 50, 18, 34, '#f0f0de');
+  rect(ctx, cx + 10, cy - 54, 5, 38, '#89928c');
+  strokeRect(ctx, cx - 14, cy - 56, 28, 42, '#68736d', 1);
+  rect(ctx, cx - 4, cy - 88 - pulse, 8, 34 + pulse, '#dffbff');
+  rect(ctx, cx - 28 - pulse, cy - 68, 7, 27, '#9eefff');
+  rect(ctx, cx + 21 + pulse, cy - 68, 7, 27, '#9eefff');
+  rect(ctx, cx - 48 - pulse, cy - 48, 6, 16, '#72d8e8');
+  rect(ctx, cx + 42 + pulse, cy - 48, 6, 16, '#72d8e8');
+  for (let i = 0; i < 10; i++) rect(ctx, cx - 58 + i * 13, cy - 23, 7, 5, i % 2 ? '#f1faf4' : '#aeb7b3');
 }
 
 function drawCityHall(ctx, x, y) {
-  const w = 330; const h = 150;
-  rect(ctx, x + 22, y + h + 10, w - 44, 12, '#17251d');
-  rect(ctx, x + 20, y + 40, w - 40, h - 42, '#755f47');
-  rect(ctx, x + 34, y + 52, w - 68, h - 60, '#a98a63');
-  rect(ctx, x + 56, y + 26, w - 112, 26, '#d6c198');
-  rect(ctx, x + 78, y + 8, w - 156, 24, '#8f5f3e');
-  rect(ctx, x + 92, y - 8, w - 184, 18, '#d6ad55');
-  for (let i = 0; i < 5; i++) {
-    const px = x + 70 + i * 42;
-    rect(ctx, px, y + 58, 18, 76, '#efe4c8');
-    rect(ctx, px - 4, y + 52, 26, 8, '#6e5741');
-    rect(ctx, px - 2, y + 130, 22, 8, '#6e5741');
+  const w = 330; const h = 158;
+  // City Hall is decorative civic architecture: more depth, side wall, roof layers, columns, windows, flag, and shaded stairs.
+  rect(ctx, x + 18, y + h + 12, w - 28, 14, '#111b17');
+  rect(ctx, x + 32, y + 52, w - 46, h - 42, '#5e4937');
+  rect(ctx, x + 18, y + 42, w - 56, h - 36, '#80664b');
+  rect(ctx, x + 32, y + 54, w - 86, h - 62, '#b79668');
+  rect(ctx, x + w - 54, y + 54, 36, h - 62, '#6f543c');
+  rect(ctx, x + 42, y + 62, w - 116, 7, '#d4bd89');
+  rect(ctx, x + 42, y + 82, w - 116, 5, '#7e6043');
+  rect(ctx, x + 42, y + 109, w - 116, 5, '#d4bd89');
+  // layered roof and pediment
+  rect(ctx, x + 48, y + 30, w - 106, 28, '#d7c299');
+  rect(ctx, x + 62, y + 18, w - 134, 17, '#916140');
+  rect(ctx, x + 78, y + 4, w - 166, 18, '#d9b95e');
+  rect(ctx, x + 94, y - 13, w - 198, 18, '#f0d67e');
+  rect(ctx, x + 103, y - 6, w - 216, 5, '#fff2a7');
+  strokeRect(ctx, x + 18, y + 42, w - 56, h - 36, '#3f2d22', 2);
+  // columns with shadows and highlights
+  for (let i = 0; i < 6; i++) {
+    const px = x + 56 + i * 38;
+    rect(ctx, px + 4, y + 61, 18, 82, '#6f543c');
+    rect(ctx, px, y + 58, 18, 82, '#efe4c8');
+    rect(ctx, px + 4, y + 58, 4, 82, '#fff7dc');
+    rect(ctx, px + 13, y + 58, 5, 82, '#b69b72');
+    rect(ctx, px - 5, y + 52, 28, 8, '#5e4937');
+    rect(ctx, px - 3, y + 139, 24, 8, '#5e4937');
   }
-  rect(ctx, x + w / 2 - 24, y + 94, 48, 46, '#2f2520'); strokeRect(ctx, x + w / 2 - 24, y + 94, 48, 46, '#d6ad55', 1);
-  rect(ctx, x + w / 2 - 8, y - 34, 16, 26, '#6f4a37');
-  rect(ctx, x + w / 2 - 18, y - 48, 36, 16, '#d6ad55');
-  text(ctx, 'CITY HALL', x + w / 2, y + 35, 15, '#fff1d6', 'center', 'mono');
+  // glowing windows and carved blocks
+  for (let i = 0; i < 5; i++) { rect(ctx, x + 52 + i * 43, y + 73, 10, 10, '#ffe8a3'); rect(ctx, x + 52 + i * 43, y + 92, 10, 10, '#8fcad8'); }
+  for (let i = 0; i < 8; i++) rect(ctx, x + 34 + i * 29, y + 119 + (i % 2) * 3, 16, 3, '#6c543e');
+  // stairs and doorway
+  rect(ctx, x + w / 2 - 34, y + 98, 68, 50, '#2f2520');
+  rect(ctx, x + w / 2 - 24, y + 109, 48, 39, '#493527');
+  strokeRect(ctx, x + w / 2 - 34, y + 98, 68, 50, '#d6ad55', 1);
+  for (let i = 0; i < 5; i++) rect(ctx, x + w / 2 - 54 - i * 5, y + 148 + i * 6, 108 + i * 10, 5, i % 2 ? '#9b835f' : '#c5aa77');
+  // clock tower/flag
+  rect(ctx, x + w / 2 - 13, y - 42, 26, 30, '#72513c');
+  rect(ctx, x + w / 2 - 8, y - 37, 16, 16, '#f4e5a7');
+  rect(ctx, x + w / 2 - 2, y - 32, 2, 7, '#3f2d22'); rect(ctx, x + w / 2, y - 30, 6, 2, '#3f2d22');
+  rect(ctx, x + w / 2 - 23, y - 58, 46, 16, '#d6ad55');
+  rect(ctx, x + w / 2 + 2, y - 78, 3, 20, '#d9d4c0'); rect(ctx, x + w / 2 + 5, y - 78, 30, 12, '#c57b7b'); rect(ctx, x + w / 2 + 5, y - 73, 21, 5, '#f5f0e6');
+  text(ctx, 'CITY HALL', x + w / 2, y + 34, 15, '#fff1d6', 'center', 'mono');
 }
 
 function drawPixelEcosystem(t = performance.now()) {
@@ -427,30 +475,28 @@ function drawPixelEcosystem(t = performance.now()) {
   const ctx = cityCtx; ctx.imageSmoothingEnabled = false;
   drawTexture(ctx, t);
 
-  // Clean non-overlapping road plan. Outlines are drawn once first, then asphalt, so intersections stay tidy.
+  // Clean campus road plan: one loop + short spurs with blank plazas at intersections so borders do not pile up.
   const roads = [
-    [1700, 350, 92, 900, true],       // central boulevard, clear of analytics/marketing buildings
-    [190, 750, 2180, 82, false],      // main avenue through open campus field
-    [320, 1330, 1880, 72, false],     // lower avenue below the southern buildings
-    [585, 260, 62, 490, true],        // west avenue, clear of research building
-    [2025, 260, 62, 490, true],       // east avenue, clear of deployment building
-    [2350, 775, 62, 315, true],       // finance/plant spur, clear of finance building
-    [610, 790, 58, 360, true],        // code/support spur in open space
-    [1660, 790, 58, 360, true],       // marketing/security spur in open space
-    [1060, 330, 430, 58, false],      // HQ connector below HQ
+    [150, 720, 2260, 72, false],      // main east/west avenue through open grass
+    [1246, 350, 72, 690, true],       // civic spine between HQ, City Hall, and fountain
+    [500, 720, 72, 560, true],        // west/south spur, clear of buildings
+    [1705, 720, 72, 560, true],       // east/south spur, clear of buildings
+    [785, 360, 990, 60, false],       // north campus connector below HQ
+    [2085, 720, 60, 260, true],       // finance spur
   ];
   drawRoadOutline(ctx, roads);
   for (const [x, y, w, h, vertical] of roads) drawRoad(ctx, x, y, w, h, vertical);
+  for (const [x, y, w, h] of [[1234,708,98,98],[488,708,96,96],[1693,708,96,96],[1234,396,98,42]]) { rect(ctx, x, y, w, h, '#3a4550'); strokeRect(ctx, x, y, w, h, '#777f74', 1); }
 
-  // Civic center: separated from HQ, detailed but not covering the backend buildings.
-  drawPathSegment(ctx, 1010, 440, 540, 255, false);
-  drawStonePath(ctx, [[1280, 300], [1280, 470], [1280, 695], [1280, 832]], 34);
-  drawStonePath(ctx, [[1035, 685], [1525, 685]], 30);
-  drawFlowerBed(ctx, 1025, 456, 130, 42); drawFlowerBed(ctx, 1395, 456, 130, 42);
-  drawFlowerBed(ctx, 1025, 635, 140, 36); drawFlowerBed(ctx, 1385, 635, 140, 36);
-  drawCityHall(ctx, 1115, 470);
-  drawFountain(ctx, 1280, 715, t);
-  for (const [lx, ly] of [[1005,445],[1548,445],[1005,675],[1548,675],[1190,835],[1370,835],[1190,395],[1370,395]]) drawLamp(ctx, lx, ly, true);
+  // Civic center: detailed but parked in the open middle, away from department building pads.
+  drawPathSegment(ctx, 1040, 455, 480, 222, false);
+  drawStonePath(ctx, [[1280, 348], [1280, 468], [1280, 677], [1280, 820]], 28);
+  drawStonePath(ctx, [[1075, 666], [1485, 666]], 26);
+  drawFlowerBed(ctx, 1055, 472, 118, 38); drawFlowerBed(ctx, 1386, 472, 118, 38);
+  drawFlowerBed(ctx, 1055, 622, 124, 34); drawFlowerBed(ctx, 1380, 622, 124, 34);
+  drawCityHall(ctx, 1124, 472);
+  drawFountain(ctx, 1280, 704, t);
+  for (const [lx, ly] of [[1025,462],[1534,462],[1025,655],[1534,655],[1190,832],[1370,832],[1190,405],[1370,405]]) drawLamp(ctx, lx, ly, true);
 
   // Landscaping and shade details.
   rect(ctx, 970, 418, 620, 8, '#1d361f'); rect(ctx, 970, 842, 620, 8, '#1d361f');
@@ -584,6 +630,8 @@ function closeChat() {
   chatDrawer.setAttribute('aria-hidden', 'true');
   chatBackdrop.hidden = true;
 }
+hqMenuToggle?.addEventListener('click', () => setCommandMenu(!commandMenu?.classList.contains('open')));
+
 menuTabs.forEach((tab) => tab.addEventListener('click', () => {
   selectMenuPanel(tab.dataset.panel);
   if (tab.dataset.panel === 'chat') openChat();
