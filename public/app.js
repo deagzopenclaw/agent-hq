@@ -29,8 +29,6 @@ const focusMapBtn = document.querySelector('#focusMapBtn');
 const menuTabs = document.querySelectorAll('.menu-tab');
 const menuPanels = document.querySelectorAll('.menu-panel-tab');
 const closeChatBtn = document.querySelector('#closeChatBtn');
-const hqMenuToggle = document.querySelector('#hqMenuToggle');
-const commandMenu = document.querySelector('.left-command-menu');
 
 function fmt(n) {
   const num = Number(n || 0);
@@ -88,18 +86,19 @@ function agentDetails(agent) {
 }
 
 const CITY_SLOTS = {
-  'executive-headquarters': { x: 1070, y: 70, w: 420, h: 250, floors: 8, form: 'hq' },
-  'research-labs': { x: 225, y: 145, w: 300, h: 220, floors: 3, form: 'dome' },
-  'coding-towers': { x: 610, y: 370, w: 270, h: 250, floors: 7, form: 'tower' },
-  'deployment-facilities': { x: 1780, y: 145, w: 330, h: 230, floors: 3, form: 'factory' },
-  'automation-plants': { x: 2100, y: 490, w: 300, h: 230, floors: 3, form: 'plant' },
-  'data-warehouses': { x: 230, y: 790, w: 340, h: 230, floors: 2, form: 'warehouse' },
-  'analytics-centers': { x: 1025, y: 930, w: 330, h: 230, floors: 4, form: 'stepped' },
-  'security-divisions': { x: 1740, y: 1035, w: 335, h: 235, floors: 4, form: 'fort' },
-  'support-offices': { x: 635, y: 1160, w: 310, h: 205, floors: 3, form: 'office' },
-  'marketing-studios': { x: 1345, y: 1160, w: 315, h: 205, floors: 2, form: 'studio' },
-  'media-rooms': { x: 60, y: 1160, w: 305, h: 190, floors: 2, form: 'media' },
-  'finance-centers': { x: 2145, y: 835, w: 310, h: 205, floors: 2, form: 'vault' },};
+  'executive-headquarters': { x: 1040, y: 72, w: 480, h: 260, floors: 8, form: 'hq' },
+  'research-labs': { x: 115, y: 125, w: 360, h: 235, floors: 3, form: 'dome' },
+  'deployment-facilities': { x: 1900, y: 125, w: 390, h: 235, floors: 3, form: 'factory' },
+  'coding-towers': { x: 565, y: 415, w: 345, h: 270, floors: 7, form: 'tower' },
+  'automation-plants': { x: 2060, y: 435, w: 355, h: 250, floors: 3, form: 'plant' },
+  'data-warehouses': { x: 110, y: 720, w: 380, h: 245, floors: 2, form: 'warehouse' },
+  'analytics-centers': { x: 1020, y: 850, w: 395, h: 245, floors: 4, form: 'stepped' },
+  'finance-centers': { x: 2055, y: 760, w: 360, h: 230, floors: 2, form: 'vault' },
+  'media-rooms': { x: 80, y: 1135, w: 350, h: 215, floors: 2, form: 'media' },
+  'support-offices': { x: 585, y: 1150, w: 350, h: 215, floors: 3, form: 'office' },
+  'marketing-studios': { x: 1375, y: 1150, w: 355, h: 215, floors: 2, form: 'studio' },
+  'security-divisions': { x: 1840, y: 1110, w: 375, h: 230, floors: 4, form: 'fort' },
+};
 const SLOT_ALIASES = {
   mainframe: 'executive-headquarters', executive: 'executive-headquarters', headquarters: 'executive-headquarters', hq: 'executive-headquarters',
   research: 'research-labs', coding: 'coding-towers', code: 'coding-towers', deployment: 'deployment-facilities', deploy: 'deployment-facilities',
@@ -118,14 +117,8 @@ function citySlot(dept = {}) {
   return fallbackSlots[seed % fallbackSlots.length];
 }
 
-function setCommandMenu(open) {
-  commandMenu?.classList.toggle('open', open);
-  hqMenuToggle?.setAttribute('aria-expanded', open ? 'true' : 'false');
-  if (hqMenuToggle) hqMenuToggle.textContent = open ? 'Menu ▴' : 'Menu ▾';
-}
-
+function setCommandMenu() { /* permanent left rail; no dropdown overlay */ }
 function selectMenuPanel(name) {
-  setCommandMenu(true);
   menuTabs.forEach((tab) => tab.classList.toggle('active', tab.dataset.panel === name));
   menuPanels.forEach((panel) => panel.classList.toggle('active', panel.dataset.panel === name));
 }
@@ -272,9 +265,9 @@ function drawBuilding(ctx, slot, dept, t) {
   const [base, face, side, trim] = buildingPalette(dept, form);
   const cx = slot.x + slot.w / 2;
   const floors = slot.floors || 2;
-  const bw = form === 'hq' ? 284 : Math.min(slot.w - 76, 118 + floors * 18);
-  const bh = form === 'hq' ? 172 : Math.min(slot.h - 64, 80 + floors * 22);
-  const depth = form === 'hq' ? 34 : 24;
+  const bw = form === 'hq' ? 330 : Math.min(slot.w - 58, 150 + floors * 22);
+  const bh = form === 'hq' ? 190 : Math.min(slot.h - 54, 100 + floors * 24);
+  const depth = form === 'hq' ? 46 : 34;
   const ground = slot.y + slot.h - 46;
   const left = Math.round(cx - bw / 2 - depth / 2);
   const top = Math.round(ground - bh);
@@ -516,43 +509,37 @@ function drawPixelEcosystem(t = performance.now()) {
   const ctx = cityCtx; ctx.imageSmoothingEnabled = false;
   drawTexture(ctx, t);
 
-  // Clean campus road plan: separated ring roads and short building spurs.
-  // No roads cross through City Hall, the fountain, or department building pads.
+  // Clean campus circulation: perimeter roads and short separated spurs only.
+  // This avoids the big overlapping cross that was cutting through the worksite.
   const roads = [
-    [80, 690, 690, 62, false],        // west campus road
-    [1770, 690, 690, 62, false],      // east campus road
-    [600, 1048, 980, 62, false],      // south campus road
-    [940, 340, 680, 54, false],       // north civic road below HQ
-    [560, 395, 58, 292, true],        // code/research vertical spur
-    [2015, 395, 58, 292, true],       // deploy/automation vertical spur
-    [415, 752, 58, 245, true],        // data spur
-    [2220, 752, 58, 230, true],       // finance spur
-    [795, 1110, 58, 170, true],       // support spur
-    [1508, 1110, 58, 170, true],      // marketing spur
-    [1855, 900, 58, 180, true],       // security spur
+    [80, 382, 700, 46, false],        // north-west road between research/code
+    [1780, 382, 700, 46, false],      // north-east road between deploy/automation
+    [80, 1018, 720, 46, false],       // south-west road above media/support
+    [1750, 1018, 720, 46, false],     // south-east road above finance/security
+    [510, 690, 46, 305, true],        // data/support spur
+    [945, 1095, 46, 220, true],       // support connector
+    [1550, 1095, 46, 220, true],      // marketing connector
+    [1980, 690, 46, 300, true],       // finance/security spur
+    [930, 365, 700, 42, false],       // narrow HQ approach
   ];
-  drawRoadOutline(ctx, roads);
   for (const [x, y, w, h, vertical] of roads) drawRoad(ctx, x, y, w, h, vertical);
-  // small tidy intersection caps, so asphalt joins look intentional instead of stacked/overlapped
-  for (const [x, y, w, h] of [[545,690,88,62],[2000,690,88,62],[400,735,88,74],[2205,735,88,74],[780,1048,88,62],[1492,1048,88,62],[1840,1048,88,62]]) {
-    rect(ctx, x, y, w, h, '#3a4550'); strokeRect(ctx, x, y, w, h, '#777f74', 1);
-  }
-  // Civic center: detailed but parked in the open middle, away from department building pads.
-  drawPathSegment(ctx, 1040, 455, 480, 222, false);
-  drawStonePath(ctx, [[1280, 348], [1280, 468], [1280, 677], [1280, 820]], 28);
-  drawStonePath(ctx, [[1075, 666], [1485, 666]], 26);
-  drawFlowerBed(ctx, 1055, 472, 118, 38); drawFlowerBed(ctx, 1386, 472, 118, 38);
-  drawFlowerBed(ctx, 1055, 622, 124, 34); drawFlowerBed(ctx, 1380, 622, 124, 34);
-  drawCityHall(ctx, 1124, 472);
-  drawFountain(ctx, 1280, 704, t);
-  for (const [lx, ly] of [[1025,462],[1534,462],[1025,655],[1534,655],[1190,832],[1370,832],[1190,405],[1370,405]]) drawLamp(ctx, lx, ly, true);
+
+  // Civic center is now a smaller island so it can't hide department buildings.
+  drawPathSegment(ctx, 1120, 520, 320, 142, false);
+  drawStonePath(ctx, [[1280, 330], [1280, 510], [1280, 662], [1280, 805]], 22);
+  drawStonePath(ctx, [[1135, 652], [1425, 652]], 22);
+  drawFlowerBed(ctx, 1138, 532, 82, 30); drawFlowerBed(ctx, 1340, 532, 82, 30);
+  drawFlowerBed(ctx, 1138, 612, 84, 26); drawFlowerBed(ctx, 1338, 612, 84, 26);
+  drawCityHall(ctx, 1165, 528);
+  drawFountain(ctx, 1280, 740, t);
+  for (const [lx, ly] of [[1110,520],[1450,520],[1110,654],[1450,654],[1190,815],[1370,815],[1190,420],[1370,420]]) drawLamp(ctx, lx, ly, true);
 
   // Landscaping and shade details.
-  rect(ctx, 970, 418, 620, 8, '#1d361f'); rect(ctx, 970, 842, 620, 8, '#1d361f');
-  for (let x = 980; x < 1580; x += 22) { rect(ctx, x, 420, 9, 8, '#47723d'); rect(ctx, x + 7, 842, 9, 8, '#47723d'); }
-  for (let i = 0; i < 12; i++) { rect(ctx, 900 + i * 32, 875, 18, 7, '#6f4a31'); rect(ctx, 902 + i * 32, 882, 3, 7, '#362416'); rect(ctx, 912 + i * 32, 882, 3, 7, '#362416'); }
-  rect(ctx, 1650, 900, 146, 78, '#386f7f'); rect(ctx, 1660, 910, 126, 58, '#5fb8c8'); strokeRect(ctx, 1650, 900, 146, 78, '#d7e5e1', 1);
-  for (let i = 0; i < 7; i++) rect(ctx, 1678 + i * 16, 930 + (i % 2) * 8, 9, 3, '#eaf7ff');
+  rect(ctx, 1010, 490, 540, 7, '#1d361f'); rect(ctx, 1010, 820, 540, 7, '#1d361f');
+  for (let x = 1020; x < 1540; x += 24) { rect(ctx, x, 492, 10, 8, '#47723d'); rect(ctx, x + 8, 820, 10, 8, '#47723d'); }
+  for (let i = 0; i < 10; i++) { rect(ctx, 910 + i * 34, 875, 18, 7, '#6f4a31'); rect(ctx, 912 + i * 34, 882, 3, 7, '#362416'); rect(ctx, 922 + i * 34, 882, 3, 7, '#362416'); }
+  rect(ctx, 1535, 770, 130, 66, '#386f7f'); rect(ctx, 1545, 780, 110, 46, '#5fb8c8'); strokeRect(ctx, 1535, 770, 130, 66, '#d7e5e1', 1);
+  for (let i = 0; i < 6; i++) rect(ctx, 1560 + i * 15, 799 + (i % 2) * 7, 8, 3, '#eaf7ff');
 
   // Active backend packet paths are subtle and don't draw over the road surface.
   const activeDepts = (currentState.departments || []).filter(d => (d.tool_calls || d.active_agents || d.sessions) > 0);
@@ -587,7 +574,7 @@ function drawPixelEcosystem(t = performance.now()) {
   for (const agent of currentState.agents || []) drawAgentSprite(ctx, agent, globalIndex++, t);
   text(ctx, 'HERMES AGENT HQ — HIGH DETAIL PIXEL CAMPUS', 54, 46, 20, '#f5f0e6', 'left');
   text(ctx, `${(currentState.agents || []).length} real backend agents/sessions · ${(currentState.departments || []).filter(d => d.active_agents > 0).length} active districts`, 56, 74, 12, '#d8c48b', 'left', 'mono');
-  if (!(currentState.agents || []).length) text(ctx, 'No real active agents reported by backend — scenic campus only; no fake workers.', WORLD_W / 2, WORLD_H / 2, 16, '#d8c48b', 'center', 'mono');
+  if (!(currentState.agents || []).length) text(ctx, 'No real active agents reported by backend — scenic campus only; no fake workers.', WORLD_W / 2, WORLD_H - 44, 16, '#d8c48b', 'center', 'mono');
 }
 
 function animationLoop(t) {
@@ -679,8 +666,6 @@ function closeChat() {
   chatDrawer.setAttribute('aria-hidden', 'true');
   chatBackdrop.hidden = true;
 }
-hqMenuToggle?.addEventListener('click', () => setCommandMenu(!commandMenu?.classList.contains('open')));
-
 menuTabs.forEach((tab) => tab.addEventListener('click', () => {
   selectMenuPanel(tab.dataset.panel);
   if (tab.dataset.panel === 'chat') openChat();
