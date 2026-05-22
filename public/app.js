@@ -285,35 +285,6 @@ function buildingPalette(dept, form) {
   return map[form] || map.office;
 }
 
-function drawTinyIcon(ctx, form, x, y, active, trim) {
-  if (form === 'dome') {
-    rect(ctx, x + 3, y + 7, 26, 14, '#d1dfbf'); strokeRect(ctx, x + 3, y + 7, 26, 14, trim, 1);
-    rect(ctx, x + 9, y + 1, 14, 6, '#b8f4ff');
-  } else if (form === 'tower') {
-    text(ctx, '</>', x + 16, y + 3, 11, '#e3f6e9', 'center', 'mono');
-  } else if (form === 'factory') {
-    rect(ctx, x + 4, y + 1, 5, 19, trim); rect(ctx, x + 15, y + 5, 5, 15, trim); rect(ctx, x + 24, y + 9, 5, 11, trim);
-  } else if (form === 'plant') {
-    rect(ctx, x + 5, y + 5, 8, 8, trim); rect(ctx, x + 19, y + 5, 8, 8, '#81d672'); rect(ctx, x + 12, y + 12, 8, 8, '#4a4c2f');
-  } else if (form === 'warehouse') {
-    for (let i = 0; i < 3; i++) rect(ctx, x + 4 + i * 9, y + 4, 6, 16, i % 2 ? '#6fbfc8' : trim);
-  } else if (form === 'stepped') {
-    for (let i = 0; i < 4; i++) rect(ctx, x + 4 + i * 7, y + 17 - i * 4, 5, 4 + i * 4, i % 2 ? '#6fbfc8' : trim);
-  } else if (form === 'vault') {
-    rect(ctx, x + 6, y + 5, 22, 16, '#323842'); strokeRect(ctx, x + 6, y + 5, 22, 16, trim, 1); rect(ctx, x + 14, y + 10, 6, 6, trim);
-  } else if (form === 'fort') {
-    rect(ctx, x + 4, y + 5, 6, 16, '#4d2d2c'); rect(ctx, x + 22, y + 5, 6, 16, '#4d2d2c'); rect(ctx, x + 10, y + 2, 12, 5, '#9d6660');
-  } else if (form === 'studio') {
-    rect(ctx, x + 5, y + 6, 22, 12, '#151d24'); strokeRect(ctx, x + 5, y + 6, 22, 12, trim, 1); text(ctx, 'AD', x + 16, y + 8, 8, '#fff1d6', 'center', 'mono');
-  } else if (form === 'media') {
-    rect(ctx, x + 7, y + 5, 18, 10, '#58c0d2'); rect(ctx, x + 24, y + 2, 5, 18, trim);
-  } else if (form === 'office') {
-    rect(ctx, x + 5, y + 5, 22, 15, '#151d24'); strokeRect(ctx, x + 5, y + 5, 22, 15, trim, 1);
-  } else if (form === 'hq') {
-    text(ctx, 'HQ', x + 16, y + 3, 12, '#fff1d6', 'center', 'mono');
-  }
-}
-
 function drawBuilding(ctx, slot, dept, t) {
   const load = Number(dept.load || 0);
   const active = Number(dept.active_agents || 0) > 0 || Number(dept.tool_calls || 0) > 0 || Number(dept.sessions || 0) > 0;
@@ -321,67 +292,105 @@ function drawBuilding(ctx, slot, dept, t) {
   const form = slot.form || 'office';
   const [base, face, side, trim] = buildingPalette(dept, form);
   const cx = slot.x + slot.w / 2;
-  const ground = slot.y + slot.h - 48;
-  const dims = {
-    hq: [300, 170], dome: [210, 112], tower: [170, 170], factory: [230, 116], plant: [220, 116],
-    warehouse: [240, 100], stepped: [230, 122], vault: [210, 100], fort: [230, 126], office: [200, 118],
-    studio: [210, 102], media: [200, 96],
-  }[form] || [200, 110];
-  const bw = dims[0], bh = dims[1];
-  const left = Math.round(cx - bw / 2);
+  const floors = slot.floors || 2;
+  const size = {
+    hq: [330, 190, 46], dome: [230, 112, 36], tower: [198, 178, 34], factory: [250, 116, 34], plant: [230, 116, 34],
+    warehouse: [270, 96, 30], stepped: [250, 126, 34], vault: [220, 94, 30], fort: [250, 132, 30], office: [214, 126, 30],
+    studio: [228, 98, 30], media: [218, 92, 30],
+  }[form] || [210, 116, 30];
+  const [bw, bh, depth] = size;
+  const ground = slot.y + slot.h - 46;
+  const left = Math.round(cx - bw / 2 - depth / 2);
   const top = Math.round(ground - bh);
 
-  // Flat pad and centered entrance; no detached terminals/signs around buildings.
-  rect(ctx, slot.x - 6, slot.y + slot.h - 38, slot.w + 12, 44, '#142217');
-  rect(ctx, slot.x + 8, slot.y + slot.h - 32, slot.w - 16, 28, active ? '#2d4632' : '#26382b');
-  rect(ctx, cx - 28, slot.y + slot.h - 48, 56, 12, '#c4aa76');
-  strokeRect(ctx, slot.x + 8, slot.y + slot.h - 32, slot.w - 16, 28, '#101812', 1);
+  drawBuildingPad(ctx, slot, active ? '#2d4632' : '#26382b');
+  // Keep the area around each building clean: only a small centered entrance strip, no detached side props.
+  rect(ctx, cx - 24, slot.y + slot.h - 48, 48, 10, '#c4aa76');
 
-  // Clean pixel building: shadow, side face, front face, roof. Everything stays within the slot.
-  rect(ctx, left + 16, ground + 8, bw, 12, '#111a16');
-  rect(ctx, left + 18, top + 18, bw, bh, side);
-  rect(ctx, left, top, bw, bh, face);
-  rect(ctx, left, top, bw, 18, base);
-  rect(ctx, left + 8, top - 12, bw - 16, 18, base);
-  rect(ctx, left + 16, top - 18, bw - 32, 6, trim);
-  strokeRect(ctx, left, top, bw, bh, active ? accent : '#151d20', 2);
+  drawIsoBlock(ctx, left, top, bw, bh, depth, face, side, base, active ? accent : '#151d20');
+  rect(ctx, left + 6, top + 8, bw - 12, 5, '#eef0d6');
+  rect(ctx, left + bw - 18, top + depth + 10, 10, bh - 20, '#182229');
+  rect(ctx, left + 8, top + bh - 18, bw - 14, 18, '#26313a');
 
-  // Form-specific silhouette changes that do not protrude outside the building slot.
-  if (form === 'tower') {
-    rect(ctx, left + bw - 56, top - 42, 42, 42, '#7d93ca'); strokeRect(ctx, left + bw - 56, top - 42, 42, 42, '#172129', 1);
-    rect(ctx, left + bw - 39, top - 60, 8, 18, trim);
+  if (form === 'hq') {
+    drawIsoBlock(ctx, left - 58, top + 56, 58, bh - 48, 18, '#557fa3', '#29435c', '#3f5f7c', '#172129');
+    drawIsoBlock(ctx, left + bw + depth - 4, top + 56, 58, bh - 48, 18, '#456c8d', '#20364f', '#365a77', '#172129');
+    drawIsoBlock(ctx, left + 56, top - 46, bw - 112, 46, 24, '#6c91b1', '#385975', '#4f7595', '#172129');
+    drawIsoBlock(ctx, cx - 28, top - 104, 56, 60, 16, '#496b87', '#29435c', '#6f8da8', '#172129');
+    rect(ctx, cx - 12, top - 122, 24, 18, active ? '#d6ad55' : '#7f8c8d');
+    rect(ctx, cx - 2, top - 140, 4, 18, '#d6ad55'); rect(ctx, cx + 2, top - 138, 26, 10, '#c57b7b');
+    text(ctx, 'HQ', cx, top - 34, 22, '#fff1d6', 'center', 'mono');
+  } else if (form === 'tower') {
+    drawIsoBlock(ctx, left - 18, top + 28, 62, bh - 18, 18, '#5d72a8', '#27395d', '#465b8b', '#172129');
+    drawIsoBlock(ctx, left + bw - 55, top - 38, 72, bh + 32, 20, '#7d93ca', '#33476f', '#52699b', '#172129');
+    rect(ctx, left + bw - 28, top - 64, 16, 26, active ? '#6fbfc8' : '#738099');
+    rect(ctx, left + bw - 18, top - 82, 4, 18, '#d6ad55');
+    text(ctx, '</>', cx, top - 54, 15, '#e3f6e9', 'center', 'mono');
   } else if (form === 'dome') {
-    rect(ctx, left + 40, top - 34, bw - 80, 34, '#d1dfbf'); strokeRect(ctx, left + 40, top - 34, bw - 80, 34, '#405f4b', 1);
-  } else if (form === 'factory' || form === 'plant') {
-    for (let i = 0; i < 3; i++) rect(ctx, left + 28 + i * 42, top - 34 + i * 5, 16, 34 - i * 5, trim);
+    drawIsoBlock(ctx, left + 18, top - 20, bw - 36, 42, 22, '#a2c79f', '#405f4b', '#c5ddbd', '#213526');
+    rect(ctx, left + 48, top - 48, bw - 96, 30, '#d1dfbf');
+    strokeRect(ctx, left + 48, top - 48, bw - 96, 30, '#405f4b', 1);
+    drawDish(ctx, left + bw - 58, top - 42, '#b8f4ff');
+  } else if (form === 'factory') {
+    for (let i = 0; i < 3; i++) drawIsoBlock(ctx, left + 18 + i * 48, top - 48 - i * 8, 22, 48 + i * 8, 8, side, '#2c211a', trim, '#241912');
+    if (active) rect(ctx, left + 28 + (Math.floor(t / 180) % 3) * 48, top - 60, 12, 8, trim);
+  } else if (form === 'plant') {
+    drawGear(ctx, left + 38, ground - 74, 14, '#d6ad55');
+    drawGear(ctx, left + bw - 38, ground - 92, 13, '#81d672');
+    rect(ctx, left + 46, top - 38, 94, 38, '#93965c'); strokeRect(ctx, left + 46, top - 38, 94, 38, '#4a4c2f', 1);
+    rect(ctx, left + 70, top - 58, 14, 20, '#4a4c2f'); rect(ctx, left + 104, top - 58, 14, 20, '#4a4c2f');
+  } else if (form === 'warehouse') {
+    for (let i = 0; i < 4; i++) {
+      drawIsoBlock(ctx, left + 26 + i * 47, top - 18, 34, bh + 6, 10, '#a48668', '#4e3e31', '#c3a17b', '#2f241c');
+      rect(ctx, left + 34 + i * 47, top + 20, 18, 54, i % 2 ? '#6fbfc8' : '#d8c48b');
+    }
   } else if (form === 'stepped') {
-    rect(ctx, left + 42, top - 28, bw - 84, 28, '#9fb4c8'); strokeRect(ctx, left + 42, top - 28, bw - 84, 28, '#263544', 1);
+    drawIsoBlock(ctx, left + 24, top - 34, bw - 48, 38, 18, '#8ea5bc', '#394b60', '#9fb4c8', '#263544');
+    drawIsoBlock(ctx, left + 62, top - 66, bw - 124, 32, 14, '#bfd0dd', '#4a5f76', '#d9edf7', '#263544');
+    for (let i = 0; i < 6; i++) rect(ctx, left + 26 + i * 30, ground - 46 - i * 8, 18, 46 + i * 8, i % 2 ? '#6fbfc8' : '#d6ad55');
   } else if (form === 'fort') {
-    rect(ctx, left + 8, top - 20, 36, 20, '#9d6660'); rect(ctx, left + bw - 44, top - 20, 36, 20, '#9d6660');
+    drawIsoBlock(ctx, left - 34, top - 18, 34, bh + 22, 12, '#9d6660', '#4d2d2c', '#7a4b47', '#2b1918');
+    drawIsoBlock(ctx, left + bw + depth - 2, top - 18, 34, bh + 22, 12, '#8d5550', '#4d2d2c', '#7a4b47', '#2b1918');
+    for (let i = 0; i < 6; i++) rect(ctx, left + i * (bw / 6), top - 26, 22, 18, '#b47770');
+    rect(ctx, left + bw / 2 - 20, ground - 52, 40, 52, '#432626'); strokeRect(ctx, left + bw / 2 - 20, ground - 52, 40, 52, '#e15f5f', 2);
   } else if (form === 'vault') {
-    rect(ctx, cx - 34, ground - 58, 68, 58, '#323842'); strokeRect(ctx, cx - 34, ground - 58, 68, 58, trim, 2); rect(ctx, cx - 10, ground - 34, 20, 20, trim);
-  } else if (form === 'hq') {
-    rect(ctx, left + 36, top + 32, 44, bh - 32, '#557fa3');
-    rect(ctx, left + bw - 80, top + 32, 44, bh - 32, '#456c8d');
-    rect(ctx, cx - 28, top - 52, 56, 52, '#496b87'); strokeRect(ctx, cx - 28, top - 52, 56, 52, '#172129', 1);
+    drawIsoBlock(ctx, left + 26, top - 36, bw - 52, 38, 16, '#b3b7bd', '#41454d', '#d7dbe0', '#323842');
+    rect(ctx, cx - 36, ground - 58, 72, 58, '#323842'); strokeRect(ctx, cx - 36, ground - 58, 72, 58, '#d8c48b', 3);
+    rect(ctx, cx - 13, ground - 36, 26, 26, '#d8c48b'); rect(ctx, cx - 5, ground - 28, 10, 10, '#41454d');
+  } else if (form === 'studio') {
+    drawIsoBlock(ctx, left + bw - 62, top - 42, 56, 42, 16, '#b083a5', '#5b3e52', '#d1a0c2', '#2a2530');
+    rect(ctx, left + bw - 46, top - 31, 26, 21, active ? '#c57b7b' : '#8a7a66');
+  } else if (form === 'media') {
+    drawDish(ctx, left + bw - 48, top - 42, '#d6ad55');
+  } else if (form === 'office') {
+    for (let i = 0; i < 3; i++) {
+      rect(ctx, left + bw - 56, top + 22 + i * 26, 38, 18, '#151d24');
+      strokeRect(ctx, left + bw - 56, top + 22 + i * 26, 38, 18, '#81d672', 1);
+      rect(ctx, left + bw - 50, top + 28 + i * 26, 22, 3, '#fff1d6');
+    }
   }
 
-  // Windows clipped to the front face only.
-  const winW = form === 'hq' ? 14 : 12;
-  const stepX = form === 'tower' ? 20 : 24;
-  const stepY = 20;
-  for (let yy = top + 32; yy < ground - 30; yy += stepY) {
-    for (let xx = left + 18; xx < left + bw - 22; xx += stepX) {
-      const lit = active || ((Math.round(xx) + Math.round(yy) + load + Math.floor(t / 520)) % 9) === 0;
+  const winW = form === 'hq' ? 14 : 11;
+  const stepX = form === 'hq' ? 23 : form === 'tower' ? 19 : 22;
+  const stepY = form === 'hq' ? 18 : 18;
+  for (let yy = top + 22; yy < ground - 22; yy += stepY) {
+    for (let xx = left + 18; xx < left + bw - 24; xx += stepX) {
+      const lit = active || ((Math.round(xx) + Math.round(yy) + load + Math.floor(t / 520)) % 7) === 0;
       rect(ctx, xx, yy, winW, 8, lit ? accent : side);
       rect(ctx, xx + 2, yy + 2, Math.max(2, winW - 5), 2, lit ? '#fff6d8' : base);
     }
   }
+  for (let yy = top + depth + 25; yy < ground - 18; yy += 22) rect(ctx, left + bw + depth - 17, yy, 8, 8, active ? accent : '#1f2a32');
+  for (let i = 0; i < Math.floor(bw / 20); i++) rect(ctx, left + 10 + i * 20, ground - 10, 10, 4, trim);
+  if (active) {
+    const spark = Math.floor(t / 140) % 5;
+    rect(ctx, left + bw + depth + 12 + spark * 3, top + 24, 3, 3, accent);
+    rect(ctx, left - 16 - spark * 2, top + 48, 3, 3, trim);
+  }
 
-  drawTinyIcon(ctx, form, left + bw - 42, top + 24, active, trim);
   rect(ctx, cx - 20, ground - 27, 40, 27, '#20272d'); strokeRect(ctx, cx - 20, ground - 27, 40, 27, active ? accent : '#14191d', 1);
-  text(ctx, shortName(dept.name), cx, slot.y + slot.h - 30, form === 'hq' ? 17 : 15, '#fff1d6', 'center', 'mono');
-  text(ctx, `${dept.status || 'idle'} · ${load}%`, cx, slot.y + slot.h - 12, 11, active ? accent : '#d8c48b', 'center', 'mono');
+  text(ctx, shortName(dept.name), cx, slot.y + slot.h - 28, form === 'hq' ? 17 : 15, '#fff1d6', 'center', 'mono');
+  text(ctx, `${dept.status || 'idle'} · ${load}%`, cx, slot.y + slot.h - 10, 11, active ? accent : '#d8c48b', 'center', 'mono');
 }
 
 function agentPosition(agent, index, t) {
@@ -513,36 +522,42 @@ function drawFountain(ctx, cx, cy, t) {
 }
 
 function drawCityHall(ctx, x, y) {
-  // Simple, clean City Hall: one front face, one roof, attached clock tower, no stacked self-overlap.
-  const w = 300; const h = 142;
-  rect(ctx, x - 36, y + h + 28, w + 72, 14, '#111b17');
-  rect(ctx, x - 24, y + h + 10, w + 48, 20, '#8a704a');
-  for (let i = 0; i < 4; i++) rect(ctx, x + w / 2 - 70 - i * 6, y + h - 2 + i * 7, 140 + i * 12, 5, i % 2 ? '#8e7654' : '#d0b77d');
+  // Cleaner civic anchor: organized plaza, symmetrical hall, readable stairs, and no road clutter through it.
+  const w = 300; const h = 150;
+  rect(ctx, x - 55, y + h + 24, w + 110, 18, '#111b17');
+  rect(ctx, x - 42, y + h + 10, w + 84, 18, '#8a704a');
+  rect(ctx, x - 30, y + h + 14, w + 60, 8, '#c4aa76');
+  for (let i = 0; i < 5; i++) rect(ctx, x + w / 2 - 80 - i * 8, y + h - 2 + i * 7, 160 + i * 16, 6, i % 2 ? '#8e7654' : '#d0b77d');
 
-  rect(ctx, x + 18, y + 38, w - 36, h - 30, '#6d523d');
-  rect(ctx, x, y + 20, w, h - 18, '#b79668');
-  rect(ctx, x, y + 20, w, 16, '#d7c299');
-  rect(ctx, x + 24, y + 5, w - 48, 18, '#f0d67e');
-  rect(ctx, x + 44, y - 7, w - 88, 12, '#d6ad55');
-  strokeRect(ctx, x, y + 20, w, h - 18, '#3f2d22', 2);
+  drawIsoBlock(ctx, x + 22, y + 26, w - 44, h - 28, 30, '#b79668', '#6d523d', '#d7c299', '#3f2d22');
+  drawIsoBlock(ctx, x + 82, y - 4, w - 164, 34, 22, '#d6bc82', '#8d6442', '#f0d67e', '#3f2d22');
+  drawIsoBlock(ctx, x + w / 2 - 36, y - 58, 72, 58, 16, '#846047', '#59402f', '#d7c299', '#3f2d22');
+  rect(ctx, x + w / 2 - 18, y - 49, 36, 27, '#f4e5a7');
+  strokeRect(ctx, x + w / 2 - 18, y - 49, 36, 27, '#3f2d22', 1);
+  rect(ctx, x + w / 2 - 2, y - 42, 3, 12, '#3f2d22');
+  rect(ctx, x + w / 2, y - 36, 11, 3, '#3f2d22');
+  rect(ctx, x + w / 2 + 4, y - 84, 4, 26, '#d9d4c0');
+  rect(ctx, x + w / 2 + 8, y - 84, 38, 14, '#c57b7b');
+  rect(ctx, x + w / 2 + 8, y - 78, 27, 5, '#f5f0e6');
 
-  rect(ctx, x + w / 2 - 28, y - 48, 56, 42, '#846047');
-  rect(ctx, x + w / 2 - 18, y - 40, 36, 25, '#f4e5a7');
-  strokeRect(ctx, x + w / 2 - 18, y - 40, 36, 25, '#3f2d22', 1);
-  rect(ctx, x + w / 2 - 2, y - 34, 3, 11, '#3f2d22');
-  rect(ctx, x + w / 2, y - 29, 10, 3, '#3f2d22');
-  rect(ctx, x + w / 2 + 5, y - 70, 4, 22, '#d9d4c0');
-  rect(ctx, x + w / 2 + 9, y - 70, 34, 12, '#c57b7b');
-
+  // Orderly columns and windows.
   for (let i = 0; i < 6; i++) {
-    const px = x + 42 + i * 38;
-    rect(ctx, px, y + 48, 16, 74, '#efe4c8');
-    rect(ctx, px + 12, y + 48, 4, 74, '#b69b72');
+    const px = x + 50 + i * 38;
+    rect(ctx, px + 4, y + 55, 18, 78, '#6f543c');
+    rect(ctx, px, y + 52, 18, 78, '#efe4c8');
+    rect(ctx, px + 4, y + 52, 4, 78, '#fff7dc');
+    rect(ctx, px + 13, y + 52, 5, 78, '#b69b72');
+    rect(ctx, px - 4, y + 47, 27, 7, '#5e4937');
+    rect(ctx, px - 3, y + 129, 25, 8, '#5e4937');
   }
-  for (let i = 0; i < 4; i++) { rect(ctx, x + 44 + i * 56, y + 68, 12, 11, '#ffe8a3'); rect(ctx, x + 44 + i * 56, y + 92, 12, 11, '#8fcad8'); }
-  rect(ctx, x + w / 2 - 30, y + 88, 60, 42, '#2f2520');
-  rect(ctx, x + w / 2 - 20, y + 99, 40, 31, '#493527');
-  text(ctx, 'CITY HALL', x + w / 2, y + 28, 14, '#fff1d6', 'center', 'mono');
+  for (let i = 0; i < 4; i++) {
+    rect(ctx, x + 51 + i * 55, y + 72, 12, 12, '#ffe8a3');
+    rect(ctx, x + 51 + i * 55, y + 96, 12, 12, '#8fcad8');
+  }
+  rect(ctx, x + w / 2 - 31, y + 91, 62, 47, '#2f2520');
+  rect(ctx, x + w / 2 - 21, y + 102, 42, 36, '#493527');
+  strokeRect(ctx, x + w / 2 - 31, y + 91, 62, 47, '#d6ad55', 1);
+  drawSign(ctx, x + w / 2 - 48, y + 18, 'CITY HALL', '#d6ad55');
 }
 
 function drawPixelEcosystem(t = performance.now()) {
@@ -550,26 +565,36 @@ function drawPixelEcosystem(t = performance.now()) {
   const ctx = cityCtx; ctx.imageSmoothingEnabled = false;
   drawTexture(ctx, t);
 
-  // Minimal subtle walkways only — no roads/pipe grid.
-  drawPathSegment(ctx, 420, 704, 1720, 8, false);
-  drawPathSegment(ctx, 1276, 330, 8, 780, true);
+  // Clean thin sidewalk system. No dogleg pipes around every building.
+  // Three straight campus paths + one central path; short stubs stop at building pads.
+  const pathColor = '#c4aa76';
+  drawPathSegment(ctx, 280, 358, 2000, 12, false);
+  drawPathSegment(ctx, 280, 704, 2000, 12, false);
+  drawPathSegment(ctx, 280, 1030, 2000, 12, false);
+  drawPathSegment(ctx, 1275, 320, 12, 790, true);
   const stubs = [
-    [305, 338, 8, 24, true], [1280, 320, 8, 42, true], [2160, 338, 8, 24, true],
-    [790, 675, 8, 33, true], [2160, 675, 8, 33, true], [310, 938, 8, 96, true], [2160, 938, 8, 96, true],
-    [1280, 1100, 8, 38, true], [300, 1030, 8, 82, true], [790, 1030, 8, 82, true], [1530, 1030, 8, 82, true], [2030, 1030, 8, 82, true],
+    [305, 330, 12, 36, true], [1280, 320, 12, 44, true], [2160, 330, 12, 36, true],
+    [790, 650, 12, 60, true], [2160, 650, 12, 60, true], [310, 930, 12, 106, true], [2160, 930, 12, 106, true],
+    [1280, 1100, 12, 38, true], [300, 1030, 12, 82, true], [790, 1030, 12, 82, true], [1530, 1030, 12, 82, true], [2030, 1030, 12, 82, true],
   ];
   for (const [x, y, w, h, vertical] of stubs) drawPathSegment(ctx, x, y, w, h, vertical);
 
-  // Calm civic district: one plain plaza, City Hall, fountain, four lamps.
-  rect(ctx, 1010, 508, 540, 342, '#162719');
-  strokeRect(ctx, 1010, 508, 540, 342, '#405837', 2);
-  rect(ctx, 1040, 538, 480, 282, '#1e3422');
-  drawPathSegment(ctx, 1068, 564, 424, 70, false);
-  drawPathSegment(ctx, 1276, 508, 8, 342, true);
-  drawPathSegment(ctx, 1100, 704, 360, 8, false);
+  // Clean civic district: simple centered plaza with fewer ornaments.
+  rect(ctx, 1000, 500, 560, 360, '#162719');
+  strokeRect(ctx, 1000, 500, 560, 360, '#405837', 2);
+  rect(ctx, 1028, 528, 504, 304, '#1e3422');
+  drawPathSegment(ctx, 1058, 552, 444, 78, false);
+  drawPathSegment(ctx, 1118, 666, 324, 38, false);
+  drawPathSegment(ctx, 1275, 500, 12, 360, true);
+  drawPathSegment(ctx, 1068, 704, 424, 12, false);
+  drawFlowerBed(ctx, 1058, 560, 72, 22); drawFlowerBed(ctx, 1430, 560, 72, 22);
   drawCityHall(ctx, 1132, 522);
   drawFountain(ctx, 1281, 770, t);
-  for (const [lx, ly] of [[1048,532],[1510,532],[1048,708],[1510,708]]) drawLamp(ctx, lx, ly, true);
+  for (const [lx, ly] of [[1042,528],[1516,528],[1042,708],[1516,708]]) drawLamp(ctx, lx, ly, true);
+
+  // Minimal landscaping around the civic border only.
+  rect(ctx, 970, 474, 620, 6, '#1d361f'); rect(ctx, 970, 868, 620, 6, '#1d361f');
+  for (let x = 1000; x < 1560; x += 82) { drawTree(ctx, x, 458, x % 3); drawTree(ctx, x + 28, 878, x % 4); }
 
   // Active backend packet paths are subtle and don't draw over the road surface.
   const activeDepts = (currentState.departments || []).filter(d => (d.tool_calls || d.active_agents || d.sessions) > 0);
