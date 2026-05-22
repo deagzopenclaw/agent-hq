@@ -1,6 +1,6 @@
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
@@ -8,8 +8,27 @@ import { spawn } from 'node:child_process';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const HERMES_ROOT = process.env.HERMES_ROOT || '/home/deagz/.hermes/hermes-agent';
-const HERMES_API_BASE_URL = (process.env.HERMES_API_BASE_URL || '').replace(/\/+$/, '');
-const HERMES_API_KEY = process.env.HERMES_API_KEY || '';
+const HERMES_ENV_PATH = process.env.HERMES_ENV_PATH || '/home/deagz/.hermes/.env';
+
+function readHermesEnvValue(name) {
+  if (!existsSync(HERMES_ENV_PATH)) return '';
+  try {
+    const lines = readFileSync(HERMES_ENV_PATH, 'utf8').split(/\r?\n/);
+    const prefix = `${name}=`;
+    const line = lines.find((item) => item.trim().startsWith(prefix));
+    if (!line) return '';
+    return line.slice(line.indexOf('=') + 1).trim().replace(/^['"]|['"]$/g, '');
+  } catch {
+    return '';
+  }
+}
+
+const envApiEnabled = /^(1|true|yes|on)$/i.test(readHermesEnvValue('API_SERVER_ENABLED'));
+const envApiHost = readHermesEnvValue('API_SERVER_HOST') || '127.0.0.1';
+const envApiPort = readHermesEnvValue('API_SERVER_PORT') || '8642';
+const localHermesApiBaseUrl = envApiEnabled ? `http://${envApiHost}:${envApiPort}` : '';
+const HERMES_API_BASE_URL = (process.env.HERMES_API_BASE_URL || localHermesApiBaseUrl || '').replace(/\/+$/, '');
+const HERMES_API_KEY = process.env.HERMES_API_KEY || readHermesEnvValue('API_SERVER_KEY') || '';
 const HOST = process.env.HOST || '0.0.0.0';
 const PORT = Number(process.env.PORT || 7777);
 
@@ -123,10 +142,13 @@ async function runHermesApiState() {
   const state = fallbackHQState(`connected through remote Hermes API at ${HERMES_API_BASE_URL}`);
   state.truth_contract = `Connected to Hermes through HERMES_API_BASE_URL (${HERMES_API_BASE_URL}). Showing real connection health; live city/agent telemetry is limited unless the API exposes HQ state.`;
   state.telemetry.gateway_running = true;
-  state.telemetry.gateway_state = health?.status || health?.state || (health?.ok === false ? 'unhealthy' : 'api-connected');
+  state.telemetry.gateway_state = health?.gateway_state || health?.status || health?.state || (health?.ok === false ? 'unhealthy' : 'api-connected');
+  state.telemetry.active_agents = Number(health?.active_agents || 0);
   state.telemetry.connected_platforms = Array.isArray(health?.platforms)
     ? health.platforms.length
-    : Number(health?.connected_platforms || 0);
+    : (health?.platforms && typeof health.platforms === 'object')
+      ? Object.values(health.platforms).filter((item) => item?.state === 'connected').length
+      : Number(health?.connected_platforms || 0);
   state.telemetry.active_sessions = Number(health?.active_sessions || 0);
   state.telemetry.total_sessions = Number(health?.total_sessions || 0);
   state.alerts = [{ level: 'ok', message: `Hermes API reachable at ${HERMES_API_BASE_URL}` }];
