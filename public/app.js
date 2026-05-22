@@ -587,44 +587,38 @@ function drawFountain(ctx, cx, cy, t) {
 }
 
 function drawCityHall(ctx, x, y) {
-  // Cleaner civic anchor: organized plaza, symmetrical hall, readable stairs, and no road clutter through it.
-  const w = 300; const h = 150;
-  rect(ctx, x - 55, y + h + 24, w + 110, 18, '#111b17');
-  rect(ctx, x - 42, y + h + 10, w + 84, 18, '#8a704a');
-  rect(ctx, x - 30, y + h + 14, w + 60, 8, '#c4aa76');
-  for (let i = 0; i < 5; i++) rect(ctx, x + w / 2 - 80 - i * 8, y + h - 2 + i * 7, 160 + i * 16, 6, i % 2 ? '#8e7654' : '#d0b77d');
+  // Clean civic anchor: one readable symmetrical building, not a stack of noisy ornaments.
+  const w = 280; const h = 142;
+  rect(ctx, x - 44, y + h + 16, w + 88, 18, '#101812');
+  rect(ctx, x - 30, y + h + 4, w + 60, 18, '#73593e');
+  rect(ctx, x - 18, y + h + 9, w + 36, 7, '#d0b77d');
+  for (let i = 0; i < 4; i++) rect(ctx, x + w / 2 - 70 - i * 7, y + h - 1 + i * 8, 140 + i * 14, 6, i % 2 ? '#8e7654' : '#d0b77d');
 
-  drawIsoBlock(ctx, x + 22, y + 26, w - 44, h - 28, 30, '#b79668', '#6d523d', '#d7c299', '#3f2d22');
-  drawIsoBlock(ctx, x + 82, y - 4, w - 164, 34, 22, '#d6bc82', '#8d6442', '#f0d67e', '#3f2d22');
-  drawIsoBlock(ctx, x + w / 2 - 36, y - 58, 72, 58, 16, '#846047', '#59402f', '#d7c299', '#3f2d22');
-  rect(ctx, x + w / 2 - 18, y - 49, 36, 27, '#f4e5a7');
-  strokeRect(ctx, x + w / 2 - 18, y - 49, 36, 27, '#3f2d22', 1);
-  rect(ctx, x + w / 2 - 2, y - 42, 3, 12, '#3f2d22');
-  rect(ctx, x + w / 2, y - 36, 11, 3, '#3f2d22');
-  rect(ctx, x + w / 2 + 4, y - 84, 4, 26, '#d9d4c0');
-  rect(ctx, x + w / 2 + 8, y - 84, 38, 14, '#c57b7b');
-  rect(ctx, x + w / 2 + 8, y - 78, 27, 5, '#f5f0e6');
+  drawIsoBlock(ctx, x + 20, y + 30, w - 40, h - 34, 24, '#c49a6c', '#72513a', '#e1c994', '#3f2d22');
+  drawIsoBlock(ctx, x + 72, y + 2, w - 144, 32, 18, '#d7b87d', '#8a6042', '#f0d67e', '#3f2d22');
+  drawIsoBlock(ctx, x + w / 2 - 31, y - 42, 62, 44, 14, '#956b4b', '#604331', '#d7c299', '#3f2d22');
+  rect(ctx, x + w / 2 - 14, y - 34, 28, 20, '#f4e5a7'); strokeRect(ctx, x + w / 2 - 14, y - 34, 28, 20, '#3f2d22', 1);
+  rect(ctx, x + w / 2 - 2, y - 30, 3, 10, '#3f2d22'); rect(ctx, x + w / 2, y - 25, 9, 3, '#3f2d22');
+  rect(ctx, x + w / 2 + 4, y - 64, 4, 22, '#d9d4c0'); rect(ctx, x + w / 2 + 8, y - 64, 32, 12, '#c57b7b');
 
-  // Orderly columns and windows.
-  for (let i = 0; i < 6; i++) {
-    const px = x + 50 + i * 38;
-    rect(ctx, px + 4, y + 55, 18, 78, '#6f543c');
-    rect(ctx, px, y + 52, 18, 78, '#efe4c8');
-    rect(ctx, px + 4, y + 52, 4, 78, '#fff7dc');
-    rect(ctx, px + 13, y + 52, 5, 78, '#b69b72');
-    rect(ctx, px - 4, y + 47, 27, 7, '#5e4937');
-    rect(ctx, px - 3, y + 129, 25, 8, '#5e4937');
+  for (let i = 0; i < 5; i++) {
+    const px = x + 48 + i * 42;
+    rect(ctx, px + 4, y + 60, 15, 68, '#6f543c');
+    rect(ctx, px, y + 56, 15, 72, '#efe4c8');
+    rect(ctx, px + 4, y + 56, 3, 72, '#fff7dc');
+    rect(ctx, px + 11, y + 56, 4, 72, '#b69b72');
+    rect(ctx, px - 3, y + 51, 22, 6, '#5e4937');
+    rect(ctx, px - 3, y + 127, 22, 7, '#5e4937');
   }
   for (let i = 0; i < 4; i++) {
-    rect(ctx, x + 51 + i * 55, y + 72, 12, 12, '#ffe8a3');
-    rect(ctx, x + 51 + i * 55, y + 96, 12, 12, '#8fcad8');
+    rect(ctx, x + 46 + i * 55, y + 76, 11, 11, '#ffe8a3');
+    rect(ctx, x + 46 + i * 55, y + 100, 11, 11, '#8fcad8');
   }
-  rect(ctx, x + w / 2 - 31, y + 91, 62, 47, '#2f2520');
-  rect(ctx, x + w / 2 - 21, y + 102, 42, 36, '#493527');
-  strokeRect(ctx, x + w / 2 - 31, y + 91, 62, 47, '#d6ad55', 1);
-  drawSign(ctx, x + w / 2 - 48, y + 18, 'CITY HALL', '#d6ad55');
+  rect(ctx, x + w / 2 - 28, y + 92, 56, 42, '#2f2520');
+  rect(ctx, x + w / 2 - 18, y + 102, 36, 32, '#493527');
+  strokeRect(ctx, x + w / 2 - 28, y + 92, 56, 42, '#d6ad55', 1);
+  text(ctx, 'CITY HALL', x + w / 2, y + 18, 13, '#fff1d6', 'center', 'mono');
 }
-
 function drawPixelEcosystem(t = performance.now()) {
   if (!cityCtx || !cityCanvas || !currentState) return;
   const ctx = cityCtx; ctx.imageSmoothingEnabled = false;
@@ -632,36 +626,51 @@ function drawPixelEcosystem(t = performance.now()) {
 
   // Street grid: dark asphalt roads with curbs/lane markers, plus short driveway stubs to pads.
   // These replace the old tan sidewalk-looking pipes.
+  // Organized street grid: consistent roads and clean bypasses around City Hall.
   drawStreetSegment(ctx, 250, 346, 2060, 34, false);
-  drawStreetSegment(ctx, 250, 688, 2060, 34, false);
+  drawStreetSegment(ctx, 250, 688, 700, 34, false);
+  drawStreetSegment(ctx, 1592, 688, 718, 34, false);
   drawStreetSegment(ctx, 250, 1014, 2060, 34, false);
-  // Two connected bypass streets wrap the plaza so the grid stays visibly continuous.
   drawStreetSegment(ctx, 918, 346, 34, 702, true);
   drawStreetSegment(ctx, 1592, 346, 34, 702, true);
-  for (const [cx, cy] of [[935, 363], [935, 705], [935, 1031], [1609, 363], [1609, 705], [1609, 1031]]) drawStreetJunction(ctx, cx, cy, 46);
+  drawStreetSegment(ctx, 918, 840, 708, 34, false);
+  for (const [cx, cy] of [[935, 363], [935, 705], [935, 857], [935, 1031], [1609, 363], [1609, 705], [1609, 857], [1609, 1031]]) drawStreetJunction(ctx, cx, cy, 46);
   const driveways = [
     [300, 326, 24, 24, true], [1269, 304, 24, 46, true], [2150, 326, 24, 24, true],
     [780, 650, 24, 38, true], [2150, 650, 24, 38, true], [300, 928, 24, 86, true], [2150, 928, 24, 86, true],
-    [1269, 1098, 24, 48, true], [300, 1038, 24, 250, true], [780, 1038, 24, 250, true], [1520, 1038, 24, 250, true], [2020, 1038, 24, 250, true],
+    [1269, 874, 24, 48, true], [300, 1038, 24, 250, true], [780, 1038, 24, 250, true], [1520, 1038, 24, 250, true], [2020, 1038, 24, 250, true],
   ];
   for (const [x, y, w, h, vertical] of driveways) drawDriveway(ctx, x, y, w, h, vertical);
 
-  // Clean civic district: simple centered plaza with fewer ornaments.
-  rect(ctx, 1000, 500, 560, 360, '#162719');
-  strokeRect(ctx, 1000, 500, 560, 360, '#405837', 2);
-  rect(ctx, 1028, 528, 504, 304, '#1e3422');
-  drawPathSegment(ctx, 1058, 552, 444, 78, false);
-  drawPathSegment(ctx, 1118, 666, 324, 38, false);
-  drawPathSegment(ctx, 1275, 500, 12, 360, true);
-  drawPathSegment(ctx, 1068, 704, 424, 12, false);
-  drawFlowerBed(ctx, 1058, 560, 72, 22); drawFlowerBed(ctx, 1430, 560, 72, 22);
-  drawCityHall(ctx, 1132, 522);
-  drawFountain(ctx, 1281, 770, t);
-  for (const [lx, ly] of [[1042,528],[1516,528],[1042,708],[1516,708]]) drawLamp(ctx, lx, ly, true);
+  // Organized civic district: quiet plaza, centered hall, symmetric lawns and simple walkways.
+  rect(ctx, 986, 486, 588, 380, '#101812');
+  rect(ctx, 996, 496, 568, 360, '#182719');
+  strokeRect(ctx, 996, 496, 568, 360, '#405837', 2);
+  rect(ctx, 1028, 526, 504, 300, '#213a25');
+  rect(ctx, 1048, 546, 464, 260, '#182f1f');
+  strokeRect(ctx, 1048, 546, 464, 260, '#4b633f', 1);
 
-  // Minimal landscaping around the civic border only.
-  rect(ctx, 970, 474, 620, 6, '#1d361f'); rect(ctx, 970, 868, 620, 6, '#1d361f');
-  for (let x = 1000; x < 1560; x += 82) { drawTree(ctx, x, 458, x % 3); drawTree(ctx, x + 28, 878, x % 4); }
+  // Smooth, intentional plaza circulation. No crosshatch of chunky tan paths.
+  rect(ctx, 1268, 548, 24, 260, '#92764f');
+  rect(ctx, 1273, 548, 14, 260, '#d0b77d');
+  rect(ctx, 1094, 708, 372, 22, '#92764f');
+  rect(ctx, 1094, 713, 372, 12, '#d0b77d');
+  rect(ctx, 1122, 560, 88, 34, '#24452b'); rect(ctx, 1350, 560, 88, 34, '#24452b');
+  rect(ctx, 1122, 762, 88, 34, '#24452b'); rect(ctx, 1350, 762, 88, 34, '#24452b');
+  for (const [fx, fy] of [[1132,568],[1360,568],[1132,770],[1360,770]]) drawFlowerBed(ctx, fx, fy, 66, 18);
+
+  drawCityHall(ctx, 1140, 536);
+  // Small reflecting pool instead of a large busy fountain competing with City Hall.
+  rect(ctx, 1217, 759, 126, 42, '#111d18');
+  rect(ctx, 1224, 752, 112, 42, '#8e9a95');
+  rect(ctx, 1232, 758, 96, 28, '#58c0d2');
+  rect(ctx, 1242, 765, 76, 14, '#8be6ef');
+  strokeRect(ctx, 1224, 752, 112, 42, '#eafaff', 1);
+  for (const [lx, ly] of [[1032,526],[1528,526],[1032,820],[1528,820]]) drawLamp(ctx, lx, ly, true);
+
+  // Clean border landscaping, aligned to the plaza edge.
+  rect(ctx, 986, 470, 588, 6, '#1d361f'); rect(ctx, 986, 876, 588, 6, '#1d361f');
+  for (let x = 1016; x < 1540; x += 96) { drawTree(ctx, x, 456, x % 3); drawTree(ctx, x + 36, 884, x % 4); }
 
   // Active backend packet paths are subtle and don't draw over the road surface.
   const activeDepts = (currentState.departments || []).filter(d => (d.tool_calls || d.active_agents || d.sessions) > 0);
