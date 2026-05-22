@@ -169,10 +169,15 @@ function isoPoly(ctx, points, color, stroke = '#141b1f') {
   if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke(); }
 }
 function drawIsoBlock(ctx, x, y, w, h, depth, face, side, top, stroke = '#141b1f') {
-  rect(ctx, x + depth + 10, y + depth + h - 4, w, 18, '#111a16');
-  isoPoly(ctx, [[x, y], [x + w, y], [x + w + depth, y + depth], [x + depth, y + depth]], top, stroke);
-  isoPoly(ctx, [[x + w, y], [x + w + depth, y + depth], [x + w + depth, y + h + depth], [x + w, y + h]], side, stroke);
-  isoPoly(ctx, [[x, y], [x + w, y], [x + w, y + h], [x, y + h]], face, stroke);
+  // Compact pseudo-3D block: keep all wall faces inside the intended footprint.
+  // The old version pushed the right wall outside the building, which made walls overlap in screenshots.
+  const d = Math.max(8, Math.min(18, Math.round(depth * 0.42)));
+  rect(ctx, x + 10, y + h + 8, w, 12, '#111a16');
+  rect(ctx, x, y, w, h, face);
+  rect(ctx, x + w - d, y + d, d, h - d, side);
+  rect(ctx, x, y, w - d, d, top);
+  rect(ctx, x + w - d, y, d, d, side);
+  if (stroke) strokeRect(ctx, x, y, w, h, stroke, 2);
 }
 function drawBuildingPad(ctx, slot, labelColor = '#273a2d') {
   rect(ctx, slot.x - 8, slot.y + slot.h - 35, slot.w + 16, 42, '#142217');
@@ -313,16 +318,16 @@ function drawBuilding(ctx, slot, dept, t) {
   rect(ctx, left + 8, top + bh - 18, bw - 14, 18, '#26313a');
 
   if (form === 'hq') {
-    drawIsoBlock(ctx, left - 58, top + 56, 58, bh - 48, 18, '#557fa3', '#29435c', '#3f5f7c', '#172129');
-    drawIsoBlock(ctx, left + bw + depth - 4, top + 56, 58, bh - 48, 18, '#456c8d', '#20364f', '#365a77', '#172129');
-    drawIsoBlock(ctx, left + 56, top - 46, bw - 112, 46, 24, '#6c91b1', '#385975', '#4f7595', '#172129');
+    rect(ctx, left + 12, top + 56, 44, bh - 54, '#557fa3'); strokeRect(ctx, left + 12, top + 56, 44, bh - 54, '#172129', 1);
+    rect(ctx, left + bw - 56, top + 56, 44, bh - 54, '#456c8d'); strokeRect(ctx, left + bw - 56, top + 56, 44, bh - 54, '#172129', 1);
+    drawIsoBlock(ctx, left + 56, top - 46, bw - 112, 46, 16, '#6c91b1', '#385975', '#4f7595', '#172129');
     drawIsoBlock(ctx, cx - 28, top - 104, 56, 60, 16, '#496b87', '#29435c', '#6f8da8', '#172129');
     rect(ctx, cx - 12, top - 122, 24, 18, active ? '#d6ad55' : '#7f8c8d');
     rect(ctx, cx - 2, top - 140, 4, 18, '#d6ad55'); rect(ctx, cx + 2, top - 138, 26, 10, '#c57b7b');
     text(ctx, 'HQ', cx, top - 34, 22, '#fff1d6', 'center', 'mono');
   } else if (form === 'tower') {
-    drawIsoBlock(ctx, left - 18, top + 28, 62, bh - 18, 18, '#5d72a8', '#27395d', '#465b8b', '#172129');
-    drawIsoBlock(ctx, left + bw - 55, top - 38, 72, bh + 32, 20, '#7d93ca', '#33476f', '#52699b', '#172129');
+    rect(ctx, left + 12, top + 28, 42, bh - 36, '#5d72a8'); strokeRect(ctx, left + 12, top + 28, 42, bh - 36, '#172129', 1);
+    rect(ctx, left + bw - 64, top - 38, 52, bh + 20, '#7d93ca'); strokeRect(ctx, left + bw - 64, top - 38, 52, bh + 20, '#172129', 1);
     rect(ctx, left + bw - 28, top - 64, 16, 26, active ? '#6fbfc8' : '#738099');
     rect(ctx, left + bw - 18, top - 82, 4, 18, '#d6ad55');
     text(ctx, '</>', cx, top - 54, 15, '#e3f6e9', 'center', 'mono');
@@ -349,8 +354,8 @@ function drawBuilding(ctx, slot, dept, t) {
     drawIsoBlock(ctx, left + 62, top - 66, bw - 124, 32, 14, '#bfd0dd', '#4a5f76', '#d9edf7', '#263544');
     for (let i = 0; i < 6; i++) rect(ctx, left + 26 + i * 30, ground - 46 - i * 8, 18, 46 + i * 8, i % 2 ? '#6fbfc8' : '#d6ad55');
   } else if (form === 'fort') {
-    drawIsoBlock(ctx, left - 34, top - 18, 34, bh + 22, 12, '#9d6660', '#4d2d2c', '#7a4b47', '#2b1918');
-    drawIsoBlock(ctx, left + bw + depth - 2, top - 18, 34, bh + 22, 12, '#8d5550', '#4d2d2c', '#7a4b47', '#2b1918');
+    rect(ctx, left + 8, top - 18, 32, bh + 18, '#9d6660'); strokeRect(ctx, left + 8, top - 18, 32, bh + 18, '#2b1918', 1);
+    rect(ctx, left + bw - 40, top - 18, 32, bh + 18, '#8d5550'); strokeRect(ctx, left + bw - 40, top - 18, 32, bh + 18, '#2b1918', 1);
     for (let i = 0; i < 6; i++) rect(ctx, left + i * (bw / 6), top - 26, 22, 18, '#b47770');
     rect(ctx, left + bw / 2 - 20, ground - 52, 40, 52, '#432626'); strokeRect(ctx, left + bw / 2 - 20, ground - 52, 40, 52, '#e15f5f', 2);
   } else if (form === 'vault') {
@@ -380,11 +385,11 @@ function drawBuilding(ctx, slot, dept, t) {
       rect(ctx, xx + 2, yy + 2, Math.max(2, winW - 5), 2, lit ? '#fff6d8' : base);
     }
   }
-  for (let yy = top + depth + 25; yy < ground - 18; yy += 22) rect(ctx, left + bw + depth - 17, yy, 8, 8, active ? accent : '#1f2a32');
+  for (let yy = top + depth + 25; yy < ground - 18; yy += 22) rect(ctx, left + bw - 18, yy, 8, 8, active ? accent : '#1f2a32');
   for (let i = 0; i < Math.floor(bw / 20); i++) rect(ctx, left + 10 + i * 20, ground - 10, 10, 4, trim);
   if (active) {
     const spark = Math.floor(t / 140) % 5;
-    rect(ctx, left + bw + depth + 12 + spark * 3, top + 24, 3, 3, accent);
+    rect(ctx, left + bw - 14 - spark * 3, top + 24, 3, 3, accent);
     rect(ctx, left - 16 - spark * 2, top + 48, 3, 3, trim);
   }
 
