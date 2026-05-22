@@ -86,18 +86,18 @@ function agentDetails(agent) {
 }
 
 const CITY_SLOTS = {
-  'executive-headquarters': { x: 1040, y: 72, w: 480, h: 260, floors: 8, form: 'hq' },
-  'research-labs': { x: 115, y: 125, w: 360, h: 235, floors: 3, form: 'dome' },
-  'deployment-facilities': { x: 1900, y: 125, w: 390, h: 235, floors: 3, form: 'factory' },
-  'coding-towers': { x: 565, y: 415, w: 345, h: 270, floors: 7, form: 'tower' },
-  'automation-plants': { x: 2060, y: 435, w: 355, h: 250, floors: 3, form: 'plant' },
-  'data-warehouses': { x: 110, y: 720, w: 380, h: 245, floors: 2, form: 'warehouse' },
-  'analytics-centers': { x: 1020, y: 850, w: 395, h: 245, floors: 4, form: 'stepped' },
-  'finance-centers': { x: 2055, y: 760, w: 360, h: 230, floors: 2, form: 'vault' },
-  'media-rooms': { x: 80, y: 1135, w: 350, h: 215, floors: 2, form: 'media' },
-  'support-offices': { x: 585, y: 1150, w: 350, h: 215, floors: 3, form: 'office' },
-  'marketing-studios': { x: 1375, y: 1150, w: 355, h: 215, floors: 2, form: 'studio' },
-  'security-divisions': { x: 1840, y: 1110, w: 375, h: 230, floors: 4, form: 'fort' },
+  'executive-headquarters': { x: 1040, y: 66, w: 480, h: 258, floors: 8, form: 'hq' },
+  'research-labs': { x: 115, y: 112, w: 360, h: 236, floors: 3, form: 'dome' },
+  'coding-towers': { x: 600, y: 360, w: 350, h: 275, floors: 8, form: 'tower' },
+  'deployment-facilities': { x: 1940, y: 112, w: 390, h: 236, floors: 3, form: 'factory' },
+  'automation-plants': { x: 2055, y: 435, w: 360, h: 255, floors: 3, form: 'plant' },
+  'data-warehouses': { x: 120, y: 724, w: 380, h: 248, floors: 2, form: 'warehouse' },
+  'analytics-centers': { x: 1040, y: 900, w: 390, h: 244, floors: 4, form: 'stepped' },
+  'finance-centers': { x: 2050, y: 742, w: 365, h: 238, floors: 2, form: 'vault' },
+  'media-rooms': { x: 88, y: 1135, w: 350, h: 215, floors: 2, form: 'media' },
+  'support-offices': { x: 575, y: 1145, w: 360, h: 218, floors: 3, form: 'office' },
+  'marketing-studios': { x: 1375, y: 1145, w: 360, h: 218, floors: 2, form: 'studio' },
+  'security-divisions': { x: 1840, y: 1110, w: 380, h: 238, floors: 4, form: 'fort' },
 };
 const SLOT_ALIASES = {
   mainframe: 'executive-headquarters', executive: 'executive-headquarters', headquarters: 'executive-headquarters', hq: 'executive-headquarters',
@@ -181,7 +181,7 @@ function drawBuildingPad(ctx, slot, labelColor = '#273a2d') {
   strokeRect(ctx, slot.x, slot.y + slot.h - 31, slot.w, 32, '#101812', 1);
 }
 function drawTexture(ctx, t) {
-  // Smaller pixel scale: denser grass, shade, flowers, rocks, and forest details.
+  // Dense pixel terrain; keep civic core/building pads readable.
   rect(ctx, 0, 0, WORLD_W, WORLD_H, '#203629');
   rect(ctx, 24, 24, WORLD_W - 48, WORLD_H - 48, '#294934');
   strokeRect(ctx, 24, 24, WORLD_W - 48, WORLD_H - 48, '#101c15', 2);
@@ -196,18 +196,19 @@ function drawTexture(ctx, t) {
       else if (v === 79) rect(ctx, x, y + 1, 1, 1, '#c57b7b');
     }
   }
-  for (let i = 0; i < 230; i++) {
+  for (let i = 0; i < 190; i++) {
     const x = 46 + ((i * 229) % (WORLD_W - 110));
     const y = 50 + ((i * 157) % (WORLD_H - 120));
-    // Keep civic core and building pads readable.
-    if (x > 940 && x < 1630 && y > 40 && y < 820) continue;
-    if (x > 620 && x < 930 && y > 360 && y < 650) continue;
-    if (x > 1700 && x < 2030 && y > 120 && y < 350) continue;
+    if (x > 920 && x < 1660 && y > 40 && y < 900) continue;
+    if (x > 80 && x < 500 && y > 80 && y < 360) continue;
+    if (x > 560 && x < 980 && y > 330 && y < 670) continue;
+    if (x > 1880 && x < 2360 && y > 80 && y < 720) continue;
     drawTree(ctx, x, y, i % 4);
   }
-  for (let i = 0; i < 210; i++) {
+  for (let i = 0; i < 180; i++) {
     const x = 54 + ((i * 193) % (WORLD_W - 120));
     const y = 58 + ((i * 113) % (WORLD_H - 134));
+    if (x > 930 && x < 1600 && y > 390 && y < 880) continue;
     if (i % 4 === 0) { rect(ctx, x, y, 7, 4, '#7c8074'); rect(ctx, x + 2, y + 1, 3, 1, '#b1b7aa'); }
     else if (i % 4 === 1) { rect(ctx, x, y, 2, 2, '#d6ad55'); rect(ctx, x + 5, y + 2, 2, 2, '#c57b7b'); rect(ctx, x + 2, y + 5, 2, 1, '#81d672'); }
     else if (i % 4 === 2) { rect(ctx, x, y, 5, 4, '#624527'); rect(ctx, x + 1, y, 3, 1, '#a07442'); }
@@ -215,13 +216,7 @@ function drawTexture(ctx, t) {
   }
 }
 
-function drawRoadOutline(ctx, roads) {
-  for (const [x, y, w, h] of roads) rect(ctx, x - 5, y - 5, w + 10, h + 10, '#111813');
-  for (const [x, y, w, h] of roads) rect(ctx, x - 1, y - 1, w + 2, h + 2, '#777f74');
-}
-
 function drawRoad(ctx, x, y, w, h, vertical = false) {
-  // Clean road segments that meet without messy overlapping borders.
   rect(ctx, x, y, w, h, '#2d3540');
   rect(ctx, x + 4, y + 4, w - 8, h - 8, '#3a4550');
   const stripe = vertical ? h : w;
@@ -237,6 +232,37 @@ function drawTerminal(ctx, x, y, active, t) {
   rect(ctx, x + 4, y + 4, 16, 3, on ? '#5dff9b' : '#665e7c');
   rect(ctx, x + 4, y + 9, 11, 2, active ? '#ffd166' : '#3c3650');
   rect(ctx, x + 17, y + 9, 3, 2, active ? '#ff4fd8' : '#3c3650');
+}
+
+function drawSign(ctx, x, y, label, color = '#d6ad55') {
+  rect(ctx, x - 5, y + 22, label.length * 9 + 16, 6, '#111812');
+  rect(ctx, x, y, 4, 28, '#4a3826');
+  rect(ctx, x + 8, y, label.length * 9 + 8, 20, '#151d24');
+  strokeRect(ctx, x + 8, y, label.length * 9 + 8, 20, color, 1);
+  text(ctx, label, x + 12, y + 4, 9, '#fff1d6', 'left', 'mono');
+}
+
+function drawDish(ctx, x, y, color = '#d8c48b') {
+  rect(ctx, x + 12, y + 18, 7, 20, '#3f3425');
+  isoPoly(ctx, [[x, y + 8], [x + 34, y], [x + 28, y + 22], [x + 5, y + 28]], '#8f97a8', '#272f35');
+  rect(ctx, x + 24, y - 10, 5, 14, color);
+  rect(ctx, x + 32, y - 17, 4, 4, color);
+}
+
+function drawGear(ctx, cx, cy, r, color = '#d6ad55') {
+  for (let i = 0; i < 8; i++) {
+    const a = i * Math.PI / 4;
+    rect(ctx, cx + Math.cos(a) * r - 3, cy + Math.sin(a) * r - 3, 6, 6, color);
+  }
+  rect(ctx, cx - r * .7, cy - r * .7, r * 1.4, r * 1.4, '#4a4c2f');
+  rect(ctx, cx - 5, cy - 5, 10, 10, '#1c211b');
+}
+
+function drawRoadJunction(ctx, x, y, w = 66, h = 66) {
+  rect(ctx, x - w / 2 - 4, y - h / 2 - 4, w + 8, h + 8, '#111813');
+  rect(ctx, x - w / 2, y - h / 2, w, h, '#3a4550');
+  rect(ctx, x - 4, y - h / 2 + 8, 8, h - 16, '#dec987');
+  rect(ctx, x - w / 2 + 8, y - 4, w - 16, 8, '#dec987');
 }
 
 function buildingPalette(dept, form) {
@@ -265,16 +291,21 @@ function drawBuilding(ctx, slot, dept, t) {
   const [base, face, side, trim] = buildingPalette(dept, form);
   const cx = slot.x + slot.w / 2;
   const floors = slot.floors || 2;
-  const bw = form === 'hq' ? 330 : Math.min(slot.w - 58, 150 + floors * 22);
-  const bh = form === 'hq' ? 190 : Math.min(slot.h - 54, 100 + floors * 24);
-  const depth = form === 'hq' ? 46 : 34;
+  const size = {
+    hq: [330, 190, 46], dome: [230, 112, 36], tower: [198, 178, 34], factory: [250, 116, 34], plant: [230, 116, 34],
+    warehouse: [270, 96, 30], stepped: [250, 126, 34], vault: [220, 94, 30], fort: [250, 132, 30], office: [214, 126, 30],
+    studio: [228, 98, 30], media: [218, 92, 30],
+  }[form] || [210, 116, 30];
+  const [bw, bh, depth] = size;
   const ground = slot.y + slot.h - 46;
   const left = Math.round(cx - bw / 2 - depth / 2);
   const top = Math.round(ground - bh);
 
   drawBuildingPad(ctx, slot, active ? '#2d4632' : '#26382b');
+  // Small connected driveway from the organized road network into each building pad.
+  rect(ctx, cx - 22, slot.y + slot.h - 70, 44, 35, '#303a43');
+  rect(ctx, cx - 4, slot.y + slot.h - 70, 8, 29, '#dec987');
 
-  // Strong angled pixel block: roof/top face + front face + right side face.
   drawIsoBlock(ctx, left, top, bw, bh, depth, face, side, base, active ? accent : '#151d20');
   rect(ctx, left + 6, top + 8, bw - 12, 5, '#eef0d6');
   rect(ctx, left + bw - 18, top + depth + 10, 10, bh - 20, '#182229');
@@ -289,49 +320,78 @@ function drawBuilding(ctx, slot, dept, t) {
     rect(ctx, cx - 2, top - 140, 4, 18, '#d6ad55'); rect(ctx, cx + 2, top - 138, 26, 10, '#c57b7b');
     text(ctx, 'HQ', cx, top - 34, 22, '#fff1d6', 'center', 'mono');
   } else if (form === 'tower') {
-    drawIsoBlock(ctx, left + bw * .31, top - 58, bw * .38, 58, 18, '#7d93ca', '#33476f', '#52699b', '#172129');
-    rect(ctx, left + bw * .43, top - 76, bw * .14, 18, active ? '#6fbfc8' : '#738099');
+    drawIsoBlock(ctx, left - 18, top + 28, 62, bh - 18, 18, '#5d72a8', '#27395d', '#465b8b', '#172129');
+    drawIsoBlock(ctx, left + bw - 55, top - 38, 72, bh + 32, 20, '#7d93ca', '#33476f', '#52699b', '#172129');
+    rect(ctx, left + bw - 28, top - 64, 16, 26, active ? '#6fbfc8' : '#738099');
+    rect(ctx, left + bw - 18, top - 82, 4, 18, '#d6ad55');
+    text(ctx, '</>', cx, top - 54, 15, '#e3f6e9', 'center', 'mono');
   } else if (form === 'dome') {
-    drawIsoBlock(ctx, left + 12, top - 34, bw - 24, 34, 18, '#a2c79f', '#405f4b', '#b7cfae', '#213526');
-    rect(ctx, left + 40, top - 54, bw - 80, 20, '#d1dfbf');
-  } else if (form === 'factory' || form === 'plant') {
-    for (let i = 0; i < 3; i++) drawIsoBlock(ctx, left + 20 + i * 44, top - 44 - i * 8, 20, 44 + i * 8, 8, side, '#2c211a', trim, '#241912');
-    if (active) rect(ctx, left + 28 + (Math.floor(t / 180) % 3) * 44, top - 56, 10, 7, trim);
-  } else if (form === 'fort') {
-    drawIsoBlock(ctx, left - 28, top - 18, 28, bh + 18, 10, '#9d6660', '#4d2d2c', '#7a4b47', '#2b1918');
-    drawIsoBlock(ctx, left + bw + depth - 2, top - 18, 28, bh + 18, 10, '#8d5550', '#4d2d2c', '#7a4b47', '#2b1918');
-    for (let i = 0; i < 5; i++) rect(ctx, left + i * (bw / 5), top - 24, 22, 18, '#b47770');
-  } else if (form === 'vault') {
-    drawIsoBlock(ctx, left + 26, top - 30, bw - 52, 30, 16, '#b3b7bd', '#41454d', '#d7dbe0', '#323842');
-    rect(ctx, cx - 26, ground - 42, 52, 42, '#323842'); strokeRect(ctx, cx - 26, ground - 42, 52, 42, '#d8c48b', 2);
-    rect(ctx, cx - 8, ground - 26, 16, 16, '#d8c48b');
-  } else if (form === 'studio' || form === 'media') {
-    drawIsoBlock(ctx, left + bw - 46, top - 34, 42, 34, 14, '#b083a5', '#5b3e52', '#d1a0c2', '#2a2530');
-    rect(ctx, left + bw - 34, top - 25, 18, 15, active ? '#c57b7b' : '#8a7a66');
+    drawIsoBlock(ctx, left + 18, top - 20, bw - 36, 42, 22, '#a2c79f', '#405f4b', '#c5ddbd', '#213526');
+    rect(ctx, left + 48, top - 48, bw - 96, 30, '#d1dfbf');
+    strokeRect(ctx, left + 48, top - 48, bw - 96, 30, '#405f4b', 1);
+    drawDish(ctx, left - 42, top + 28, '#b8f4ff');
+    rect(ctx, left + bw + depth + 18, top + 36, 24, 48, '#405f4b'); strokeRect(ctx, left + bw + depth + 18, top + 36, 24, 48, '#d6ad55', 1);
+  } else if (form === 'factory') {
+    for (let i = 0; i < 3; i++) drawIsoBlock(ctx, left + 18 + i * 48, top - 48 - i * 8, 22, 48 + i * 8, 8, side, '#2c211a', trim, '#241912');
+    rect(ctx, left - 34, ground - 34, 66, 24, '#593725'); strokeRect(ctx, left - 34, ground - 34, 66, 24, '#d6ad55', 1);
+    for (let i = 0; i < 5; i++) rect(ctx, left - 25 + i * 12, ground - 26, 7, 5, '#c9874a');
+    if (active) rect(ctx, left + 28 + (Math.floor(t / 180) % 3) * 48, top - 60, 12, 8, trim);
+  } else if (form === 'plant') {
+    drawGear(ctx, left - 20, ground - 70, 18, '#d6ad55');
+    drawGear(ctx, left + bw + depth + 26, ground - 92, 16, '#81d672');
+    rect(ctx, left + 46, top - 38, 94, 38, '#93965c'); strokeRect(ctx, left + 46, top - 38, 94, 38, '#4a4c2f', 1);
+    rect(ctx, left + 70, top - 58, 14, 20, '#4a4c2f'); rect(ctx, left + 104, top - 58, 14, 20, '#4a4c2f');
+  } else if (form === 'warehouse') {
+    for (let i = 0; i < 4; i++) {
+      drawIsoBlock(ctx, left + 26 + i * 47, top - 18, 34, bh + 6, 10, '#a48668', '#4e3e31', '#c3a17b', '#2f241c');
+      rect(ctx, left + 34 + i * 47, top + 20, 18, 54, i % 2 ? '#6fbfc8' : '#d8c48b');
+    }
+    rect(ctx, left - 28, ground - 36, 24, 20, '#624527'); rect(ctx, left + bw + depth + 8, ground - 36, 24, 20, '#624527');
   } else if (form === 'stepped') {
-    drawIsoBlock(ctx, left + 26, top - 34, bw - 52, 34, 18, '#8ea5bc', '#394b60', '#9fb4c8', '#263544');
-    drawIsoBlock(ctx, left + 54, top - 60, bw - 108, 26, 14, '#9fb4c8', '#4a5f76', '#bfd0dd', '#263544');
+    drawIsoBlock(ctx, left + 24, top - 34, bw - 48, 38, 18, '#8ea5bc', '#394b60', '#9fb4c8', '#263544');
+    drawIsoBlock(ctx, left + 62, top - 66, bw - 124, 32, 14, '#bfd0dd', '#4a5f76', '#d9edf7', '#263544');
+    for (let i = 0; i < 6; i++) rect(ctx, left + 26 + i * 30, ground - 46 - i * 8, 18, 46 + i * 8, i % 2 ? '#6fbfc8' : '#d6ad55');
+  } else if (form === 'fort') {
+    drawIsoBlock(ctx, left - 34, top - 18, 34, bh + 22, 12, '#9d6660', '#4d2d2c', '#7a4b47', '#2b1918');
+    drawIsoBlock(ctx, left + bw + depth - 2, top - 18, 34, bh + 22, 12, '#8d5550', '#4d2d2c', '#7a4b47', '#2b1918');
+    for (let i = 0; i < 6; i++) rect(ctx, left + i * (bw / 6), top - 26, 22, 18, '#b47770');
+    rect(ctx, left + bw / 2 - 20, ground - 52, 40, 52, '#432626'); strokeRect(ctx, left + bw / 2 - 20, ground - 52, 40, 52, '#e15f5f', 2);
+    rect(ctx, left + bw + depth + 38, top + 5, 12, 48, '#432626'); rect(ctx, left + bw + depth + 41, top - 5, 7, 9, active ? '#e15f5f' : '#79543a');
+  } else if (form === 'vault') {
+    drawIsoBlock(ctx, left + 26, top - 36, bw - 52, 38, 16, '#b3b7bd', '#41454d', '#d7dbe0', '#323842');
+    rect(ctx, cx - 36, ground - 58, 72, 58, '#323842'); strokeRect(ctx, cx - 36, ground - 58, 72, 58, '#d8c48b', 3);
+    rect(ctx, cx - 13, ground - 36, 26, 26, '#d8c48b'); rect(ctx, cx - 5, ground - 28, 10, 10, '#41454d');
+    for (let i = 0; i < 4; i++) { rect(ctx, left - 32 + i * 16, ground - 18 - i * 5, 14, 6, '#d8c48b'); rect(ctx, left + bw + 16 + i * 15, ground - 18 - i * 4, 13, 6, '#d8c48b'); }
+  } else if (form === 'studio') {
+    drawIsoBlock(ctx, left + bw - 62, top - 42, 56, 42, 16, '#b083a5', '#5b3e52', '#d1a0c2', '#2a2530');
+    rect(ctx, left - 28, top + 22, 54, 32, '#151d24'); strokeRect(ctx, left - 28, top + 22, 54, 32, '#c57b7b', 1);
+    text(ctx, 'ADS', left - 20, top + 31, 10, '#fff1d6', 'left', 'mono');
+    rect(ctx, left + bw - 46, top - 31, 26, 21, active ? '#c57b7b' : '#8a7a66');
+  } else if (form === 'media') {
+    drawDish(ctx, left + bw - 16, top - 44, '#d6ad55');
+    rect(ctx, left - 28, ground - 56, 44, 30, '#2b2630'); strokeRect(ctx, left - 28, ground - 56, 44, 30, '#d6ad55', 1);
+    rect(ctx, left - 18, ground - 48, 20, 10, '#58c0d2');
+  } else if (form === 'office') {
+    drawIsoBlock(ctx, left - 26, top + 38, 48, bh - 28, 14, '#87957a', '#3f4b38', '#a0ad93', '#1f2b1d');
+    for (let i = 0; i < 3; i++) {
+      rect(ctx, left + bw + depth + 12, top + 22 + i * 30, 46, 22, '#151d24');
+      strokeRect(ctx, left + bw + depth + 12, top + 22 + i * 30, 46, 22, '#81d672', 1);
+      rect(ctx, left + bw + depth + 18, top + 29 + i * 30, 24, 3, '#fff1d6');
+    }
   }
 
-  const winW = form === 'hq' ? 14 : 12;
-  const stepX = form === 'hq' ? 23 : 20;
-  const stepY = form === 'hq' ? 18 : 17;
-  for (let yy = top + 22; yy < ground - 20; yy += stepY) {
+  const winW = form === 'hq' ? 14 : 11;
+  const stepX = form === 'hq' ? 23 : form === 'tower' ? 19 : 22;
+  const stepY = form === 'hq' ? 18 : 18;
+  for (let yy = top + 22; yy < ground - 22; yy += stepY) {
     for (let xx = left + 18; xx < left + bw - 24; xx += stepX) {
       const lit = active || ((Math.round(xx) + Math.round(yy) + load + Math.floor(t / 520)) % 7) === 0;
       rect(ctx, xx, yy, winW, 8, lit ? accent : side);
-      rect(ctx, xx + 2, yy + 2, winW - 5, 2, lit ? '#fff6d8' : base);
+      rect(ctx, xx + 2, yy + 2, Math.max(2, winW - 5), 2, lit ? '#fff6d8' : base);
     }
   }
-  // Side-face windows aligned with the fake perspective.
-  for (let yy = top + depth + 25; yy < ground - 18; yy += 22) {
-    rect(ctx, left + bw + depth - 17, yy, 8, 8, active ? accent : '#1f2a32');
-  }
+  for (let yy = top + depth + 25; yy < ground - 18; yy += 22) rect(ctx, left + bw + depth - 17, yy, 8, 8, active ? accent : '#1f2a32');
   for (let i = 0; i < Math.floor(bw / 20); i++) rect(ctx, left + 10 + i * 20, ground - 10, 10, 4, trim);
-
-  if (dept.kind === 'coding' || /code|coding/i.test(dept.name || '')) text(ctx, '</>', cx, top - 48, 13, '#e3f6e9', 'center', 'mono');
-  if (dept.kind === 'security' || /security/i.test(dept.name || '')) { rect(ctx, left + bw + depth + 28, top + 12, 12, 42, '#432626'); rect(ctx, left + bw + depth + 31, top + 5, 7, 7, active ? '#e15f5f' : '#79543a'); }
-  if (dept.kind === 'research' || /research/i.test(dept.name || '')) { rect(ctx, left - 34, top + 28, 22, 32, '#405f4b'); strokeRect(ctx, left - 34, top + 28, 22, 32, '#d6ad55', 1); rect(ctx, left - 29, top + 34, 12, 3, '#b8f4ff'); }
   if (active) {
     const spark = Math.floor(t / 140) % 5;
     rect(ctx, left + bw + depth + 12 + spark * 3, top + 24, 3, 3, accent);
@@ -339,8 +399,8 @@ function drawBuilding(ctx, slot, dept, t) {
   }
 
   rect(ctx, cx - 20, ground - 27, 40, 27, '#20272d'); strokeRect(ctx, cx - 20, ground - 27, 40, 27, active ? accent : '#14191d', 1);
-  drawTerminal(ctx, slot.x + 18, slot.y + slot.h - 74, active, t);
-  rect(ctx, slot.x + slot.w - 82, slot.y + slot.h - 76, 60, 24, '#20272d'); strokeRect(ctx, slot.x + slot.w - 82, slot.y + slot.h - 76, 60, 24, trim, 1);
+  drawTerminal(ctx, slot.x + 18, slot.y + slot.h - 76, active, t);
+  drawSign(ctx, slot.x + slot.w - 110, slot.y + slot.h - 83, form === 'hq' ? 'COMMAND' : shortName(dept.name).toUpperCase().slice(0, 10), trim);
   text(ctx, shortName(dept.name), cx, slot.y + slot.h - 28, form === 'hq' ? 17 : 15, '#fff1d6', 'center', 'mono');
   text(ctx, `${dept.status || 'idle'} · ${load}%`, cx, slot.y + slot.h - 10, 11, active ? accent : '#d8c48b', 'center', 'mono');
 }
@@ -474,48 +534,42 @@ function drawFountain(ctx, cx, cy, t) {
 }
 
 function drawCityHall(ctx, x, y) {
-  const w = 330; const h = 158;
-  // City Hall is decorative civic architecture: more depth, side wall, roof layers, columns, windows, flag, and shaded stairs.
-  rect(ctx, x + 18, y + h + 12, w - 28, 14, '#111b17');
-  rect(ctx, x + 32, y + 52, w - 46, h - 42, '#5e4937');
-  rect(ctx, x + 18, y + 42, w - 56, h - 36, '#80664b');
-  rect(ctx, x + 32, y + 54, w - 86, h - 62, '#b79668');
-  rect(ctx, x + w - 54, y + 54, 36, h - 62, '#6f543c');
-  rect(ctx, x + 42, y + 62, w - 116, 7, '#d4bd89');
-  rect(ctx, x + 42, y + 82, w - 116, 5, '#7e6043');
-  rect(ctx, x + 42, y + 109, w - 116, 5, '#d4bd89');
-  // layered roof and pediment
-  rect(ctx, x + 48, y + 30, w - 106, 28, '#d7c299');
-  rect(ctx, x + 62, y + 18, w - 134, 17, '#916140');
-  rect(ctx, x + 78, y + 4, w - 166, 18, '#d9b95e');
-  rect(ctx, x + 94, y - 13, w - 198, 18, '#f0d67e');
-  rect(ctx, x + 103, y - 6, w - 216, 5, '#fff2a7');
-  strokeRect(ctx, x + 18, y + 42, w - 56, h - 36, '#3f2d22', 2);
-  // columns with shadows and highlights
+  // Cleaner civic anchor: organized plaza, symmetrical hall, readable stairs, and no road clutter through it.
+  const w = 300; const h = 150;
+  rect(ctx, x - 55, y + h + 24, w + 110, 18, '#111b17');
+  rect(ctx, x - 42, y + h + 10, w + 84, 18, '#8a704a');
+  rect(ctx, x - 30, y + h + 14, w + 60, 8, '#c4aa76');
+  for (let i = 0; i < 5; i++) rect(ctx, x + w / 2 - 80 - i * 8, y + h - 2 + i * 7, 160 + i * 16, 6, i % 2 ? '#8e7654' : '#d0b77d');
+
+  drawIsoBlock(ctx, x + 22, y + 26, w - 44, h - 28, 30, '#b79668', '#6d523d', '#d7c299', '#3f2d22');
+  drawIsoBlock(ctx, x + 82, y - 4, w - 164, 34, 22, '#d6bc82', '#8d6442', '#f0d67e', '#3f2d22');
+  drawIsoBlock(ctx, x + w / 2 - 36, y - 58, 72, 58, 16, '#846047', '#59402f', '#d7c299', '#3f2d22');
+  rect(ctx, x + w / 2 - 18, y - 49, 36, 27, '#f4e5a7');
+  strokeRect(ctx, x + w / 2 - 18, y - 49, 36, 27, '#3f2d22', 1);
+  rect(ctx, x + w / 2 - 2, y - 42, 3, 12, '#3f2d22');
+  rect(ctx, x + w / 2, y - 36, 11, 3, '#3f2d22');
+  rect(ctx, x + w / 2 + 4, y - 84, 4, 26, '#d9d4c0');
+  rect(ctx, x + w / 2 + 8, y - 84, 38, 14, '#c57b7b');
+  rect(ctx, x + w / 2 + 8, y - 78, 27, 5, '#f5f0e6');
+
+  // Orderly columns and windows.
   for (let i = 0; i < 6; i++) {
-    const px = x + 56 + i * 38;
-    rect(ctx, px + 4, y + 61, 18, 82, '#6f543c');
-    rect(ctx, px, y + 58, 18, 82, '#efe4c8');
-    rect(ctx, px + 4, y + 58, 4, 82, '#fff7dc');
-    rect(ctx, px + 13, y + 58, 5, 82, '#b69b72');
-    rect(ctx, px - 5, y + 52, 28, 8, '#5e4937');
-    rect(ctx, px - 3, y + 139, 24, 8, '#5e4937');
+    const px = x + 50 + i * 38;
+    rect(ctx, px + 4, y + 55, 18, 78, '#6f543c');
+    rect(ctx, px, y + 52, 18, 78, '#efe4c8');
+    rect(ctx, px + 4, y + 52, 4, 78, '#fff7dc');
+    rect(ctx, px + 13, y + 52, 5, 78, '#b69b72');
+    rect(ctx, px - 4, y + 47, 27, 7, '#5e4937');
+    rect(ctx, px - 3, y + 129, 25, 8, '#5e4937');
   }
-  // glowing windows and carved blocks
-  for (let i = 0; i < 5; i++) { rect(ctx, x + 52 + i * 43, y + 73, 10, 10, '#ffe8a3'); rect(ctx, x + 52 + i * 43, y + 92, 10, 10, '#8fcad8'); }
-  for (let i = 0; i < 8; i++) rect(ctx, x + 34 + i * 29, y + 119 + (i % 2) * 3, 16, 3, '#6c543e');
-  // stairs and doorway
-  rect(ctx, x + w / 2 - 34, y + 98, 68, 50, '#2f2520');
-  rect(ctx, x + w / 2 - 24, y + 109, 48, 39, '#493527');
-  strokeRect(ctx, x + w / 2 - 34, y + 98, 68, 50, '#d6ad55', 1);
-  for (let i = 0; i < 5; i++) rect(ctx, x + w / 2 - 54 - i * 5, y + 148 + i * 6, 108 + i * 10, 5, i % 2 ? '#9b835f' : '#c5aa77');
-  // clock tower/flag
-  rect(ctx, x + w / 2 - 13, y - 42, 26, 30, '#72513c');
-  rect(ctx, x + w / 2 - 8, y - 37, 16, 16, '#f4e5a7');
-  rect(ctx, x + w / 2 - 2, y - 32, 2, 7, '#3f2d22'); rect(ctx, x + w / 2, y - 30, 6, 2, '#3f2d22');
-  rect(ctx, x + w / 2 - 23, y - 58, 46, 16, '#d6ad55');
-  rect(ctx, x + w / 2 + 2, y - 78, 3, 20, '#d9d4c0'); rect(ctx, x + w / 2 + 5, y - 78, 30, 12, '#c57b7b'); rect(ctx, x + w / 2 + 5, y - 73, 21, 5, '#f5f0e6');
-  text(ctx, 'CITY HALL', x + w / 2, y + 34, 15, '#fff1d6', 'center', 'mono');
+  for (let i = 0; i < 4; i++) {
+    rect(ctx, x + 51 + i * 55, y + 72, 12, 12, '#ffe8a3');
+    rect(ctx, x + 51 + i * 55, y + 96, 12, 12, '#8fcad8');
+  }
+  rect(ctx, x + w / 2 - 31, y + 91, 62, 47, '#2f2520');
+  rect(ctx, x + w / 2 - 21, y + 102, 42, 36, '#493527');
+  strokeRect(ctx, x + w / 2 - 31, y + 91, 62, 47, '#d6ad55', 1);
+  drawSign(ctx, x + w / 2 - 48, y + 18, 'CITY HALL', '#d6ad55');
 }
 
 function drawPixelEcosystem(t = performance.now()) {
@@ -523,37 +577,58 @@ function drawPixelEcosystem(t = performance.now()) {
   const ctx = cityCtx; ctx.imageSmoothingEnabled = false;
   drawTexture(ctx, t);
 
-  // Clean campus circulation: perimeter roads and short separated spurs only.
-  // This avoids the big overlapping cross that was cutting through the worksite.
+  // Organized connected campus roads: a clean loop, branch roads, and driveways to every building.
   const roads = [
-    [80, 382, 700, 46, false],        // north-west road between research/code
-    [1780, 382, 700, 46, false],      // north-east road between deploy/automation
-    [80, 1018, 720, 46, false],       // south-west road above media/support
-    [1750, 1018, 720, 46, false],     // south-east road above finance/security
-    [510, 690, 46, 305, true],        // data/support spur
-    [945, 1095, 46, 220, true],       // support connector
-    [1550, 1095, 46, 220, true],      // marketing connector
-    [1980, 690, 46, 300, true],       // finance/security spur
-    [930, 365, 700, 42, false],       // narrow HQ approach
+    [250, 386, 2040, 44, false],      // north avenue, connects research/code/HQ/deploy
+    [250, 1036, 2040, 44, false],     // south avenue, connects lower departments
+    [1260, 320, 44, 165, true],       // HQ approach
+    [1260, 820, 44, 250, true],       // analytics/south approach
+    [520, 390, 44, 650, true],        // west branch to data/media/support
+    [1992, 390, 44, 650, true],       // east branch to automation/finance/security
+    [780, 622, 44, 414, true],        // coding/support connector
+    [1588, 430, 44, 606, true],       // marketing/analytics connector
+    [115, 362, 250, 36, false],       // research driveway
+    [365, 316, 36, 90, true],
+    [575, 614, 225, 36, false],       // coding driveway
+    [885, 610, 36, 60, true],
+    [1930, 362, 260, 36, false],      // deployment driveway
+    [2190, 316, 36, 90, true],
+    [2030, 666, 250, 36, false],      // automation driveway
+    [2250, 650, 36, 76, true],
+    [260, 948, 260, 36, false],       // data driveway
+    [450, 910, 36, 80, true],
+    [1080, 1036, 260, 36, false],     // analytics driveway
+    [1220, 1060, 36, 82, true],
+    [1992, 948, 270, 36, false],      // finance driveway
+    [2200, 920, 36, 86, true],
+    [260, 1036, 36, 125, true],       // media driveway
+    [575, 1036, 44, 132, true],       // support driveway
+    [1558, 1036, 44, 132, true],      // marketing driveway
+    [1992, 1036, 44, 102, true],      // security driveway
   ];
   for (const [x, y, w, h, vertical] of roads) drawRoad(ctx, x, y, w, h, vertical);
+  for (const [jx, jy] of [[520,408],[780,1036],[1282,408],[1282,1036],[1610,1036],[2014,408],[2014,1036]]) drawRoadJunction(ctx, jx, jy, 62, 62);
 
-  // Civic center is now a smaller island so it can't hide department buildings.
-  drawPathSegment(ctx, 1120, 520, 320, 142, false);
-  drawStonePath(ctx, [[1280, 330], [1280, 510], [1280, 662], [1280, 805]], 22);
-  drawStonePath(ctx, [[1135, 652], [1425, 652]], 22);
-  drawFlowerBed(ctx, 1138, 532, 82, 30); drawFlowerBed(ctx, 1340, 532, 82, 30);
-  drawFlowerBed(ctx, 1138, 612, 84, 26); drawFlowerBed(ctx, 1338, 612, 84, 26);
-  drawCityHall(ctx, 1165, 528);
-  drawFountain(ctx, 1280, 740, t);
-  for (const [lx, ly] of [[1110,520],[1450,520],[1110,654],[1450,654],[1190,815],[1370,815],[1190,420],[1370,420]]) drawLamp(ctx, lx, ly, true);
+  // Clean civic district: roads stay outside; City Hall, garden beds, and fountain sit on a tidy plaza.
+  rect(ctx, 1002, 506, 560, 334, '#17281b');
+  strokeRect(ctx, 1002, 506, 560, 334, '#405837', 2);
+  drawPathSegment(ctx, 1044, 536, 476, 104, false);
+  drawPathSegment(ctx, 1110, 646, 344, 58, false);
+  drawStonePath(ctx, [[1282, 430], [1282, 508], [1282, 704], [1282, 838]], 24);
+  drawStonePath(ctx, [[1058, 704], [1506, 704]], 24);
+  drawFlowerBed(ctx, 1045, 548, 78, 30); drawFlowerBed(ctx, 1437, 548, 78, 30);
+  drawFlowerBed(ctx, 1045, 660, 80, 28); drawFlowerBed(ctx, 1437, 660, 80, 28);
+  drawFlowerBed(ctx, 1180, 806, 88, 26); drawFlowerBed(ctx, 1298, 806, 88, 26);
+  drawCityHall(ctx, 1132, 520);
+  drawFountain(ctx, 1282, 755, t);
+  for (const [lx, ly] of [[1042,526],[1522,526],[1042,704],[1522,704],[1165,840],[1398,840],[1165,450],[1398,450]]) drawLamp(ctx, lx, ly, true);
 
-  // Landscaping and shade details.
-  rect(ctx, 1010, 490, 540, 7, '#1d361f'); rect(ctx, 1010, 820, 540, 7, '#1d361f');
-  for (let x = 1020; x < 1540; x += 24) { rect(ctx, x, 492, 10, 8, '#47723d'); rect(ctx, x + 8, 820, 10, 8, '#47723d'); }
-  for (let i = 0; i < 10; i++) { rect(ctx, 910 + i * 34, 875, 18, 7, '#6f4a31'); rect(ctx, 912 + i * 34, 882, 3, 7, '#362416'); rect(ctx, 922 + i * 34, 882, 3, 7, '#362416'); }
-  rect(ctx, 1535, 770, 130, 66, '#386f7f'); rect(ctx, 1545, 780, 110, 46, '#5fb8c8'); strokeRect(ctx, 1535, 770, 130, 66, '#d7e5e1', 1);
-  for (let i = 0; i < 6; i++) rect(ctx, 1560 + i * 15, 799 + (i % 2) * 7, 8, 3, '#eaf7ff');
+  // Landscaping and shade details, arranged in rows instead of scattered clutter.
+  rect(ctx, 970, 474, 620, 7, '#1d361f'); rect(ctx, 970, 856, 620, 7, '#1d361f');
+  for (let x = 990; x < 1560; x += 34) { drawTree(ctx, x, 462, x % 3); drawTree(ctx, x + 12, 862, x % 4); }
+  for (let i = 0; i < 9; i++) { rect(ctx, 964 + i * 38, 884, 22, 7, '#6f4a31'); rect(ctx, 968 + i * 38, 891, 3, 7, '#362416'); rect(ctx, 981 + i * 38, 891, 3, 7, '#362416'); }
+  rect(ctx, 1518, 774, 135, 64, '#386f7f'); rect(ctx, 1528, 784, 115, 44, '#5fb8c8'); strokeRect(ctx, 1518, 774, 135, 64, '#d7e5e1', 1);
+  for (let i = 0; i < 6; i++) rect(ctx, 1545 + i * 16, 801 + (i % 2) * 7, 9, 3, '#eaf7ff');
 
   // Active backend packet paths are subtle and don't draw over the road surface.
   const activeDepts = (currentState.departments || []).filter(d => (d.tool_calls || d.active_agents || d.sessions) > 0);
