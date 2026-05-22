@@ -86,18 +86,18 @@ function agentDetails(agent) {
 }
 
 const CITY_SLOTS = {
-  'executive-headquarters': { x: 1040, y: 66, w: 480, h: 258, floors: 8, form: 'hq' },
-  'research-labs': { x: 115, y: 112, w: 360, h: 236, floors: 3, form: 'dome' },
-  'coding-towers': { x: 600, y: 360, w: 350, h: 275, floors: 8, form: 'tower' },
-  'deployment-facilities': { x: 1940, y: 112, w: 390, h: 236, floors: 3, form: 'factory' },
-  'automation-plants': { x: 2055, y: 435, w: 360, h: 255, floors: 3, form: 'plant' },
-  'data-warehouses': { x: 120, y: 724, w: 380, h: 248, floors: 2, form: 'warehouse' },
-  'analytics-centers': { x: 1040, y: 900, w: 390, h: 244, floors: 4, form: 'stepped' },
-  'finance-centers': { x: 2050, y: 742, w: 365, h: 238, floors: 2, form: 'vault' },
-  'media-rooms': { x: 88, y: 1135, w: 350, h: 215, floors: 2, form: 'media' },
-  'support-offices': { x: 575, y: 1145, w: 360, h: 218, floors: 3, form: 'office' },
-  'marketing-studios': { x: 1375, y: 1145, w: 360, h: 218, floors: 2, form: 'studio' },
-  'security-divisions': { x: 1840, y: 1110, w: 380, h: 238, floors: 4, form: 'fort' },
+  'executive-headquarters': { x: 1040, y: 70, w: 480, h: 250, floors: 8, form: 'hq' },
+  'research-labs': { x: 130, y: 108, w: 350, h: 230, floors: 3, form: 'dome' },
+  'coding-towers': { x: 620, y: 430, w: 340, h: 255, floors: 8, form: 'tower' },
+  'deployment-facilities': { x: 1980, y: 108, w: 360, h: 230, floors: 3, form: 'factory' },
+  'automation-plants': { x: 1980, y: 430, w: 360, h: 245, floors: 3, form: 'plant' },
+  'data-warehouses': { x: 130, y: 735, w: 360, h: 230, floors: 2, form: 'warehouse' },
+  'analytics-centers': { x: 1085, y: 910, w: 390, h: 230, floors: 4, form: 'stepped' },
+  'finance-centers': { x: 1980, y: 735, w: 360, h: 230, floors: 2, form: 'vault' },
+  'media-rooms': { x: 130, y: 1110, w: 340, h: 210, floors: 2, form: 'media' },
+  'support-offices': { x: 620, y: 1110, w: 340, h: 210, floors: 3, form: 'office' },
+  'marketing-studios': { x: 1360, y: 1110, w: 340, h: 210, floors: 2, form: 'studio' },
+  'security-divisions': { x: 1850, y: 1110, w: 360, h: 220, floors: 4, form: 'fort' },
 };
 const SLOT_ALIASES = {
   mainframe: 'executive-headquarters', executive: 'executive-headquarters', headquarters: 'executive-headquarters', hq: 'executive-headquarters',
@@ -208,7 +208,9 @@ function drawTexture(ctx, t) {
   for (let i = 0; i < 180; i++) {
     const x = 54 + ((i * 193) % (WORLD_W - 120));
     const y = 58 + ((i * 113) % (WORLD_H - 134));
-    if (x > 930 && x < 1600 && y > 390 && y < 880) continue;
+    if (x > 900 && x < 1660 && y > 360 && y < 920) continue;
+    if (x > 240 && x < 2320 && ((y > 360 && y < 440) || (y > 1010 && y < 1090))) continue;
+    if (y > 340 && y < 1100 && ((x > 500 && x < 580) || (x > 1995 && x < 2070) || (x > 780 && x < 850) || (x > 1585 && x < 1660))) continue;
     if (i % 4 === 0) { rect(ctx, x, y, 7, 4, '#7c8074'); rect(ctx, x + 2, y + 1, 3, 1, '#b1b7aa'); }
     else if (i % 4 === 1) { rect(ctx, x, y, 2, 2, '#d6ad55'); rect(ctx, x + 5, y + 2, 2, 2, '#c57b7b'); rect(ctx, x + 2, y + 5, 2, 1, '#81d672'); }
     else if (i % 4 === 2) { rect(ctx, x, y, 5, 4, '#624527'); rect(ctx, x + 1, y, 3, 1, '#a07442'); }
@@ -577,58 +579,45 @@ function drawPixelEcosystem(t = performance.now()) {
   const ctx = cityCtx; ctx.imageSmoothingEnabled = false;
   drawTexture(ctx, t);
 
-  // Organized connected campus roads: a clean loop, branch roads, and driveways to every building.
+  // Campus circulation is now a measured grid: all roads share a baseline and connect to pads.
   const roads = [
-    [250, 386, 2040, 44, false],      // north avenue, connects research/code/HQ/deploy
-    [250, 1036, 2040, 44, false],     // south avenue, connects lower departments
-    [1260, 320, 44, 165, true],       // HQ approach
-    [1260, 820, 44, 250, true],       // analytics/south approach
-    [520, 390, 44, 650, true],        // west branch to data/media/support
-    [1992, 390, 44, 650, true],       // east branch to automation/finance/security
-    [780, 622, 44, 414, true],        // coding/support connector
-    [1588, 430, 44, 606, true],       // marketing/analytics connector
-    [115, 362, 250, 36, false],       // research driveway
-    [365, 316, 36, 90, true],
-    [575, 614, 225, 36, false],       // coding driveway
-    [885, 610, 36, 60, true],
-    [1930, 362, 260, 36, false],      // deployment driveway
-    [2190, 316, 36, 90, true],
-    [2030, 666, 250, 36, false],      // automation driveway
-    [2250, 650, 36, 76, true],
-    [260, 948, 260, 36, false],       // data driveway
-    [450, 910, 36, 80, true],
-    [1080, 1036, 260, 36, false],     // analytics driveway
-    [1220, 1060, 36, 82, true],
-    [1992, 948, 270, 36, false],      // finance driveway
-    [2200, 920, 36, 86, true],
-    [260, 1036, 36, 125, true],       // media driveway
-    [575, 1036, 44, 132, true],       // support driveway
-    [1558, 1036, 44, 132, true],      // marketing driveway
-    [1992, 1036, 44, 102, true],      // security driveway
+    [280, 382, 2000, 38, false],      // top boulevard
+    [280, 1034, 2000, 38, false],     // bottom boulevard
+    [522, 382, 38, 690, true],        // west spine
+    [2020, 382, 38, 690, true],       // east spine
+    [1262, 320, 38, 190, true],       // HQ-to-civic path
+    [1262, 862, 38, 210, true],       // civic-to-analytics path
+    [800, 382, 38, 304, true],        // coding spur
+    [1608, 382, 38, 690, true],       // center-east service spine
+    [280, 655, 540, 34, false],       // coding/data connector
+    [1740, 655, 318, 34, false],      // automation/finance connector
+    [280, 935, 280, 34, false],       // data connector
+    [2020, 935, 280, 34, false],      // finance connector
+    [1280, 1034, 330, 34, false],     // analytics/marketing connector
+    [522, 1034, 320, 34, false],      // support connector
   ];
   for (const [x, y, w, h, vertical] of roads) drawRoad(ctx, x, y, w, h, vertical);
-  for (const [jx, jy] of [[520,408],[780,1036],[1282,408],[1282,1036],[1610,1036],[2014,408],[2014,1036]]) drawRoadJunction(ctx, jx, jy, 62, 62);
+  for (const [jx, jy] of [[541,401],[800,401],[1281,401],[1627,401],[2039,401],[541,1053],[800,1053],[1281,1053],[1627,1053],[2039,1053],[541,672],[2039,672],[541,952],[2039,952]]) drawRoadJunction(ctx, jx, jy, 48, 48);
 
-  // Clean civic district: roads stay outside; City Hall, garden beds, and fountain sit on a tidy plaza.
-  rect(ctx, 1002, 506, 560, 334, '#17281b');
-  strokeRect(ctx, 1002, 506, 560, 334, '#405837', 2);
-  drawPathSegment(ctx, 1044, 536, 476, 104, false);
-  drawPathSegment(ctx, 1110, 646, 344, 58, false);
-  drawStonePath(ctx, [[1282, 430], [1282, 508], [1282, 704], [1282, 838]], 24);
-  drawStonePath(ctx, [[1058, 704], [1506, 704]], 24);
-  drawFlowerBed(ctx, 1045, 548, 78, 30); drawFlowerBed(ctx, 1437, 548, 78, 30);
-  drawFlowerBed(ctx, 1045, 660, 80, 28); drawFlowerBed(ctx, 1437, 660, 80, 28);
-  drawFlowerBed(ctx, 1180, 806, 88, 26); drawFlowerBed(ctx, 1298, 806, 88, 26);
-  drawCityHall(ctx, 1132, 520);
-  drawFountain(ctx, 1282, 755, t);
-  for (const [lx, ly] of [[1042,526],[1522,526],[1042,704],[1522,704],[1165,840],[1398,840],[1165,450],[1398,450]]) drawLamp(ctx, lx, ly, true);
+  // Clean civic district: a centered rectangle with paths aligned to the road grid.
+  rect(ctx, 990, 500, 580, 360, '#162719');
+  strokeRect(ctx, 990, 500, 580, 360, '#405837', 2);
+  rect(ctx, 1014, 524, 532, 312, '#1e3422');
+  drawPathSegment(ctx, 1040, 548, 480, 88, false);
+  drawPathSegment(ctx, 1088, 664, 384, 46, false);
+  drawStonePath(ctx, [[1281, 420], [1281, 500], [1281, 710], [1281, 862]], 22);
+  drawStonePath(ctx, [[1060, 710], [1502, 710]], 22);
+  drawFlowerBed(ctx, 1044, 558, 86, 28); drawFlowerBed(ctx, 1430, 558, 86, 28);
+  drawFlowerBed(ctx, 1044, 666, 86, 26); drawFlowerBed(ctx, 1430, 666, 86, 26);
+  drawFlowerBed(ctx, 1168, 816, 96, 24); drawFlowerBed(ctx, 1300, 816, 96, 24);
+  drawCityHall(ctx, 1132, 522);
+  drawFountain(ctx, 1281, 770, t);
+  for (const [lx, ly] of [[1032,528],[1528,528],[1032,710],[1528,710],[1160,850],[1402,850],[1160,454],[1402,454]]) drawLamp(ctx, lx, ly, true);
 
-  // Landscaping and shade details, arranged in rows instead of scattered clutter.
-  rect(ctx, 970, 474, 620, 7, '#1d361f'); rect(ctx, 970, 856, 620, 7, '#1d361f');
-  for (let x = 990; x < 1560; x += 34) { drawTree(ctx, x, 462, x % 3); drawTree(ctx, x + 12, 862, x % 4); }
-  for (let i = 0; i < 9; i++) { rect(ctx, 964 + i * 38, 884, 22, 7, '#6f4a31'); rect(ctx, 968 + i * 38, 891, 3, 7, '#362416'); rect(ctx, 981 + i * 38, 891, 3, 7, '#362416'); }
-  rect(ctx, 1518, 774, 135, 64, '#386f7f'); rect(ctx, 1528, 784, 115, 44, '#5fb8c8'); strokeRect(ctx, 1518, 774, 135, 64, '#d7e5e1', 1);
-  for (let i = 0; i < 6; i++) rect(ctx, 1545 + i * 16, 801 + (i % 2) * 7, 9, 3, '#eaf7ff');
+  // Ordered landscaping: rows and corners only, no random objects inside roads/plaza.
+  rect(ctx, 960, 474, 640, 7, '#1d361f'); rect(ctx, 960, 868, 640, 7, '#1d361f');
+  for (let x = 982; x < 1570; x += 42) { drawTree(ctx, x, 458, x % 3); drawTree(ctx, x + 18, 878, x % 4); }
+  for (let i = 0; i < 8; i++) { rect(ctx, 982 + i * 42, 895, 24, 7, '#6f4a31'); rect(ctx, 987 + i * 42, 902, 3, 7, '#362416'); rect(ctx, 1000 + i * 42, 902, 3, 7, '#362416'); }
 
   // Active backend packet paths are subtle and don't draw over the road surface.
   const activeDepts = (currentState.departments || []).filter(d => (d.tool_calls || d.active_agents || d.sessions) > 0);
@@ -642,16 +631,20 @@ function drawPixelEcosystem(t = performance.now()) {
   }
 
   // Curated props away from building pads.
-  for (let i = 0; i < 92; i++) {
+  for (let i = 0; i < 36; i++) {
     const x = 78 + ((i * 263) % (WORLD_W - 170)); const y = 100 + ((i * 181) % (WORLD_H - 230));
-    if (x > 930 && x < 1600 && y > 390 && y < 880) continue;
+    if (x > 900 && x < 1660 && y > 360 && y < 920) continue;
+    if (x > 240 && x < 2320 && ((y > 360 && y < 440) || (y > 1010 && y < 1090))) continue;
+    if (y > 340 && y < 1100 && ((x > 500 && x < 580) || (x > 1995 && x < 2070) || (x > 780 && x < 850) || (x > 1585 && x < 1660))) continue;
     const colors = ['#465b8b','#6b8f74','#8c5a3c','#8a647d','#7b6550'];
     if (i % 5 === 0) drawLamp(ctx, x, y, true);
     else { rect(ctx, x, y, 13, 9, colors[i % colors.length]); strokeRect(ctx, x, y, 13, 9, '#18251d', 1); rect(ctx, x + 3, y + 3, 7, 1, '#d6ad55'); }
   }
-  for (let i = 0; i < 54; i++) {
+  for (let i = 0; i < 20; i++) {
     const x = 105 + ((i * 277) % (WORLD_W - 230)); const y = 118 + ((i * 199) % (WORLD_H - 250));
-    if (x > 930 && x < 1600 && y > 390 && y < 880) continue;
+    if (x > 900 && x < 1660 && y > 360 && y < 920) continue;
+    if (x > 240 && x < 2320 && ((y > 360 && y < 440) || (y > 1010 && y < 1090))) continue;
+    if (y > 340 && y < 1100 && ((x > 500 && x < 580) || (x > 1995 && x < 2070) || (x > 780 && x < 850) || (x > 1585 && x < 1660))) continue;
     rect(ctx, x, y, 24, 14, '#20272d'); strokeRect(ctx, x, y, 24, 14, '#8f97a8', 1);
     rect(ctx, x + 5, y + 4, 13, 2, i % 3 ? '#81d672' : '#d6ad55');
     rect(ctx, x + 5, y + 9, 8, 2, '#6fbfc8');
