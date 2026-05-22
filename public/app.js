@@ -513,6 +513,35 @@ function drawPathSegment(ctx, x, y, w, h, vertical = false) {
   }
 }
 
+function drawStreetSegment(ctx, x, y, w, h, vertical = false) {
+  // Dark asphalt street, not a tan sidewalk/pipe. x/y/w/h are actual road bounds.
+  rect(ctx, x - 4, y - 4, w + 8, h + 8, '#101812');
+  rect(ctx, x, y, w, h, '#242d35');
+  rect(ctx, x + 4, y + 4, w - 8, h - 8, '#34404a');
+  rect(ctx, x + 4, y + 4, vertical ? 3 : w - 8, vertical ? h - 8 : 3, '#5a6670');
+  rect(ctx, vertical ? x + w - 7 : x + 4, vertical ? y + 4 : y + h - 7, vertical ? 3 : w - 8, vertical ? h - 8 : 3, '#151d23');
+  const length = vertical ? h : w;
+  for (let i = 30; i < length - 30; i += 70) {
+    if (vertical) rect(ctx, x + Math.floor(w / 2) - 2, y + i, 4, 24, '#d9c77a');
+    else rect(ctx, x + i, y + Math.floor(h / 2) - 2, 24, 4, '#d9c77a');
+  }
+}
+
+function drawStreetJunction(ctx, cx, cy, size = 42) {
+  rect(ctx, cx - size / 2 - 4, cy - size / 2 - 4, size + 8, size + 8, '#101812');
+  rect(ctx, cx - size / 2, cy - size / 2, size, size, '#34404a');
+  rect(ctx, cx - 3, cy - size / 2 + 8, 6, size - 16, '#d9c77a');
+  rect(ctx, cx - size / 2 + 8, cy - 3, size - 16, 6, '#d9c77a');
+}
+
+function drawDriveway(ctx, x, y, w, h, vertical = true) {
+  // Short dark spur from road to building pad; no long tan pipe through labels.
+  rect(ctx, x - 2, y - 2, w + 4, h + 4, '#101812');
+  rect(ctx, x, y, w, h, '#303a42');
+  if (vertical) rect(ctx, x + Math.floor(w / 2) - 1, y + 4, 2, Math.max(2, h - 8), '#6a7378');
+  else rect(ctx, x + 4, y + Math.floor(h / 2) - 1, Math.max(2, w - 8), 2, '#6a7378');
+}
+
 function drawFlowerBed(ctx, x, y, w, h) {
   rect(ctx, x, y, w, h, '#24452b'); strokeRect(ctx, x, y, w, h, '#162617', 1);
   for (let i = 0; i < Math.floor(w / 10); i++) {
@@ -594,19 +623,19 @@ function drawPixelEcosystem(t = performance.now()) {
   const ctx = cityCtx; ctx.imageSmoothingEnabled = false;
   drawTexture(ctx, t);
 
-  // Clean thin sidewalk system. No dogleg pipes around every building.
-  // Three straight campus paths + one central path; short stubs stop at building pads.
-  const pathColor = '#c4aa76';
-  drawPathSegment(ctx, 280, 358, 2000, 12, false);
-  drawPathSegment(ctx, 280, 704, 2000, 12, false);
-  drawPathSegment(ctx, 280, 1030, 2000, 12, false);
-  drawPathSegment(ctx, 1275, 320, 12, 790, true);
-  const stubs = [
-    [305, 330, 12, 36, true], [1280, 320, 12, 44, true], [2160, 330, 12, 36, true],
-    [790, 650, 12, 60, true], [2160, 650, 12, 60, true], [310, 930, 12, 106, true], [2160, 930, 12, 106, true],
-    [1280, 1100, 12, 38, true], [300, 1030, 12, 82, true], [790, 1030, 12, 82, true], [1530, 1030, 12, 82, true], [2030, 1030, 12, 82, true],
+  // Street grid: dark asphalt roads with curbs/lane markers, plus short driveway stubs to pads.
+  // These replace the old tan sidewalk-looking pipes.
+  drawStreetSegment(ctx, 250, 346, 2060, 34, false);
+  drawStreetSegment(ctx, 250, 688, 2060, 34, false);
+  drawStreetSegment(ctx, 250, 1014, 2060, 34, false);
+  drawStreetSegment(ctx, 1264, 304, 34, 842, true);
+  for (const [cx, cy] of [[1281, 363], [1281, 705], [1281, 1031]]) drawStreetJunction(ctx, cx, cy, 46);
+  const driveways = [
+    [300, 326, 24, 24, true], [1269, 304, 24, 46, true], [2150, 326, 24, 24, true],
+    [780, 650, 24, 38, true], [2150, 650, 24, 38, true], [300, 928, 24, 86, true], [2150, 928, 24, 86, true],
+    [1269, 1098, 24, 48, true], [300, 1038, 24, 68, true], [780, 1038, 24, 68, true], [1520, 1038, 24, 68, true], [2020, 1038, 24, 68, true],
   ];
-  for (const [x, y, w, h, vertical] of stubs) drawPathSegment(ctx, x, y, w, h, vertical);
+  for (const [x, y, w, h, vertical] of driveways) drawDriveway(ctx, x, y, w, h, vertical);
 
   // Clean civic district: simple centered plaza with fewer ornaments.
   rect(ctx, 1000, 500, 560, 360, '#162719');
