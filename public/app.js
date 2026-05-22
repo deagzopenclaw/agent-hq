@@ -374,10 +374,15 @@ function drawBuilding(ctx, slot, dept, t) {
     drawIsoBlock(ctx, left + 62, top - 66, bw - 124, 32, 14, '#bfd0dd', '#4a5f76', '#d9edf7', '#263544');
     for (let i = 0; i < 6; i++) rect(ctx, left + 26 + i * 30, ground - 46 - i * 8, 18, 46 + i * 8, i % 2 ? '#6fbfc8' : '#d6ad55');
   } else if (form === 'fort') {
-    rect(ctx, left + 10, top - 12, 30, bh + 12, '#9d6660'); strokeRect(ctx, left + 10, top - 12, 30, bh + 12, '#2b1918', 1);
-    rect(ctx, left + bw - 42, top - 12, 30, bh + 12, '#8d5550'); strokeRect(ctx, left + bw - 42, top - 12, 30, bh + 12, '#2b1918', 1);
-    for (let i = 0; i < 6; i++) rect(ctx, left + i * (bw / 6), top - 26, 22, 18, '#b47770');
-    rect(ctx, left + bw / 2 - 20, ground - 52, 40, 52, '#432626'); strokeRect(ctx, left + bw / 2 - 20, ground - 52, 40, 52, '#e15f5f', 2);
+    // Security: keep it as a clean attached fortress silhouette, not a pile of overlapping wall pieces.
+    rect(ctx, left + 12, top - 10, 34, bh + 8, '#8f5b56'); strokeRect(ctx, left + 12, top - 10, 34, bh + 8, '#2b1918', 1);
+    rect(ctx, left + bw - 46, top - 10, 34, bh + 8, '#7f4d49'); strokeRect(ctx, left + bw - 46, top - 10, 34, bh + 8, '#2b1918', 1);
+    for (let i = 0; i < 7; i++) rect(ctx, left + 14 + i * 32, top - 24, 20, 16, '#b47770');
+    rect(ctx, left + 52, top + 16, bw - 104, 12, '#6b3c3a');
+    rect(ctx, left + bw / 2 - 24, ground - 54, 48, 54, '#2f1d1d'); strokeRect(ctx, left + bw / 2 - 24, ground - 54, 48, 54, '#e15f5f', 2);
+    rect(ctx, left + bw / 2 - 8, ground - 34, 16, 16, '#e15f5f'); rect(ctx, left + bw / 2 - 3, ground - 29, 6, 6, '#2f1d1d');
+    rect(ctx, left + bw - 35, top - 42, 18, 24, active ? '#e15f5f' : '#6a5454');
+    rect(ctx, left + bw - 29, top - 62, 6, 20, '#d6ad55');
   } else if (form === 'vault') {
     drawIsoBlock(ctx, left + 26, top - 36, bw - 52, 38, 16, '#b3b7bd', '#41454d', '#d7dbe0', '#323842');
     rect(ctx, cx - 36, ground - 58, 72, 58, '#323842'); strokeRect(ctx, cx - 36, ground - 58, 72, 58, '#d8c48b', 3);
@@ -398,17 +403,19 @@ function drawBuilding(ctx, slot, dept, t) {
   const winW = form === 'hq' ? 14 : 11;
   const stepX = form === 'hq' ? 23 : form === 'tower' ? 19 : 22;
   const stepY = form === 'hq' ? 18 : 18;
-  for (let yy = top + 22; yy < ground - 22; yy += stepY) {
-    for (let xx = left + 18; xx < left + bw - 24; xx += stepX) {
-      const lit = active || ((Math.round(xx) + Math.round(yy) + load + Math.floor(t / 520)) % 7) === 0;
-      rect(ctx, xx, yy, winW, 8, lit ? accent : side);
-      rect(ctx, xx + 2, yy + 2, Math.max(2, winW - 5), 2, lit ? '#fff6d8' : base);
-      if (((xx + yy) / stepX) % 3 < 1) rect(ctx, xx + winW - 2, yy + 1, 2, 6, 'rgba(0,0,0,.24)');
+  if (form !== 'fort') {
+    for (let yy = top + 22; yy < ground - 22; yy += stepY) {
+      for (let xx = left + 18; xx < left + bw - 24; xx += stepX) {
+        const lit = active || ((Math.round(xx) + Math.round(yy) + load + Math.floor(t / 520)) % 7) === 0;
+        rect(ctx, xx, yy, winW, 8, lit ? accent : side);
+        rect(ctx, xx + 2, yy + 2, Math.max(2, winW - 5), 2, lit ? '#fff6d8' : base);
+        if (((xx + yy) / stepX) % 3 < 1) rect(ctx, xx + winW - 2, yy + 1, 2, 6, 'rgba(0,0,0,.24)');
+      }
     }
-  }
-  for (let yy = top + 28; yy < ground - 22; yy += 22) {
-    rect(ctx, left + bw - 14, yy - 8, 7, 8, active ? accent : '#1f2a32');
-    rect(ctx, left + bw - 7, yy - 10, 2, 10, 'rgba(255,255,255,.14)');
+    for (let yy = top + 28; yy < ground - 22; yy += 22) {
+      rect(ctx, left + bw - 14, yy - 8, 7, 8, active ? accent : '#1f2a32');
+      rect(ctx, left + bw - 7, yy - 10, 2, 10, 'rgba(255,255,255,.14)');
+    }
   }
   for (let i = 0; i < Math.floor(bw / 20); i++) rect(ctx, left + 10 + i * 20, ground - 10, 10, 4, trim);
   if (active) {
@@ -628,12 +635,14 @@ function drawPixelEcosystem(t = performance.now()) {
   drawStreetSegment(ctx, 250, 346, 2060, 34, false);
   drawStreetSegment(ctx, 250, 688, 2060, 34, false);
   drawStreetSegment(ctx, 250, 1014, 2060, 34, false);
-  drawStreetSegment(ctx, 1264, 304, 34, 842, true);
-  for (const [cx, cy] of [[1281, 363], [1281, 705], [1281, 1031]]) drawStreetJunction(ctx, cx, cy, 46);
+  // Two connected bypass streets wrap the plaza so the grid stays visibly continuous.
+  drawStreetSegment(ctx, 918, 346, 34, 702, true);
+  drawStreetSegment(ctx, 1592, 346, 34, 702, true);
+  for (const [cx, cy] of [[935, 363], [935, 705], [935, 1031], [1609, 363], [1609, 705], [1609, 1031]]) drawStreetJunction(ctx, cx, cy, 46);
   const driveways = [
     [300, 326, 24, 24, true], [1269, 304, 24, 46, true], [2150, 326, 24, 24, true],
     [780, 650, 24, 38, true], [2150, 650, 24, 38, true], [300, 928, 24, 86, true], [2150, 928, 24, 86, true],
-    [1269, 1098, 24, 48, true], [300, 1038, 24, 68, true], [780, 1038, 24, 68, true], [1520, 1038, 24, 68, true], [2020, 1038, 24, 68, true],
+    [1269, 1098, 24, 48, true], [300, 1038, 24, 250, true], [780, 1038, 24, 250, true], [1520, 1038, 24, 250, true], [2020, 1038, 24, 250, true],
   ];
   for (const [x, y, w, h, vertical] of driveways) drawDriveway(ctx, x, y, w, h, vertical);
 
