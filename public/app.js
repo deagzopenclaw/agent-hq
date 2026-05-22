@@ -587,38 +587,55 @@ function drawFountain(ctx, cx, cy, t) {
 }
 
 function drawCityHall(ctx, x, y) {
-  // Clean civic anchor: one readable symmetrical building, not a stack of noisy ornaments.
-  const w = 280; const h = 142;
-  rect(ctx, x - 44, y + h + 16, w + 88, 18, '#101812');
-  rect(ctx, x - 30, y + h + 4, w + 60, 18, '#73593e');
-  rect(ctx, x - 18, y + h + 9, w + 36, 7, '#d0b77d');
-  for (let i = 0; i < 4; i++) rect(ctx, x + w / 2 - 70 - i * 7, y + h - 1 + i * 8, 140 + i * 14, 6, i % 2 ? '#8e7654' : '#d0b77d');
+  // Civic centerpiece: still organized, but with a distinctive clock tower, banners, roof detail and depth.
+  const w = 292; const h = 150;
+  rect(ctx, x - 52, y + h + 18, w + 104, 20, '#101812');
+  rect(ctx, x - 36, y + h + 4, w + 72, 20, '#6e523a');
+  rect(ctx, x - 22, y + h + 9, w + 44, 8, '#d4bb81');
+  for (let i = 0; i < 5; i++) rect(ctx, x + w / 2 - 84 - i * 8, y + h - 2 + i * 7, 168 + i * 16, 6, i % 2 ? '#8e7654' : '#d0b77d');
 
-  drawIsoBlock(ctx, x + 20, y + 30, w - 40, h - 34, 24, '#c49a6c', '#72513a', '#e1c994', '#3f2d22');
-  drawIsoBlock(ctx, x + 72, y + 2, w - 144, 32, 18, '#d7b87d', '#8a6042', '#f0d67e', '#3f2d22');
-  drawIsoBlock(ctx, x + w / 2 - 31, y - 42, 62, 44, 14, '#956b4b', '#604331', '#d7c299', '#3f2d22');
-  rect(ctx, x + w / 2 - 14, y - 34, 28, 20, '#f4e5a7'); strokeRect(ctx, x + w / 2 - 14, y - 34, 28, 20, '#3f2d22', 1);
-  rect(ctx, x + w / 2 - 2, y - 30, 3, 10, '#3f2d22'); rect(ctx, x + w / 2, y - 25, 9, 3, '#3f2d22');
-  rect(ctx, x + w / 2 + 4, y - 64, 4, 22, '#d9d4c0'); rect(ctx, x + w / 2 + 8, y - 64, 32, 12, '#c57b7b');
+  drawIsoBlock(ctx, x + 18, y + 34, w - 36, h - 34, 28, '#c59b6d', '#6f4d36', '#e3cc98', '#3f2d22');
+  drawIsoBlock(ctx, x + 62, y + 4, w - 124, 38, 22, '#d8b679', '#865c3d', '#f1d784', '#3f2d22');
+  // Roof trim and texture make the hall feel intentional instead of plain.
+  for (let i = 0; i < 8; i++) rect(ctx, x + 36 + i * 28, y + 33 + (i % 2) * 2, 16, 5, i % 2 ? '#f7df9d' : '#9b6c45');
+  rect(ctx, x + 38, y + 50, w - 76, 5, '#5e4937');
+  rect(ctx, x + 45, y + 138, w - 90, 6, '#d6ad55');
 
+  // Strong central clock tower / cupola.
+  drawIsoBlock(ctx, x + w / 2 - 42, y - 48, 84, 62, 18, '#9b6d4b', '#5d3f2d', '#ddc897', '#3f2d22');
+  rect(ctx, x + w / 2 - 25, y - 37, 50, 34, '#f4e5a7'); strokeRect(ctx, x + w / 2 - 25, y - 37, 50, 34, '#3f2d22', 1);
+  rect(ctx, x + w / 2 - 19, y - 31, 38, 22, '#253440'); strokeRect(ctx, x + w / 2 - 19, y - 31, 38, 22, '#f7df9d', 1);
+  rect(ctx, x + w / 2 - 2, y - 27, 3, 12, '#f7df9d'); rect(ctx, x + w / 2, y - 21, 13, 3, '#f7df9d');
+  rect(ctx, x + w / 2 - 34, y - 60, 68, 12, '#d6ad55');
+  rect(ctx, x + w / 2 - 22, y - 72, 44, 12, '#c57b7b');
+  rect(ctx, x + w / 2 - 5, y - 94, 6, 22, '#d9d4c0');
+  rect(ctx, x + w / 2 + 1, y - 94, 40, 13, '#c57b7b'); rect(ctx, x + w / 2 + 1, y - 89, 28, 4, '#fff1d6');
+
+  // Columns, windows, and civic banners.
+  for (let i = 0; i < 6; i++) {
+    const px = x + 38 + i * 42;
+    rect(ctx, px + 5, y + 62, 16, 74, '#6f543c');
+    rect(ctx, px, y + 58, 16, 78, '#efe4c8');
+    rect(ctx, px + 4, y + 58, 4, 78, '#fff7dc');
+    rect(ctx, px + 12, y + 58, 4, 78, '#b69b72');
+    rect(ctx, px - 4, y + 52, 25, 7, '#5e4937');
+    rect(ctx, px - 4, y + 135, 25, 8, '#5e4937');
+  }
   for (let i = 0; i < 5; i++) {
-    const px = x + 48 + i * 42;
-    rect(ctx, px + 4, y + 60, 15, 68, '#6f543c');
-    rect(ctx, px, y + 56, 15, 72, '#efe4c8');
-    rect(ctx, px + 4, y + 56, 3, 72, '#fff7dc');
-    rect(ctx, px + 11, y + 56, 4, 72, '#b69b72');
-    rect(ctx, px - 3, y + 51, 22, 6, '#5e4937');
-    rect(ctx, px - 3, y + 127, 22, 7, '#5e4937');
+    const wx = x + 42 + i * 49;
+    rect(ctx, wx, y + 77, 12, 12, i % 2 ? '#8fcad8' : '#ffe8a3');
+    rect(ctx, wx + 3, y + 80, 5, 3, '#fff6cf');
+    rect(ctx, wx, y + 104, 12, 12, '#79aebc');
   }
-  for (let i = 0; i < 4; i++) {
-    rect(ctx, x + 46 + i * 55, y + 76, 11, 11, '#ffe8a3');
-    rect(ctx, x + 46 + i * 55, y + 100, 11, 11, '#8fcad8');
-  }
-  rect(ctx, x + w / 2 - 28, y + 92, 56, 42, '#2f2520');
-  rect(ctx, x + w / 2 - 18, y + 102, 36, 32, '#493527');
-  strokeRect(ctx, x + w / 2 - 28, y + 92, 56, 42, '#d6ad55', 1);
-  text(ctx, 'CITY HALL', x + w / 2, y + 18, 13, '#fff1d6', 'center', 'mono');
+  rect(ctx, x + 28, y + 80, 13, 44, '#7b3030'); rect(ctx, x + w - 41, y + 80, 13, 44, '#304d7b');
+  rect(ctx, x + 31, y + 86, 7, 6, '#d6ad55'); rect(ctx, x + w - 38, y + 86, 7, 6, '#d6ad55');
+  rect(ctx, x + w / 2 - 31, y + 96, 62, 42, '#2f2520');
+  rect(ctx, x + w / 2 - 20, y + 105, 40, 33, '#493527');
+  rect(ctx, x + w / 2 - 2, y + 105, 4, 33, '#241914');
+  strokeRect(ctx, x + w / 2 - 31, y + 96, 62, 42, '#d6ad55', 1);
+  text(ctx, 'CITY HALL', x + w / 2, y + 20, 13, '#fff1d6', 'center', 'mono');
 }
+
 function drawPixelEcosystem(t = performance.now()) {
   if (!cityCtx || !cityCanvas || !currentState) return;
   const ctx = cityCtx; ctx.imageSmoothingEnabled = false;
@@ -650,23 +667,28 @@ function drawPixelEcosystem(t = performance.now()) {
   rect(ctx, 1048, 546, 464, 260, '#182f1f');
   strokeRect(ctx, 1048, 546, 464, 260, '#4b633f', 1);
 
-  // Smooth, intentional plaza circulation. No crosshatch of chunky tan paths.
-  rect(ctx, 1268, 548, 24, 260, '#92764f');
-  rect(ctx, 1273, 548, 14, 260, '#d0b77d');
-  rect(ctx, 1094, 708, 372, 22, '#92764f');
-  rect(ctx, 1094, 713, 372, 12, '#d0b77d');
-  rect(ctx, 1122, 560, 88, 34, '#24452b'); rect(ctx, 1350, 560, 88, 34, '#24452b');
-  rect(ctx, 1122, 762, 88, 34, '#24452b'); rect(ctx, 1350, 762, 88, 34, '#24452b');
-  for (const [fx, fy] of [[1132,568],[1360,568],[1132,770],[1360,770]]) drawFlowerBed(ctx, fx, fy, 66, 18);
+  // Smooth, intentional plaza circulation with a little civic life, not random clutter.
+  rect(ctx, 1266, 548, 28, 260, '#92764f');
+  rect(ctx, 1272, 548, 16, 260, '#d0b77d');
+  rect(ctx, 1092, 708, 376, 24, '#92764f');
+  rect(ctx, 1092, 714, 376, 12, '#d0b77d');
+  rect(ctx, 1114, 558, 104, 40, '#24452b'); rect(ctx, 1342, 558, 104, 40, '#24452b');
+  rect(ctx, 1114, 760, 104, 40, '#24452b'); rect(ctx, 1342, 760, 104, 40, '#24452b');
+  for (const [fx, fy] of [[1126,568],[1354,568],[1126,770],[1354,770]]) drawFlowerBed(ctx, fx, fy, 80, 20);
+  // Symmetric benches and tiny statues give detail without making the plaza messy.
+  for (const [bx, by] of [[1170,672],[1368,672],[1170,742],[1368,742]]) { rect(ctx, bx, by, 42, 8, '#7a5639'); rect(ctx, bx + 4, by + 8, 34, 4, '#3f2d22'); }
+  rect(ctx, 1268, 666, 24, 30, '#8e9a95'); rect(ctx, 1274, 650, 12, 18, '#d9d4c0'); strokeRect(ctx, 1268, 666, 24, 30, '#5c6764', 1);
 
-  drawCityHall(ctx, 1140, 536);
-  // Small reflecting pool instead of a large busy fountain competing with City Hall.
-  rect(ctx, 1217, 759, 126, 42, '#111d18');
-  rect(ctx, 1224, 752, 112, 42, '#8e9a95');
-  rect(ctx, 1232, 758, 96, 28, '#58c0d2');
-  rect(ctx, 1242, 765, 76, 14, '#8be6ef');
-  strokeRect(ctx, 1224, 752, 112, 42, '#eafaff', 1);
-  for (const [lx, ly] of [[1032,526],[1528,526],[1032,820],[1528,820]]) drawLamp(ctx, lx, ly, true);
+  drawCityHall(ctx, 1134, 528);
+  // Compact animated fountain returns visual interest, but stays below the main entrance.
+  rect(ctx, 1209, 761, 142, 46, '#111d18');
+  rect(ctx, 1218, 752, 124, 48, '#8e9a95');
+  rect(ctx, 1228, 760, 104, 30, '#2c7f96');
+  rect(ctx, 1238, 766, 84, 16, '#8be6ef');
+  rect(ctx, 1277, 734, 8, 26, '#dffbff');
+  rect(ctx, 1254, 746, 6, 17, '#9eefff'); rect(ctx, 1300, 746, 6, 17, '#9eefff');
+  strokeRect(ctx, 1218, 752, 124, 48, '#eafaff', 1);
+  for (const [lx, ly] of [[1032,526],[1528,526],[1032,820],[1528,820],[1090,676],[1470,676]]) drawLamp(ctx, lx, ly, true);
 
   // Clean border landscaping, aligned to the plaza edge.
   rect(ctx, 986, 470, 588, 6, '#1d361f'); rect(ctx, 986, 876, 588, 6, '#1d361f');
