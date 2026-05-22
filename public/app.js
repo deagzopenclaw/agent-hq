@@ -179,6 +179,25 @@ function drawIsoBlock(ctx, x, y, w, h, depth, face, side, top, stroke = '#141b1f
   rect(ctx, x + w - 3, y + 2, 3, h - 5, 'rgba(0,0,0,.18)');
   rect(ctx, x + 8, y + 7, Math.max(18, w - 26), 4, 'rgba(255,255,255,.18)');
 }
+function drawBlockSurfaceTexture(ctx, x, y, w, h, depth, trim, accent, active, seed = 0) {
+  // Detail lives on the roof/front/side surfaces so the buildings stay rich without adding overlapping wall chunks.
+  const d = Math.max(12, Math.min(28, Math.round(depth * 0.62)));
+  const roofDot = active ? accent : trim;
+  for (let i = 0; i < Math.max(4, Math.floor(w / 34)); i++) {
+    const px = x + 18 + ((i * 31 + seed * 7) % Math.max(24, w - 42));
+    const py = y - d + 5 + ((i * 11 + seed) % Math.max(6, d - 8));
+    rect(ctx, px, py, 10, 3, i % 2 ? 'rgba(255,255,255,.22)' : roofDot);
+  }
+  for (let yy = y + 20; yy < y + h - 18; yy += 22) {
+    rect(ctx, x + 10, yy, Math.max(24, w - 26), 2, 'rgba(0,0,0,.18)');
+  }
+  for (let xx = x + 17; xx < x + w - 28; xx += 24) {
+    rect(ctx, xx, y + h - 13, 10, 3, trim);
+  }
+  for (let yy = y + 18; yy < y + h - 24; yy += 20) {
+    rect(ctx, x + w + Math.max(2, d - 10), yy - Math.floor(d / 2), 5, 7, active ? accent : '#22303a');
+  }
+}
 function drawBuildingPad(ctx, slot, labelColor = '#273a2d') {
   rect(ctx, slot.x - 8, slot.y + slot.h - 35, slot.w + 16, 42, '#142217');
   rect(ctx, slot.x, slot.y + slot.h - 31, slot.w, 32, labelColor);
@@ -313,6 +332,7 @@ function drawBuilding(ctx, slot, dept, t) {
   rect(ctx, cx - 24, slot.y + slot.h - 48, 48, 10, '#c4aa76');
 
   drawIsoBlock(ctx, left, top, bw, bh, depth, face, side, base, active ? accent : '#151d20');
+  drawBlockSurfaceTexture(ctx, left, top, bw, bh, depth, trim, accent, active, hashString(dept.id || dept.name || form));
   rect(ctx, left + 6, top + 8, bw - 12, 5, '#eef0d6');
   rect(ctx, left + bw - 18, top + depth + 10, 10, bh - 20, '#182229');
   rect(ctx, left + 8, top + bh - 18, bw - 14, 18, '#26313a');
@@ -383,9 +403,13 @@ function drawBuilding(ctx, slot, dept, t) {
       const lit = active || ((Math.round(xx) + Math.round(yy) + load + Math.floor(t / 520)) % 7) === 0;
       rect(ctx, xx, yy, winW, 8, lit ? accent : side);
       rect(ctx, xx + 2, yy + 2, Math.max(2, winW - 5), 2, lit ? '#fff6d8' : base);
+      if (((xx + yy) / stepX) % 3 < 1) rect(ctx, xx + winW - 2, yy + 1, 2, 6, 'rgba(0,0,0,.24)');
     }
   }
-  for (let yy = top + 28; yy < ground - 22; yy += 22) rect(ctx, left + bw - 14, yy - 8, 7, 8, active ? accent : '#1f2a32');
+  for (let yy = top + 28; yy < ground - 22; yy += 22) {
+    rect(ctx, left + bw - 14, yy - 8, 7, 8, active ? accent : '#1f2a32');
+    rect(ctx, left + bw - 7, yy - 10, 2, 10, 'rgba(255,255,255,.14)');
+  }
   for (let i = 0; i < Math.floor(bw / 20); i++) rect(ctx, left + 10 + i * 20, ground - 10, 10, 4, trim);
   if (active) {
     const spark = Math.floor(t / 140) % 5;
