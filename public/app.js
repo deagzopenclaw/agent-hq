@@ -579,45 +579,41 @@ function drawPixelEcosystem(t = performance.now()) {
   const ctx = cityCtx; ctx.imageSmoothingEnabled = false;
   drawTexture(ctx, t);
 
-  // Campus circulation is now a measured grid: all roads share a baseline and connect to pads.
-  const roads = [
-    [280, 382, 2000, 38, false],      // top boulevard
-    [280, 1034, 2000, 38, false],     // bottom boulevard
-    [522, 382, 38, 690, true],        // west spine
-    [2020, 382, 38, 690, true],       // east spine
-    [1262, 320, 38, 190, true],       // HQ-to-civic path
-    [1262, 862, 38, 210, true],       // civic-to-analytics path
-    [800, 382, 38, 304, true],        // coding spur
-    [1608, 382, 38, 690, true],       // center-east service spine
-    [280, 655, 540, 34, false],       // coding/data connector
-    [1740, 655, 318, 34, false],      // automation/finance connector
-    [280, 935, 280, 34, false],       // data connector
-    [2020, 935, 280, 34, false],      // finance connector
-    [1280, 1034, 330, 34, false],     // analytics/marketing connector
-    [522, 1034, 320, 34, false],      // support connector
+  // Simple campus walkways: direct, narrow paths that visibly connect buildings to the civic plaza.
+  // The previous road grid read like floating city streets; these paths terminate under each building pad.
+  const walkways = [
+    [[1280, 320], [1281, 500]],                         // HQ to plaza
+    [[305, 303], [305, 382], [990, 382], [990, 560]],   // Research
+    [[790, 650], [790, 690], [990, 690]],               // Coding
+    [[2160, 303], [2160, 382], [1570, 382], [1570, 560]], // Deployment
+    [[2160, 640], [2160, 690], [1570, 690]],            // Automation
+    [[310, 930], [310, 960], [990, 960], [990, 800]],   // Data
+    [[2160, 930], [2160, 960], [1570, 960], [1570, 800]], // Finance
+    [[1280, 1105], [1281, 860]],                        // Analytics
+    [[300, 1285], [300, 1030], [990, 1030], [990, 860]], // Media
+    [[790, 1285], [790, 1030], [990, 1030], [990, 860]], // Support
+    [[1530, 1285], [1530, 1030], [1570, 1030], [1570, 860]], // Marketing
+    [[2030, 1285], [2030, 1030], [1570, 1030], [1570, 860]], // Security
   ];
-  for (const [x, y, w, h, vertical] of roads) drawRoad(ctx, x, y, w, h, vertical);
-  for (const [jx, jy] of [[541,401],[800,401],[1281,401],[1627,401],[2039,401],[541,1053],[800,1053],[1281,1053],[1627,1053],[2039,1053],[541,672],[2039,672],[541,952],[2039,952]]) drawRoadJunction(ctx, jx, jy, 48, 48);
+  for (const points of walkways) drawStonePath(ctx, points, 18);
 
-  // Clean civic district: a centered rectangle with paths aligned to the road grid.
+  // Clean civic district: one centered plaza, no road box around it.
   rect(ctx, 990, 500, 580, 360, '#162719');
   strokeRect(ctx, 990, 500, 580, 360, '#405837', 2);
-  rect(ctx, 1014, 524, 532, 312, '#1e3422');
-  drawPathSegment(ctx, 1040, 548, 480, 88, false);
-  drawPathSegment(ctx, 1088, 664, 384, 46, false);
-  drawStonePath(ctx, [[1281, 420], [1281, 500], [1281, 710], [1281, 862]], 22);
-  drawStonePath(ctx, [[1060, 710], [1502, 710]], 22);
-  drawFlowerBed(ctx, 1044, 558, 86, 28); drawFlowerBed(ctx, 1430, 558, 86, 28);
-  drawFlowerBed(ctx, 1044, 666, 86, 26); drawFlowerBed(ctx, 1430, 666, 86, 26);
-  drawFlowerBed(ctx, 1168, 816, 96, 24); drawFlowerBed(ctx, 1300, 816, 96, 24);
+  rect(ctx, 1018, 528, 524, 304, '#1e3422');
+  drawPathSegment(ctx, 1048, 552, 464, 82, false);
+  drawPathSegment(ctx, 1108, 666, 344, 42, false);
+  drawStonePath(ctx, [[1281, 500], [1281, 708], [1281, 860]], 20);
+  drawStonePath(ctx, [[1068, 708], [1494, 708]], 20);
+  drawFlowerBed(ctx, 1054, 560, 78, 26); drawFlowerBed(ctx, 1428, 560, 78, 26);
+  drawFlowerBed(ctx, 1054, 668, 78, 24); drawFlowerBed(ctx, 1428, 668, 78, 24);
   drawCityHall(ctx, 1132, 522);
   drawFountain(ctx, 1281, 770, t);
-  for (const [lx, ly] of [[1032,528],[1528,528],[1032,710],[1528,710],[1160,850],[1402,850],[1160,454],[1402,454]]) drawLamp(ctx, lx, ly, true);
+  for (const [lx, ly] of [[1038,528],[1522,528],[1038,708],[1522,708],[1170,850],[1392,850]]) drawLamp(ctx, lx, ly, true);
 
-  // Ordered landscaping: rows and corners only, no random objects inside roads/plaza.
+  // Ordered landscaping only around the civic border.
   rect(ctx, 960, 474, 640, 7, '#1d361f'); rect(ctx, 960, 868, 640, 7, '#1d361f');
-  for (let x = 982; x < 1570; x += 42) { drawTree(ctx, x, 458, x % 3); drawTree(ctx, x + 18, 878, x % 4); }
-  for (let i = 0; i < 8; i++) { rect(ctx, 982 + i * 42, 895, 24, 7, '#6f4a31'); rect(ctx, 987 + i * 42, 902, 3, 7, '#362416'); rect(ctx, 1000 + i * 42, 902, 3, 7, '#362416'); }
+  for (let x = 990; x < 1570; x += 58) { drawTree(ctx, x, 458, x % 3); drawTree(ctx, x + 22, 878, x % 4); }
 
   // Active backend packet paths are subtle and don't draw over the road surface.
   const activeDepts = (currentState.departments || []).filter(d => (d.tool_calls || d.active_agents || d.sessions) > 0);
@@ -631,7 +627,7 @@ function drawPixelEcosystem(t = performance.now()) {
   }
 
   // Curated props away from building pads.
-  for (let i = 0; i < 36; i++) {
+  for (let i = 0; i < 8; i++) {
     const x = 78 + ((i * 263) % (WORLD_W - 170)); const y = 100 + ((i * 181) % (WORLD_H - 230));
     if (x > 900 && x < 1660 && y > 360 && y < 920) continue;
     if (x > 240 && x < 2320 && ((y > 360 && y < 440) || (y > 1010 && y < 1090))) continue;
@@ -640,7 +636,7 @@ function drawPixelEcosystem(t = performance.now()) {
     if (i % 5 === 0) drawLamp(ctx, x, y, true);
     else { rect(ctx, x, y, 13, 9, colors[i % colors.length]); strokeRect(ctx, x, y, 13, 9, '#18251d', 1); rect(ctx, x + 3, y + 3, 7, 1, '#d6ad55'); }
   }
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 6; i++) {
     const x = 105 + ((i * 277) % (WORLD_W - 230)); const y = 118 + ((i * 199) % (WORLD_H - 250));
     if (x > 900 && x < 1660 && y > 360 && y < 920) continue;
     if (x > 240 && x < 2320 && ((y > 360 && y < 440) || (y > 1010 && y < 1090))) continue;
