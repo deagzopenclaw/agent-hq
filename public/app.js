@@ -304,9 +304,8 @@ function drawBuilding(ctx, slot, dept, t) {
   const top = Math.round(ground - bh);
 
   drawBuildingPad(ctx, slot, active ? '#2d4632' : '#26382b');
-  // Small connected driveway from the organized road network into each building pad.
-  rect(ctx, cx - 22, slot.y + slot.h - 70, 44, 35, '#303a43');
-  rect(ctx, cx - 4, slot.y + slot.h - 70, 8, 29, '#dec987');
+  // Keep the area around each building clean: only a small centered entrance strip, no detached side props.
+  rect(ctx, cx - 24, slot.y + slot.h - 48, 48, 10, '#c4aa76');
 
   drawIsoBlock(ctx, left, top, bw, bh, depth, face, side, base, active ? accent : '#151d20');
   rect(ctx, left + 6, top + 8, bw - 12, 5, '#eef0d6');
@@ -331,16 +330,13 @@ function drawBuilding(ctx, slot, dept, t) {
     drawIsoBlock(ctx, left + 18, top - 20, bw - 36, 42, 22, '#a2c79f', '#405f4b', '#c5ddbd', '#213526');
     rect(ctx, left + 48, top - 48, bw - 96, 30, '#d1dfbf');
     strokeRect(ctx, left + 48, top - 48, bw - 96, 30, '#405f4b', 1);
-    drawDish(ctx, left - 42, top + 28, '#b8f4ff');
-    rect(ctx, left + bw + depth + 18, top + 36, 24, 48, '#405f4b'); strokeRect(ctx, left + bw + depth + 18, top + 36, 24, 48, '#d6ad55', 1);
+    drawDish(ctx, left + bw - 58, top - 42, '#b8f4ff');
   } else if (form === 'factory') {
     for (let i = 0; i < 3; i++) drawIsoBlock(ctx, left + 18 + i * 48, top - 48 - i * 8, 22, 48 + i * 8, 8, side, '#2c211a', trim, '#241912');
-    rect(ctx, left - 34, ground - 34, 66, 24, '#593725'); strokeRect(ctx, left - 34, ground - 34, 66, 24, '#d6ad55', 1);
-    for (let i = 0; i < 5; i++) rect(ctx, left - 25 + i * 12, ground - 26, 7, 5, '#c9874a');
     if (active) rect(ctx, left + 28 + (Math.floor(t / 180) % 3) * 48, top - 60, 12, 8, trim);
   } else if (form === 'plant') {
-    drawGear(ctx, left - 20, ground - 70, 18, '#d6ad55');
-    drawGear(ctx, left + bw + depth + 26, ground - 92, 16, '#81d672');
+    drawGear(ctx, left + 38, ground - 74, 14, '#d6ad55');
+    drawGear(ctx, left + bw - 38, ground - 92, 13, '#81d672');
     rect(ctx, left + 46, top - 38, 94, 38, '#93965c'); strokeRect(ctx, left + 46, top - 38, 94, 38, '#4a4c2f', 1);
     rect(ctx, left + 70, top - 58, 14, 20, '#4a4c2f'); rect(ctx, left + 104, top - 58, 14, 20, '#4a4c2f');
   } else if (form === 'warehouse') {
@@ -348,7 +344,6 @@ function drawBuilding(ctx, slot, dept, t) {
       drawIsoBlock(ctx, left + 26 + i * 47, top - 18, 34, bh + 6, 10, '#a48668', '#4e3e31', '#c3a17b', '#2f241c');
       rect(ctx, left + 34 + i * 47, top + 20, 18, 54, i % 2 ? '#6fbfc8' : '#d8c48b');
     }
-    rect(ctx, left - 28, ground - 36, 24, 20, '#624527'); rect(ctx, left + bw + depth + 8, ground - 36, 24, 20, '#624527');
   } else if (form === 'stepped') {
     drawIsoBlock(ctx, left + 24, top - 34, bw - 48, 38, 18, '#8ea5bc', '#394b60', '#9fb4c8', '#263544');
     drawIsoBlock(ctx, left + 62, top - 66, bw - 124, 32, 14, '#bfd0dd', '#4a5f76', '#d9edf7', '#263544');
@@ -358,27 +353,20 @@ function drawBuilding(ctx, slot, dept, t) {
     drawIsoBlock(ctx, left + bw + depth - 2, top - 18, 34, bh + 22, 12, '#8d5550', '#4d2d2c', '#7a4b47', '#2b1918');
     for (let i = 0; i < 6; i++) rect(ctx, left + i * (bw / 6), top - 26, 22, 18, '#b47770');
     rect(ctx, left + bw / 2 - 20, ground - 52, 40, 52, '#432626'); strokeRect(ctx, left + bw / 2 - 20, ground - 52, 40, 52, '#e15f5f', 2);
-    rect(ctx, left + bw + depth + 38, top + 5, 12, 48, '#432626'); rect(ctx, left + bw + depth + 41, top - 5, 7, 9, active ? '#e15f5f' : '#79543a');
   } else if (form === 'vault') {
     drawIsoBlock(ctx, left + 26, top - 36, bw - 52, 38, 16, '#b3b7bd', '#41454d', '#d7dbe0', '#323842');
     rect(ctx, cx - 36, ground - 58, 72, 58, '#323842'); strokeRect(ctx, cx - 36, ground - 58, 72, 58, '#d8c48b', 3);
     rect(ctx, cx - 13, ground - 36, 26, 26, '#d8c48b'); rect(ctx, cx - 5, ground - 28, 10, 10, '#41454d');
-    for (let i = 0; i < 4; i++) { rect(ctx, left - 32 + i * 16, ground - 18 - i * 5, 14, 6, '#d8c48b'); rect(ctx, left + bw + 16 + i * 15, ground - 18 - i * 4, 13, 6, '#d8c48b'); }
   } else if (form === 'studio') {
     drawIsoBlock(ctx, left + bw - 62, top - 42, 56, 42, 16, '#b083a5', '#5b3e52', '#d1a0c2', '#2a2530');
-    rect(ctx, left - 28, top + 22, 54, 32, '#151d24'); strokeRect(ctx, left - 28, top + 22, 54, 32, '#c57b7b', 1);
-    text(ctx, 'ADS', left - 20, top + 31, 10, '#fff1d6', 'left', 'mono');
     rect(ctx, left + bw - 46, top - 31, 26, 21, active ? '#c57b7b' : '#8a7a66');
   } else if (form === 'media') {
-    drawDish(ctx, left + bw - 16, top - 44, '#d6ad55');
-    rect(ctx, left - 28, ground - 56, 44, 30, '#2b2630'); strokeRect(ctx, left - 28, ground - 56, 44, 30, '#d6ad55', 1);
-    rect(ctx, left - 18, ground - 48, 20, 10, '#58c0d2');
+    drawDish(ctx, left + bw - 48, top - 42, '#d6ad55');
   } else if (form === 'office') {
-    drawIsoBlock(ctx, left - 26, top + 38, 48, bh - 28, 14, '#87957a', '#3f4b38', '#a0ad93', '#1f2b1d');
     for (let i = 0; i < 3; i++) {
-      rect(ctx, left + bw + depth + 12, top + 22 + i * 30, 46, 22, '#151d24');
-      strokeRect(ctx, left + bw + depth + 12, top + 22 + i * 30, 46, 22, '#81d672', 1);
-      rect(ctx, left + bw + depth + 18, top + 29 + i * 30, 24, 3, '#fff1d6');
+      rect(ctx, left + bw - 56, top + 22 + i * 26, 38, 18, '#151d24');
+      strokeRect(ctx, left + bw - 56, top + 22 + i * 26, 38, 18, '#81d672', 1);
+      rect(ctx, left + bw - 50, top + 28 + i * 26, 22, 3, '#fff1d6');
     }
   }
 
@@ -401,8 +389,6 @@ function drawBuilding(ctx, slot, dept, t) {
   }
 
   rect(ctx, cx - 20, ground - 27, 40, 27, '#20272d'); strokeRect(ctx, cx - 20, ground - 27, 40, 27, active ? accent : '#14191d', 1);
-  drawTerminal(ctx, slot.x + 18, slot.y + slot.h - 76, active, t);
-  drawSign(ctx, slot.x + slot.w - 110, slot.y + slot.h - 83, form === 'hq' ? 'COMMAND' : shortName(dept.name).toUpperCase().slice(0, 10), trim);
   text(ctx, shortName(dept.name), cx, slot.y + slot.h - 28, form === 'hq' ? 17 : 15, '#fff1d6', 'center', 'mono');
   text(ctx, `${dept.status || 'idle'} · ${load}%`, cx, slot.y + slot.h - 10, 11, active ? accent : '#d8c48b', 'center', 'mono');
 }
@@ -579,41 +565,36 @@ function drawPixelEcosystem(t = performance.now()) {
   const ctx = cityCtx; ctx.imageSmoothingEnabled = false;
   drawTexture(ctx, t);
 
-  // Simple campus walkways: direct, narrow paths that visibly connect buildings to the civic plaza.
-  // The previous road grid read like floating city streets; these paths terminate under each building pad.
-  const walkways = [
-    [[1280, 320], [1281, 500]],                         // HQ to plaza
-    [[305, 303], [305, 382], [990, 382], [990, 560]],   // Research
-    [[790, 650], [790, 690], [990, 690]],               // Coding
-    [[2160, 303], [2160, 382], [1570, 382], [1570, 560]], // Deployment
-    [[2160, 640], [2160, 690], [1570, 690]],            // Automation
-    [[310, 930], [310, 960], [990, 960], [990, 800]],   // Data
-    [[2160, 930], [2160, 960], [1570, 960], [1570, 800]], // Finance
-    [[1280, 1105], [1281, 860]],                        // Analytics
-    [[300, 1285], [300, 1030], [990, 1030], [990, 860]], // Media
-    [[790, 1285], [790, 1030], [990, 1030], [990, 860]], // Support
-    [[1530, 1285], [1530, 1030], [1570, 1030], [1570, 860]], // Marketing
-    [[2030, 1285], [2030, 1030], [1570, 1030], [1570, 860]], // Security
+  // Clean thin sidewalk system. No dogleg pipes around every building.
+  // Three straight campus paths + one central path; short stubs stop at building pads.
+  const pathColor = '#c4aa76';
+  drawPathSegment(ctx, 280, 358, 2000, 12, false);
+  drawPathSegment(ctx, 280, 704, 2000, 12, false);
+  drawPathSegment(ctx, 280, 1030, 2000, 12, false);
+  drawPathSegment(ctx, 1275, 320, 12, 790, true);
+  const stubs = [
+    [305, 330, 12, 36, true], [1280, 320, 12, 44, true], [2160, 330, 12, 36, true],
+    [790, 650, 12, 60, true], [2160, 650, 12, 60, true], [310, 930, 12, 106, true], [2160, 930, 12, 106, true],
+    [1280, 1100, 12, 38, true], [300, 1030, 12, 82, true], [790, 1030, 12, 82, true], [1530, 1030, 12, 82, true], [2030, 1030, 12, 82, true],
   ];
-  for (const points of walkways) drawStonePath(ctx, points, 18);
+  for (const [x, y, w, h, vertical] of stubs) drawPathSegment(ctx, x, y, w, h, vertical);
 
-  // Clean civic district: one centered plaza, no road box around it.
-  rect(ctx, 990, 500, 580, 360, '#162719');
-  strokeRect(ctx, 990, 500, 580, 360, '#405837', 2);
-  rect(ctx, 1018, 528, 524, 304, '#1e3422');
-  drawPathSegment(ctx, 1048, 552, 464, 82, false);
-  drawPathSegment(ctx, 1108, 666, 344, 42, false);
-  drawStonePath(ctx, [[1281, 500], [1281, 708], [1281, 860]], 20);
-  drawStonePath(ctx, [[1068, 708], [1494, 708]], 20);
-  drawFlowerBed(ctx, 1054, 560, 78, 26); drawFlowerBed(ctx, 1428, 560, 78, 26);
-  drawFlowerBed(ctx, 1054, 668, 78, 24); drawFlowerBed(ctx, 1428, 668, 78, 24);
+  // Clean civic district: simple centered plaza with fewer ornaments.
+  rect(ctx, 1000, 500, 560, 360, '#162719');
+  strokeRect(ctx, 1000, 500, 560, 360, '#405837', 2);
+  rect(ctx, 1028, 528, 504, 304, '#1e3422');
+  drawPathSegment(ctx, 1058, 552, 444, 78, false);
+  drawPathSegment(ctx, 1118, 666, 324, 38, false);
+  drawPathSegment(ctx, 1275, 500, 12, 360, true);
+  drawPathSegment(ctx, 1068, 704, 424, 12, false);
+  drawFlowerBed(ctx, 1058, 560, 72, 22); drawFlowerBed(ctx, 1430, 560, 72, 22);
   drawCityHall(ctx, 1132, 522);
   drawFountain(ctx, 1281, 770, t);
-  for (const [lx, ly] of [[1038,528],[1522,528],[1038,708],[1522,708],[1170,850],[1392,850]]) drawLamp(ctx, lx, ly, true);
+  for (const [lx, ly] of [[1042,528],[1516,528],[1042,708],[1516,708]]) drawLamp(ctx, lx, ly, true);
 
-  // Ordered landscaping only around the civic border.
-  rect(ctx, 960, 474, 640, 7, '#1d361f'); rect(ctx, 960, 868, 640, 7, '#1d361f');
-  for (let x = 990; x < 1570; x += 58) { drawTree(ctx, x, 458, x % 3); drawTree(ctx, x + 22, 878, x % 4); }
+  // Minimal landscaping around the civic border only.
+  rect(ctx, 970, 474, 620, 6, '#1d361f'); rect(ctx, 970, 868, 620, 6, '#1d361f');
+  for (let x = 1000; x < 1560; x += 82) { drawTree(ctx, x, 458, x % 3); drawTree(ctx, x + 28, 878, x % 4); }
 
   // Active backend packet paths are subtle and don't draw over the road surface.
   const activeDepts = (currentState.departments || []).filter(d => (d.tool_calls || d.active_agents || d.sessions) > 0);
@@ -626,8 +607,8 @@ function drawPixelEcosystem(t = performance.now()) {
     rect(ctx, sx + (mx - sx) * k, sy + (my - sy) * k, 4, 4, colorFor(dept.load || 0));
   }
 
-  // Curated props away from building pads.
-  for (let i = 0; i < 8; i++) {
+  // No random loose props here; building details now stay attached to the buildings.
+  for (let i = 0; i < 0; i++) {
     const x = 78 + ((i * 263) % (WORLD_W - 170)); const y = 100 + ((i * 181) % (WORLD_H - 230));
     if (x > 900 && x < 1660 && y > 360 && y < 920) continue;
     if (x > 240 && x < 2320 && ((y > 360 && y < 440) || (y > 1010 && y < 1090))) continue;
@@ -636,7 +617,7 @@ function drawPixelEcosystem(t = performance.now()) {
     if (i % 5 === 0) drawLamp(ctx, x, y, true);
     else { rect(ctx, x, y, 13, 9, colors[i % colors.length]); strokeRect(ctx, x, y, 13, 9, '#18251d', 1); rect(ctx, x + 3, y + 3, 7, 1, '#d6ad55'); }
   }
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 0; i++) {
     const x = 105 + ((i * 277) % (WORLD_W - 230)); const y = 118 + ((i * 199) % (WORLD_H - 250));
     if (x > 900 && x < 1660 && y > 360 && y < 920) continue;
     if (x > 240 && x < 2320 && ((y > 360 && y < 440) || (y > 1010 && y < 1090))) continue;
