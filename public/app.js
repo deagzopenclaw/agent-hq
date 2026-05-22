@@ -151,6 +151,12 @@ function showAgent(agent) {
 
 function rect(ctx, x, y, w, h, color) { ctx.fillStyle = color; ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); }
 function strokeRect(ctx, x, y, w, h, color, line = 2) { ctx.strokeStyle = color; ctx.lineWidth = line; ctx.strokeRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); }
+function ellipse(ctx, cx, cy, w, h, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.ellipse(Math.round(cx), Math.round(cy), Math.round(w / 2), Math.round(h / 2), 0, 0, Math.PI * 2);
+  ctx.fill();
+}
 function text(ctx, value, x, y, size = 14, color = '#f4f4f4', align = 'left', font = 'Inter') {
   ctx.fillStyle = color;
   ctx.font = font === 'mono' ? `600 ${size}px "JetBrains Mono", monospace` : `600 ${size}px Inter, system-ui, sans-serif`;
@@ -587,55 +593,56 @@ function drawFountain(ctx, cx, cy, t) {
 }
 
 function drawCityHall(ctx, x, y) {
-  // Civic centerpiece: still organized, but with a distinctive clock tower, banners, roof detail and depth.
-  const w = 292; const h = 150;
-  rect(ctx, x - 52, y + h + 18, w + 104, 20, '#101812');
-  rect(ctx, x - 36, y + h + 4, w + 72, 20, '#6e523a');
-  rect(ctx, x - 22, y + h + 9, w + 44, 8, '#d4bb81');
-  for (let i = 0; i < 5; i++) rect(ctx, x + w / 2 - 84 - i * 8, y + h - 2 + i * 7, 168 + i * 16, 6, i % 2 ? '#8e7654' : '#d0b77d');
+  // Apple Park-inspired HQ: a low glass ring with inner courtyard, not a courthouse.
+  const cx = x + 146;
+  const cy = y + 92;
+  const outerW = 308;
+  const outerH = 150;
+  const innerW = 184;
+  const innerH = 78;
 
-  drawIsoBlock(ctx, x + 18, y + 34, w - 36, h - 34, 28, '#c59b6d', '#6f4d36', '#e3cc98', '#3f2d22');
-  drawIsoBlock(ctx, x + 62, y + 4, w - 124, 38, 22, '#d8b679', '#865c3d', '#f1d784', '#3f2d22');
-  // Roof trim and texture make the hall feel intentional instead of plain.
-  for (let i = 0; i < 8; i++) rect(ctx, x + 36 + i * 28, y + 33 + (i % 2) * 2, 16, 5, i % 2 ? '#f7df9d' : '#9b6c45');
-  rect(ctx, x + 38, y + 50, w - 76, 5, '#5e4937');
-  rect(ctx, x + 45, y + 138, w - 90, 6, '#d6ad55');
+  // Ground shadow and ring depth.
+  ellipse(ctx, cx, cy + 42, outerW + 34, outerH + 26, '#101812');
+  ellipse(ctx, cx, cy + 30, outerW + 16, outerH + 18, '#314334');
+  ellipse(ctx, cx, cy + 23, outerW + 8, outerH + 8, '#cfd8d5');
+  ellipse(ctx, cx, cy + 31, outerW + 8, outerH + 8, '#7b8582');
+  ellipse(ctx, cx, cy + 18, outerW, outerH, '#e7efec');
+  ellipse(ctx, cx, cy + 14, outerW - 24, outerH - 18, '#8fd1dc');
+  ellipse(ctx, cx, cy + 9, outerW - 38, outerH - 28, '#dce7e4');
 
-  // Strong central clock tower / cupola.
-  drawIsoBlock(ctx, x + w / 2 - 42, y - 48, 84, 62, 18, '#9b6d4b', '#5d3f2d', '#ddc897', '#3f2d22');
-  rect(ctx, x + w / 2 - 25, y - 37, 50, 34, '#f4e5a7'); strokeRect(ctx, x + w / 2 - 25, y - 37, 50, 34, '#3f2d22', 1);
-  rect(ctx, x + w / 2 - 19, y - 31, 38, 22, '#253440'); strokeRect(ctx, x + w / 2 - 19, y - 31, 38, 22, '#f7df9d', 1);
-  rect(ctx, x + w / 2 - 2, y - 27, 3, 12, '#f7df9d'); rect(ctx, x + w / 2, y - 21, 13, 3, '#f7df9d');
-  rect(ctx, x + w / 2 - 34, y - 60, 68, 12, '#d6ad55');
-  rect(ctx, x + w / 2 - 22, y - 72, 44, 12, '#c57b7b');
-  rect(ctx, x + w / 2 - 5, y - 94, 6, 22, '#d9d4c0');
-  rect(ctx, x + w / 2 + 1, y - 94, 40, 13, '#c57b7b'); rect(ctx, x + w / 2 + 1, y - 89, 28, 4, '#fff1d6');
+  // Inner courtyard cuts the building into a clear ring.
+  ellipse(ctx, cx, cy + 12, innerW + 24, innerH + 20, '#182f1f');
+  ellipse(ctx, cx, cy + 8, innerW, innerH, '#2d5b35');
+  ellipse(ctx, cx, cy + 5, innerW - 42, innerH - 28, '#72b76f');
+  ellipse(ctx, cx, cy + 5, 46, 22, '#58c0d2');
+  ellipse(ctx, cx, cy + 3, 28, 12, '#b8f4ff');
 
-  // Columns, windows, and civic banners.
-  for (let i = 0; i < 6; i++) {
-    const px = x + 38 + i * 42;
-    rect(ctx, px + 5, y + 62, 16, 74, '#6f543c');
-    rect(ctx, px, y + 58, 16, 78, '#efe4c8');
-    rect(ctx, px + 4, y + 58, 4, 78, '#fff7dc');
-    rect(ctx, px + 12, y + 58, 4, 78, '#b69b72');
-    rect(ctx, px - 4, y + 52, 25, 7, '#5e4937');
-    rect(ctx, px - 4, y + 135, 25, 8, '#5e4937');
+  // Glass panels, roof seams, && highlights around the ring.
+  const panels = [
+    [cx - 128, cy - 12, 30, 8], [cx - 88, cy - 24, 32, 7], [cx - 44, cy - 30, 32, 7], [cx + 8, cy - 31, 32, 7], [cx + 58, cy - 23, 32, 7], [cx + 100, cy - 10, 30, 8],
+    [cx - 136, cy + 22, 28, 8], [cx - 92, cy + 42, 32, 7], [cx - 40, cy + 52, 34, 7], [cx + 12, cy + 52, 34, 7], [cx + 66, cy + 42, 32, 7], [cx + 108, cy + 22, 28, 8],
+  ];
+  for (const [px, py, pw, ph] of panels) { rect(ctx, px, py, pw, ph, '#5fb8c8'); rect(ctx, px + 3, py + 2, Math.max(5, pw - 12), 2, '#dffbff'); }
+  for (const [px, py] of [[cx - 145, cy + 2], [cx - 119, cy - 28], [cx - 70, cy - 44], [cx - 18, cy - 49], [cx + 42, cy - 45], [cx + 92, cy - 30], [cx + 138, cy + 1], [cx - 116, cy + 52], [cx - 50, cy + 70], [cx + 35, cy + 70], [cx + 105, cy + 52]]) {
+    rect(ctx, px, py, 18, 4, '#ffffff');
   }
-  for (let i = 0; i < 5; i++) {
-    const wx = x + 42 + i * 49;
-    rect(ctx, wx, y + 77, 12, 12, i % 2 ? '#8fcad8' : '#ffe8a3');
-    rect(ctx, wx + 3, y + 80, 5, 3, '#fff6cf');
-    rect(ctx, wx, y + 104, 12, 12, '#79aebc');
+
+  // Subtle entrances && signage integrated into the ring.
+  rect(ctx, cx - 42, cy + 78, 84, 18, '#111b17');
+  rect(ctx, cx - 34, cy + 70, 68, 20, '#dce7e4');
+  rect(ctx, cx - 24, cy + 74, 48, 12, '#253440');
+  rect(ctx, cx - 4, cy + 74, 4, 12, '#f5f0e6');
+  rect(ctx, cx - 52, cy + 96, 104, 8, '#d0b77d');
+  text(ctx, 'AGENT PARK', cx, cy + 88, 10, '#f5f0e6', 'center', 'mono');
+
+  // Minimal roof equipment / solar dots, attached to the roof surface.
+  for (let i = 0; i < 12; i++) {
+    const px = cx - 118 + i * 21;
+    const py = cy - 2 + ((i * 7) % 22);
+    if (px > cx - innerW / 2 - 12 && px < cx + innerW / 2 + 12 && py > cy - innerH / 2 && py < cy + innerH / 2 + 20) continue;
+    rect(ctx, px, py, 8, 3, i % 2 ? '#aeb7b3' : '#f5f0e6');
   }
-  rect(ctx, x + 28, y + 80, 13, 44, '#7b3030'); rect(ctx, x + w - 41, y + 80, 13, 44, '#304d7b');
-  rect(ctx, x + 31, y + 86, 7, 6, '#d6ad55'); rect(ctx, x + w - 38, y + 86, 7, 6, '#d6ad55');
-  rect(ctx, x + w / 2 - 31, y + 96, 62, 42, '#2f2520');
-  rect(ctx, x + w / 2 - 20, y + 105, 40, 33, '#493527');
-  rect(ctx, x + w / 2 - 2, y + 105, 4, 33, '#241914');
-  strokeRect(ctx, x + w / 2 - 31, y + 96, 62, 42, '#d6ad55', 1);
-  text(ctx, 'CITY HALL', x + w / 2, y + 20, 13, '#fff1d6', 'center', 'mono');
 }
-
 function drawPixelEcosystem(t = performance.now()) {
   if (!cityCtx || !cityCanvas || !currentState) return;
   const ctx = cityCtx; ctx.imageSmoothingEnabled = false;
@@ -667,28 +674,19 @@ function drawPixelEcosystem(t = performance.now()) {
   rect(ctx, 1048, 546, 464, 260, '#182f1f');
   strokeRect(ctx, 1048, 546, 464, 260, '#4b633f', 1);
 
-  // Smooth, intentional plaza circulation with a little civic life, not random clutter.
-  rect(ctx, 1266, 548, 28, 260, '#92764f');
-  rect(ctx, 1272, 548, 16, 260, '#d0b77d');
-  rect(ctx, 1092, 708, 376, 24, '#92764f');
-  rect(ctx, 1092, 714, 376, 12, '#d0b77d');
-  rect(ctx, 1114, 558, 104, 40, '#24452b'); rect(ctx, 1342, 558, 104, 40, '#24452b');
-  rect(ctx, 1114, 760, 104, 40, '#24452b'); rect(ctx, 1342, 760, 104, 40, '#24452b');
-  for (const [fx, fy] of [[1126,568],[1354,568],[1126,770],[1354,770]]) drawFlowerBed(ctx, fx, fy, 80, 20);
-  // Symmetric benches and tiny statues give detail without making the plaza messy.
-  for (const [bx, by] of [[1170,672],[1368,672],[1170,742],[1368,742]]) { rect(ctx, bx, by, 42, 8, '#7a5639'); rect(ctx, bx + 4, by + 8, 34, 4, '#3f2d22'); }
-  rect(ctx, 1268, 666, 24, 30, '#8e9a95'); rect(ctx, 1274, 650, 12, 18, '#d9d4c0'); strokeRect(ctx, 1268, 666, 24, 30, '#5c6764', 1);
+  // Apple Park-inspired civic campus: clean oval grounds, ring HQ, and restrained paths.
+  ellipse(ctx, 1280, 680, 500, 270, '#101812');
+  ellipse(ctx, 1280, 672, 482, 254, '#1a2f20');
+  ellipse(ctx, 1280, 664, 430, 218, '#294d2f');
+  ellipse(ctx, 1280, 664, 308, 142, '#315f38');
+  rect(ctx, 1266, 548, 28, 244, '#92764f');
+  rect(ctx, 1272, 548, 16, 244, '#d0b77d');
+  rect(ctx, 1098, 710, 364, 22, '#92764f');
+  rect(ctx, 1098, 716, 364, 10, '#d0b77d');
+  for (const [gx, gy, gw, gh] of [[1098,566,88,28],[1374,566,88,28],[1098,760,88,28],[1374,760,88,28]]) { rect(ctx, gx, gy, gw, gh, '#24452b'); drawFlowerBed(ctx, gx + 8, gy + 6, gw - 16, 16); }
 
-  drawCityHall(ctx, 1134, 528);
-  // Compact animated fountain returns visual interest, but stays below the main entrance.
-  rect(ctx, 1209, 761, 142, 46, '#111d18');
-  rect(ctx, 1218, 752, 124, 48, '#8e9a95');
-  rect(ctx, 1228, 760, 104, 30, '#2c7f96');
-  rect(ctx, 1238, 766, 84, 16, '#8be6ef');
-  rect(ctx, 1277, 734, 8, 26, '#dffbff');
-  rect(ctx, 1254, 746, 6, 17, '#9eefff'); rect(ctx, 1300, 746, 6, 17, '#9eefff');
-  strokeRect(ctx, 1218, 752, 124, 48, '#eafaff', 1);
-  for (const [lx, ly] of [[1032,526],[1528,526],[1032,820],[1528,820],[1090,676],[1470,676]]) drawLamp(ctx, lx, ly, true);
+  drawCityHall(ctx, 1134, 558);
+  for (const [lx, ly] of [[1040,544],[1520,544],[1040,804],[1520,804],[1110,688],[1450,688]]) drawLamp(ctx, lx, ly, true);
 
   // Clean border landscaping, aligned to the plaza edge.
   rect(ctx, 986, 470, 588, 6, '#1d361f'); rect(ctx, 986, 876, 588, 6, '#1d361f');
