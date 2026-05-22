@@ -403,6 +403,20 @@ function drawTree(ctx, x, y, variant = 0) {
   rect(ctx, x + 8, y + 6, 3, 3, '#9bc76a');
 }
 
+function drawLamp(ctx, x, y, lit = false) {
+  // Missing this helper caused the animation loop to crash right after City Hall,
+  // which is why the screenshot only showed the center civic building.
+  rect(ctx, x - 5, y + 22, 16, 5, '#111812');
+  rect(ctx, x, y, 5, 25, '#3e3426');
+  rect(ctx, x - 3, y - 6, 11, 9, lit ? '#f6d97a' : '#6f6147');
+  rect(ctx, x - 1, y - 4, 7, 5, lit ? '#fff2ad' : '#3e3426');
+  rect(ctx, x - 7, y - 1, 19, 2, '#2b241b');
+  if (lit) {
+    rect(ctx, x - 9, y - 8, 23, 3, '#d6ad55');
+    rect(ctx, x - 12, y - 3, 29, 2, '#bfa05b');
+  }
+}
+
 function drawStonePath(ctx, points, width = 34) {
   for (let i = 0; i < points.length - 1; i++) {
     const [x1, y1] = points[i]; const [x2, y2] = points[i + 1];
