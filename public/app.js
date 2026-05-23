@@ -592,7 +592,7 @@ function drawFountain(ctx, cx, cy, t) {
   for (let i = 0; i < 10; i++) rect(ctx, cx - 58 + i * 13, cy - 23, 7, 5, i % 2 ? '#f1faf4' : '#aeb7b3');
 }
 
-function drawCityHall(ctx, x, y) {
+function drawCityHall(ctx, x, y, t = 0) {
   // Apple Park-inspired HQ: a low glass ring with inner courtyard, not a courthouse.
   const cx = x + 146;
   const cy = y + 92;
@@ -600,6 +600,8 @@ function drawCityHall(ctx, x, y) {
   const outerH = 150;
   const innerW = 184;
   const innerH = 78;
+  const pulse = Math.floor(t / 140) % 6;
+  const orbit = (t / 52) % 360;
 
   // Ground shadow and ring depth.
   ellipse(ctx, cx, cy + 42, outerW + 34, outerH + 26, '#101812');
@@ -616,8 +618,12 @@ function drawCityHall(ctx, x, y) {
   ellipse(ctx, cx, cy + 5, innerW - 42, innerH - 28, '#72b76f');
   ellipse(ctx, cx, cy + 5, 46, 22, '#58c0d2');
   ellipse(ctx, cx, cy + 3, 28, 12, '#b8f4ff');
+  for (let i = 0; i < 5; i++) rect(ctx, cx - 21 + i * 10, cy + 1 + ((i + pulse) % 3) * 3, 6, 2, '#eafaff');
+  for (const [tx, ty] of [[cx - 58, cy - 6], [cx + 52, cy - 4], [cx - 32, cy + 22], [cx + 38, cy + 22]]) {
+    rect(ctx, tx, ty, 6, 11, '#2d6a3a'); rect(ctx, tx - 3, ty + 6, 12, 5, '#72b76f');
+  }
 
-  // Glass panels, roof seams, && highlights around the ring.
+  // Glass panels, roof seams, and highlights around the ring.
   const panels = [
     [cx - 128, cy - 12, 30, 8], [cx - 88, cy - 24, 32, 7], [cx - 44, cy - 30, 32, 7], [cx + 8, cy - 31, 32, 7], [cx + 58, cy - 23, 32, 7], [cx + 100, cy - 10, 30, 8],
     [cx - 136, cy + 22, 28, 8], [cx - 92, cy + 42, 32, 7], [cx - 40, cy + 52, 34, 7], [cx + 12, cy + 52, 34, 7], [cx + 66, cy + 42, 32, 7], [cx + 108, cy + 22, 28, 8],
@@ -626,14 +632,26 @@ function drawCityHall(ctx, x, y) {
   for (const [px, py] of [[cx - 145, cy + 2], [cx - 119, cy - 28], [cx - 70, cy - 44], [cx - 18, cy - 49], [cx + 42, cy - 45], [cx + 92, cy - 30], [cx + 138, cy + 1], [cx - 116, cy + 52], [cx - 50, cy + 70], [cx + 35, cy + 70], [cx + 105, cy + 52]]) {
     rect(ctx, px, py, 18, 4, '#ffffff');
   }
+  // Animated sparkle sweeps around the glass ring so the centerpiece feels alive.
+  for (let i = 0; i < 3; i++) {
+    const a = (orbit + i * 118) * Math.PI / 180;
+    const gx = cx + Math.cos(a) * 132;
+    const gy = cy + 15 + Math.sin(a) * 58;
+    rect(ctx, gx - 8, gy - 2, 16, 4, '#ffffff');
+    rect(ctx, gx - 3, gy - 6, 6, 12, '#dffbff');
+  }
 
-  // Subtle entrances && signage integrated into the ring.
+  // Subtle entrances and signage integrated into the ring.
   rect(ctx, cx - 42, cy + 78, 84, 18, '#111b17');
   rect(ctx, cx - 34, cy + 70, 68, 20, '#dce7e4');
   rect(ctx, cx - 24, cy + 74, 48, 12, '#253440');
   rect(ctx, cx - 4, cy + 74, 4, 12, '#f5f0e6');
   rect(ctx, cx - 52, cy + 96, 104, 8, '#d0b77d');
   text(ctx, 'AGENT PARK', cx, cy + 88, 10, '#f5f0e6', 'center', 'mono');
+  // Small autonomous shuttles circulate at the south entrance.
+  const shuttleX = cx - 48 + ((t / 35) % 96);
+  rect(ctx, shuttleX, cy + 103, 18, 8, '#f5f0e6'); rect(ctx, shuttleX + 3, cy + 105, 5, 2, '#5fb8c8'); rect(ctx, shuttleX + 12, cy + 105, 3, 2, '#5fb8c8');
+  rect(ctx, shuttleX + 2, cy + 111, 3, 2, '#101812'); rect(ctx, shuttleX + 13, cy + 111, 3, 2, '#101812');
 
   // Minimal roof equipment / solar dots, attached to the roof surface.
   for (let i = 0; i < 12; i++) {
@@ -641,6 +659,10 @@ function drawCityHall(ctx, x, y) {
     const py = cy - 2 + ((i * 7) % 22);
     if (px > cx - innerW / 2 - 12 && px < cx + innerW / 2 + 12 && py > cy - innerH / 2 && py < cy + innerH / 2 + 20) continue;
     rect(ctx, px, py, 8, 3, i % 2 ? '#aeb7b3' : '#f5f0e6');
+  }
+  // Tiny roof service beacons blink gently, adding motion without fake agents.
+  for (const [bx, by, off] of [[cx - 92, cy - 10, 0], [cx + 86, cy - 8, 2], [cx - 4, cy + 58, 4]]) {
+    rect(ctx, bx, by, 5, 5, (pulse + off) % 6 < 3 ? '#81d672' : '#2f6f43');
   }
 }
 function drawPixelEcosystem(t = performance.now()) {
@@ -685,8 +707,15 @@ function drawPixelEcosystem(t = performance.now()) {
   rect(ctx, 1098, 716, 364, 10, '#d0b77d');
   for (const [gx, gy, gw, gh] of [[1098,566,88,28],[1374,566,88,28],[1098,760,88,28],[1374,760,88,28]]) { rect(ctx, gx, gy, gw, gh, '#24452b'); drawFlowerBed(ctx, gx + 8, gy + 6, gw - 16, 16); }
 
-  drawCityHall(ctx, 1134, 558);
+  drawCityHall(ctx, 1134, 558, t);
   for (const [lx, ly] of [[1040,544],[1520,544],[1040,804],[1520,804],[1110,688],[1450,688]]) drawLamp(ctx, lx, ly, true);
+  // A few restrained moving campus packets on the paths make the center stand out without adding fake workers.
+  for (let i = 0; i < 4; i++) {
+    const k = ((t / 42 + i * 24) % 100) / 100;
+    const px = i % 2 ? 1098 + 364 * k : 1462 - 364 * k;
+    const py = i < 2 ? 719 : 548 + 244 * k;
+    rect(ctx, px, py, 5, 5, i % 2 ? '#d6ad55' : '#6fbfc8');
+  }
 
   // Clean border landscaping, aligned to the plaza edge.
   rect(ctx, 986, 470, 588, 6, '#1d361f'); rect(ctx, 986, 876, 588, 6, '#1d361f');
