@@ -620,14 +620,12 @@ function drawCityHall(ctx, x, y, t = 0) {
   const pulse = Math.floor(t / 140) % 6;
   const orbit = (t / 52) % 360;
 
-  // Ground shadow and ring depth.
-  ellipse(ctx, cx, cy + 42, outerW + 34, outerH + 26, '#101812');
-  ellipse(ctx, cx, cy + 30, outerW + 16, outerH + 18, '#314334');
-  ellipse(ctx, cx, cy + 23, outerW + 8, outerH + 8, '#7f968f');
-  ellipse(ctx, cx, cy + 33, outerW + 8, outerH + 8, '#52635f');
+  // One readable glass ring with a small grounded shadow; no extra bullseye layers.
+  ellipse(ctx, cx, cy + 32, outerW + 8, outerH + 10, '#182719');
+  ellipse(ctx, cx, cy + 22, outerW + 4, outerH + 4, '#52635f');
   ellipse(ctx, cx, cy + 12, outerW, outerH, '#b7c9c3');
-  ellipse(ctx, cx, cy + 12, outerW - 24, outerH - 18, '#5faebc');
-  ellipse(ctx, cx, cy + 12, outerW - 38, outerH - 28, '#c6d5cf');
+  ellipse(ctx, cx, cy + 12, outerW - 28, outerH - 22, '#5faebc');
+  ellipse(ctx, cx, cy + 12, outerW - 46, outerH - 36, '#c6d5cf');
   // Pixel side band and entrance blocks make the curved HQ share the surrounding 3D language.
   rect(ctx, cx - 137, cy + 36, 42, 9, '#52635f'); rect(ctx, cx + 92, cy + 36, 42, 9, '#52635f');
   rect(ctx, cx - 102, cy + 54, 58, 7, '#314334'); rect(ctx, cx + 48, cy + 54, 58, 7, '#314334');
@@ -708,21 +706,14 @@ function drawPixelEcosystem(t = performance.now()) {
   ];
   for (const [x, y, w, h, vertical] of driveways) drawDriveway(ctx, x, y, w, h, vertical);
 
-  // Organized civic district: clean concentric ovals kept inside the road grid.
+  // Organized civic district: one quiet oval lawn under the ring, not stacked circles.
   const civicCx = 1280;
   const civicCy = 670;
-  ellipse(ctx, civicCx, civicCy + 12, 520, 284, '#101812');
-  ellipse(ctx, civicCx, civicCy + 4, 492, 256, '#182719');
-  ellipse(ctx, civicCx, civicCy, 446, 218, '#213a25');
-  // One centered lawn band replaces the old uneven crescent/pocket shapes.
-  ellipse(ctx, civicCx, civicCy, 382, 176, '#294d2f');
-  ellipse(ctx, civicCx, civicCy, 292, 124, '#315f38');
-
-  // Apple Park-inspired civic campus blended into the same pad/road language as the departments.
-  ellipse(ctx, civicCx, civicCy + 8, 438, 224, '#101812');
-  ellipse(ctx, civicCx, civicCy + 2, 410, 202, '#1a2f20');
-  ellipse(ctx, civicCx, civicCy, 356, 166, '#294d2f');
-  ellipse(ctx, civicCx, civicCy, 248, 104, '#315f38');
+  ellipse(ctx, civicCx, civicCy + 6, 486, 232, '#1a2f20');
+  ellipse(ctx, civicCx, civicCy, 448, 204, '#213a25');
+  ellipse(ctx, civicCx, civicCy, 376, 158, '#294d2f');
+  // A soft inner grass patch supports the Apple Park building without competing with its ring.
+  ellipse(ctx, civicCx, civicCy + 2, 276, 106, '#315f38');
   // Tan pads and short walks match the surrounding building bases instead of a floating oval.
   rect(ctx, 1210, 810, 140, 14, '#111b17'); rect(ctx, 1218, 802, 124, 16, '#d0b77d');
   rect(ctx, 1267, 548, 26, 244, '#8a704a'); rect(ctx, 1273, 548, 14, 244, '#c4aa76');
