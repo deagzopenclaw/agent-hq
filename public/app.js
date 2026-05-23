@@ -612,11 +612,11 @@ function drawFountain(ctx, cx, cy, t) {
 function drawCityHall(ctx, x, y, t = 0) {
   // Apple Park-inspired HQ: a low glass ring with inner courtyard, not a courthouse.
   const cx = x + 146;
-  const cy = y + 100;
-  const outerW = 308;
-  const outerH = 150;
-  const innerW = 172;
-  const innerH = 74;
+  const cy = y + 106;
+  const outerW = 304;
+  const outerH = 146;
+  const innerW = 168;
+  const innerH = 72;
   const pulse = Math.floor(t / 140) % 6;
   const orbit = (t / 52) % 360;
 
@@ -625,21 +625,21 @@ function drawCityHall(ctx, x, y, t = 0) {
   ellipse(ctx, cx, cy + 30, outerW + 16, outerH + 18, '#314334');
   ellipse(ctx, cx, cy + 23, outerW + 8, outerH + 8, '#7f968f');
   ellipse(ctx, cx, cy + 33, outerW + 8, outerH + 8, '#52635f');
-  ellipse(ctx, cx, cy + 18, outerW, outerH, '#b7c9c3');
-  ellipse(ctx, cx, cy + 14, outerW - 24, outerH - 18, '#5faebc');
-  ellipse(ctx, cx, cy + 9, outerW - 38, outerH - 28, '#c6d5cf');
+  ellipse(ctx, cx, cy + 12, outerW, outerH, '#b7c9c3');
+  ellipse(ctx, cx, cy + 12, outerW - 24, outerH - 18, '#5faebc');
+  ellipse(ctx, cx, cy + 12, outerW - 38, outerH - 28, '#c6d5cf');
   // Pixel side band and entrance blocks make the curved HQ share the surrounding 3D language.
   rect(ctx, cx - 137, cy + 36, 42, 9, '#52635f'); rect(ctx, cx + 92, cy + 36, 42, 9, '#52635f');
   rect(ctx, cx - 102, cy + 54, 58, 7, '#314334'); rect(ctx, cx + 48, cy + 54, 58, 7, '#314334');
 
   // Inner courtyard cuts the building into a clear ring.
-  ellipse(ctx, cx, cy + 10, innerW + 22, innerH + 18, '#152819');
-  ellipse(ctx, cx, cy + 7, innerW, innerH, '#2b5231');
-  ellipse(ctx, cx, cy + 5, innerW - 38, innerH - 26, '#65a867');
-  ellipse(ctx, cx, cy + 5, 46, 22, '#58c0d2');
-  ellipse(ctx, cx, cy + 3, 28, 12, '#b8f4ff');
-  for (let i = 0; i < 5; i++) rect(ctx, cx - 21 + i * 10, cy + 1 + ((i + pulse) % 3) * 3, 6, 2, '#eafaff');
-  for (const [tx, ty] of [[cx - 58, cy - 6], [cx + 52, cy - 4], [cx - 32, cy + 22], [cx + 38, cy + 22]]) {
+  ellipse(ctx, cx, cy + 12, innerW + 22, innerH + 18, '#152819');
+  ellipse(ctx, cx, cy + 12, innerW, innerH, '#2b5231');
+  ellipse(ctx, cx, cy + 12, innerW - 38, innerH - 26, '#65a867');
+  ellipse(ctx, cx, cy + 12, 46, 22, '#58c0d2');
+  ellipse(ctx, cx, cy + 10, 28, 12, '#b8f4ff');
+  for (let i = 0; i < 5; i++) rect(ctx, cx - 21 + i * 10, cy + 8 + ((i + pulse) % 3) * 3, 6, 2, '#eafaff');
+  for (const [tx, ty] of [[cx - 58, cy + 1], [cx + 52, cy + 1], [cx - 32, cy + 28], [cx + 38, cy + 28]]) {
     rect(ctx, tx, ty, 6, 11, '#2d6a3a'); rect(ctx, tx - 3, ty + 6, 12, 5, '#72b76f');
   }
 
@@ -708,22 +708,21 @@ function drawPixelEcosystem(t = performance.now()) {
   ];
   for (const [x, y, w, h, vertical] of driveways) drawDriveway(ctx, x, y, w, h, vertical);
 
-  // Organized civic district: rounded layered park pad kept inside the road grid.
-  ellipse(ctx, 1280, 668, 548, 306, '#101812');
-  ellipse(ctx, 1280, 664, 520, 280, '#182719');
-  ellipse(ctx, 1280, 664, 474, 244, '#213a25');
-  // Pixel lawn pockets soften the edges but stay clear of road lanes and junctions.
-  for (const [px, py, w, h] of [[1046,548,74,44],[1440,548,74,44],[1046,744,74,44],[1440,744,74,44]]) {
-    ellipse(ctx, px + w / 2, py + h / 2, w, h, '#294d2f');
-    rect(ctx, px + 14, py + 17, w - 28, 8, '#365d3c');
-  }
-  for (const [px, py] of [[1038,674],[1522,674],[1280,528],[1280,806]]) ellipse(ctx, px, py, 48, 26, '#1f3b25');
+  // Organized civic district: clean concentric ovals kept inside the road grid.
+  const civicCx = 1280;
+  const civicCy = 670;
+  ellipse(ctx, civicCx, civicCy + 12, 520, 284, '#101812');
+  ellipse(ctx, civicCx, civicCy + 4, 492, 256, '#182719');
+  ellipse(ctx, civicCx, civicCy, 446, 218, '#213a25');
+  // One centered lawn band replaces the old uneven crescent/pocket shapes.
+  ellipse(ctx, civicCx, civicCy, 382, 176, '#294d2f');
+  ellipse(ctx, civicCx, civicCy, 292, 124, '#315f38');
 
   // Apple Park-inspired civic campus blended into the same pad/road language as the departments.
-  ellipse(ctx, 1280, 674, 468, 242, '#101812');
-  ellipse(ctx, 1280, 668, 440, 220, '#1a2f20');
-  ellipse(ctx, 1280, 666, 396, 194, '#294d2f');
-  ellipse(ctx, 1280, 666, 276, 122, '#315f38');
+  ellipse(ctx, civicCx, civicCy + 8, 438, 224, '#101812');
+  ellipse(ctx, civicCx, civicCy + 2, 410, 202, '#1a2f20');
+  ellipse(ctx, civicCx, civicCy, 356, 166, '#294d2f');
+  ellipse(ctx, civicCx, civicCy, 248, 104, '#315f38');
   // Tan pads and short walks match the surrounding building bases instead of a floating oval.
   rect(ctx, 1210, 810, 140, 14, '#111b17'); rect(ctx, 1218, 802, 124, 16, '#d0b77d');
   rect(ctx, 1267, 548, 26, 244, '#8a704a'); rect(ctx, 1273, 548, 14, 244, '#c4aa76');
