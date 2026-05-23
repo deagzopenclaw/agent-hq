@@ -462,26 +462,43 @@ function agentPosition(agent, index, t) {
 function drawAgentSprite(ctx, agent, index, t) {
   const { x, y, working } = agentPosition(agent, index, t);
   const roleColors = { Commander: '#9be37b', Researcher: '#c87968', Reviewer: '#d9a441', Operator: '#9b8062', 'Autonomous Engineer': '#7cc7b2' };
+  const roleIcons = { Commander: '★', Researcher: '?', Reviewer: '✓', Operator: '⚙', 'Autonomous Engineer': '</>' };
   const vest = roleColors[agent.role] || '#b9905c';
   const seed = hashString(agent.id || agent.name || String(index));
   const hat = agent.role === 'Commander' ? '#d9a441' : agent.role === 'Reviewer' ? '#6b4425' : agent.role === 'Researcher' ? '#7d5133' : '#3d2916';
-  rect(ctx, x - 4, y + 25, 30, 5, '#3d2916');
+  const step = working ? Math.floor(t / 140 + seed) % 4 : Math.floor(t / 520 + seed) % 2;
+  const legA = step % 2 ? 2 : -1;
+  const legB = step % 2 ? -1 : 2;
+  rect(ctx, x - 5, y + 25, 32, 5, '#3d2916');
   rect(ctx, x + 3, y - 2, 14, 5, hat);
   rect(ctx, x + 4, y + 2, 12, 10, seed % 2 ? '#f2c995' : '#c98f5b');
   rect(ctx, x + 2, y + 12, 17, 17, vest);
+  rect(ctx, x + 1, y + 16, 4, 9, '#2b1c0f'); rect(ctx, x + 16, y + 16, 4, 9, '#2b1c0f');
   rect(ctx, x + 5, y + 5, 2, 2, '#211407'); rect(ctx, x + 13, y + 5, 2, 2, '#211407');
-  rect(ctx, x + 4, y + 29, 5, 5, '#2b1c0f'); rect(ctx, x + 13, y + 29, 5, 5, '#2b1c0f');
+  rect(ctx, x + 4 + legA, y + 29, 5, 5, '#2b1c0f'); rect(ctx, x + 13 + legB, y + 29, 5, 5, '#2b1c0f');
   rect(ctx, x + 3, y + 13, 14, 3, working ? '#fff1d6' : '#8f7350');
+  // A tiny role badge makes real agents feel distinct at map scale.
+  rect(ctx, x + 15, y + 10, 9, 9, '#151d24'); strokeRect(ctx, x + 15, y + 10, 9, 9, vest, 1);
+  text(ctx, roleIcons[agent.role] || '•', x + 16, y + 10, agent.role === 'Autonomous Engineer' ? 5 : 7, '#fff1d6', 'left', 'mono');
   if (working) {
     const pulse = Math.floor(t / 140 + index) % 4;
-    if (agent.role === 'Researcher') { rect(ctx, x - 11, y + 8, 8, 10, '#4b321b'); rect(ctx, x - 9, y + 10, 4, 1 + pulse, '#d9a441'); }
-    else if (agent.role === 'Reviewer') { rect(ctx, x + 21, y + 7, 9, 7, '#3d2916'); strokeRect(ctx, x + 21, y + 7, 9, 7, '#d9a441', 1); }
-    else if (agent.role === 'Commander') { rect(ctx, x + 21, y - 2, 7, 7, '#9be37b'); rect(ctx, x + 30, y - 6, 3, 3, '#fff1d6'); }
-    else { rect(ctx, x - 11, y + 11, 8, 8, '#3d2916'); strokeRect(ctx, x - 11, y + 11, 8, 8, '#7cc7b2', 1); rect(ctx, x - 9, y + 14, 4 + pulse, 1, '#9be37b'); }
+    if (agent.role === 'Researcher') {
+      rect(ctx, x - 12, y + 8, 9, 11, '#4b321b'); rect(ctx, x - 10, y + 10, 5, 1 + pulse, '#d9a441');
+      rect(ctx, x - 15, y + 5 - pulse, 3, 3, '#c87968');
+    } else if (agent.role === 'Reviewer') {
+      rect(ctx, x + 22, y + 7, 10, 8, '#3d2916'); strokeRect(ctx, x + 22, y + 7, 10, 8, '#d9a441', 1); rect(ctx, x + 25, y + 10, 5, 2, '#9be37b');
+    } else if (agent.role === 'Commander') {
+      rect(ctx, x + 22, y - 2, 8, 8, '#9be37b'); rect(ctx, x + 31, y - 6, 3, 3, '#fff1d6'); rect(ctx, x + 28, y + 1 + pulse, 8, 2, '#d6ad55');
+    } else if (agent.role === 'Autonomous Engineer') {
+      rect(ctx, x - 13, y + 11, 10, 8, '#151d24'); strokeRect(ctx, x - 13, y + 11, 10, 8, '#7cc7b2', 1); rect(ctx, x - 11, y + 14, 4 + pulse, 1, '#9be37b'); rect(ctx, x - 15, y + 22, 15, 3, '#6fbfc8');
+    } else {
+      rect(ctx, x - 11, y + 11, 8, 8, '#3d2916'); strokeRect(ctx, x - 11, y + 11, 8, 8, '#d6ad55', 1); rect(ctx, x - 9, y + 14, 4 + pulse, 1, '#9be37b');
+    }
   }
   if (index < 20) {
     const role = agent.role === 'Autonomous Engineer' ? 'Engineer' : agent.role;
-    text(ctx, `${agent.name.replace(/^Commander-/, 'Cmd-').slice(0, 10)} · ${role}`.slice(0, 24), x + 27, y - 6, 8, working ? '#fff1d6' : '#d8be8f', 'left', 'mono');
+    const mood = agent.mood ? ` · ${String(agent.mood).slice(0, 7)}` : '';
+    text(ctx, `${agent.name.replace(/^Commander-/, 'Cmd-').slice(0, 10)} · ${role}${mood}`.slice(0, 30), x + 29, y - 7, 8, working ? '#fff1d6' : '#d8be8f', 'left', 'mono');
   }
 }
 
@@ -691,21 +708,22 @@ function drawPixelEcosystem(t = performance.now()) {
   ];
   for (const [x, y, w, h, vertical] of driveways) drawDriveway(ctx, x, y, w, h, vertical);
 
-  // Organized civic district: quiet plaza, centered hall, symmetric lawns and simple walkways.
-  rect(ctx, 986, 486, 588, 380, '#101812');
-  rect(ctx, 996, 496, 568, 360, '#182719');
-  strokeRect(ctx, 996, 496, 568, 360, '#405837', 2);
-  rect(ctx, 1028, 526, 504, 300, '#213a25');
-  rect(ctx, 1048, 546, 464, 260, '#182f1f');
-  strokeRect(ctx, 1048, 546, 464, 260, '#4b633f', 1);
+  // Organized civic district: rounded layered park pad kept inside the road grid.
+  ellipse(ctx, 1280, 666, 560, 318, '#101812');
+  ellipse(ctx, 1280, 658, 532, 292, '#182719');
+  ellipse(ctx, 1280, 654, 486, 252, '#213a25');
+  // Pixel lawn pockets soften the edges but stay clear of road lanes and junctions.
+  for (const [px, py, w, h] of [[1046,548,74,44],[1440,548,74,44],[1046,744,74,44],[1440,744,74,44]]) {
+    ellipse(ctx, px + w / 2, py + h / 2, w, h, '#294d2f');
+    rect(ctx, px + 14, py + 17, w - 28, 8, '#365d3c');
+  }
+  for (const [px, py] of [[1038,674],[1522,674],[1280,528],[1280,806]]) ellipse(ctx, px, py, 48, 26, '#1f3b25');
 
   // Apple Park-inspired civic campus blended into the same pad/road language as the departments.
-  rect(ctx, 1008, 508, 544, 336, '#101812');
-  rect(ctx, 1018, 518, 524, 316, '#1a2f20');
-  strokeRect(ctx, 1018, 518, 524, 316, '#405837', 2);
-  ellipse(ctx, 1280, 680, 470, 246, '#1d3422');
-  ellipse(ctx, 1280, 672, 420, 214, '#294d2f');
-  ellipse(ctx, 1280, 664, 292, 134, '#315f38');
+  ellipse(ctx, 1280, 676, 476, 250, '#101812');
+  ellipse(ctx, 1280, 668, 448, 226, '#1a2f20');
+  ellipse(ctx, 1280, 660, 402, 198, '#294d2f');
+  ellipse(ctx, 1280, 660, 286, 128, '#315f38');
   // Tan pads and short walks match the surrounding building bases instead of a floating oval.
   rect(ctx, 1210, 810, 140, 14, '#111b17'); rect(ctx, 1218, 802, 124, 16, '#d0b77d');
   rect(ctx, 1267, 548, 26, 244, '#8a704a'); rect(ctx, 1273, 548, 14, 244, '#c4aa76');
