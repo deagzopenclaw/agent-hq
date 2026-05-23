@@ -346,8 +346,8 @@ function drawBuilding(ctx, slot, dept, t) {
   if (form === 'hq') {
     rect(ctx, left + 14, top + 62, 36, bh - 68, '#365a77'); strokeRect(ctx, left + 14, top + 62, 36, bh - 68, '#172129', 1);
     rect(ctx, left + bw - 50, top + 62, 36, bh - 68, '#365a77'); strokeRect(ctx, left + bw - 50, top + 62, 36, bh - 68, '#172129', 1);
-    drawIsoBlock(ctx, left + 62, top - 40, bw - 124, 40, 16, '#6c91b1', '#385975', '#4f7595', '#172129');
-    drawIsoBlock(ctx, cx - 28, top - 104, 56, 60, 16, '#496b87', '#29435c', '#6f8da8', '#172129');
+    drawIsoBlock(ctx, cx - (bw - 124) / 2 - 8, top - 40, bw - 124, 40, 16, '#6c91b1', '#385975', '#4f7595', '#172129');
+    drawIsoBlock(ctx, cx - 36, top - 104, 56, 60, 16, '#496b87', '#29435c', '#6f8da8', '#172129');
     rect(ctx, cx - 12, top - 122, 24, 18, active ? '#d6ad55' : '#7f8c8d');
     rect(ctx, cx - 2, top - 140, 4, 18, '#d6ad55'); rect(ctx, cx + 2, top - 138, 26, 10, '#c57b7b');
     text(ctx, 'HQ', cx, top - 34, 22, '#fff1d6', 'center', 'mono');
@@ -376,9 +376,9 @@ function drawBuilding(ctx, slot, dept, t) {
       rect(ctx, left + 34 + i * 47, top + 20, 18, 54, i % 2 ? '#6fbfc8' : '#d8c48b');
     }
   } else if (form === 'stepped') {
-    drawIsoBlock(ctx, left + 24, top - 34, bw - 48, 38, 18, '#8ea5bc', '#394b60', '#9fb4c8', '#263544');
-    drawIsoBlock(ctx, left + 62, top - 66, bw - 124, 32, 14, '#bfd0dd', '#4a5f76', '#d9edf7', '#263544');
-    for (let i = 0; i < 6; i++) rect(ctx, left + 26 + i * 30, ground - 46 - i * 8, 18, 46 + i * 8, i % 2 ? '#6fbfc8' : '#d6ad55');
+    drawIsoBlock(ctx, cx - (bw - 48) / 2 - 9, top - 34, bw - 48, 38, 18, '#8ea5bc', '#394b60', '#9fb4c8', '#263544');
+    drawIsoBlock(ctx, cx - (bw - 124) / 2 - 7, top - 66, bw - 124, 32, 14, '#bfd0dd', '#4a5f76', '#d9edf7', '#263544');
+    for (let i = 0; i < 6; i++) rect(ctx, cx - 84 + i * 30, ground - 46 - i * 8, 18, 46 + i * 8, i % 2 ? '#6fbfc8' : '#d6ad55');
   } else if (form === 'fort') {
     // Security: keep it as a clean attached fortress silhouette, not a pile of overlapping wall pieces.
     rect(ctx, left + 12, top - 10, 34, bh + 8, '#8f5b56'); strokeRect(ctx, left + 12, top - 10, 34, bh + 8, '#2b1918', 1);
@@ -394,8 +394,8 @@ function drawBuilding(ctx, slot, dept, t) {
     rect(ctx, cx - 36, ground - 58, 72, 58, '#323842'); strokeRect(ctx, cx - 36, ground - 58, 72, 58, '#d8c48b', 3);
     rect(ctx, cx - 13, ground - 36, 26, 26, '#d8c48b'); rect(ctx, cx - 5, ground - 28, 10, 10, '#41454d');
   } else if (form === 'studio') {
-    drawIsoBlock(ctx, left + bw - 62, top - 42, 56, 42, 16, '#b083a5', '#5b3e52', '#d1a0c2', '#2a2530');
-    rect(ctx, left + bw - 46, top - 31, 26, 21, active ? '#c57b7b' : '#8a7a66');
+    drawIsoBlock(ctx, cx - 36, top - 42, 56, 42, 16, '#b083a5', '#5b3e52', '#d1a0c2', '#2a2530');
+    rect(ctx, cx - 13, top - 31, 26, 21, active ? '#c57b7b' : '#8a7a66');
   } else if (form === 'media') {
     drawDish(ctx, left + bw - 48, top - 42, '#d6ad55');
   } else if (form === 'office') {
@@ -612,11 +612,11 @@ function drawFountain(ctx, cx, cy, t) {
 function drawCityHall(ctx, x, y, t = 0) {
   // Apple Park-inspired HQ: a low glass ring with inner courtyard, not a courthouse.
   const cx = x + 146;
-  const cy = y + 92;
+  const cy = y + 100;
   const outerW = 308;
   const outerH = 150;
-  const innerW = 184;
-  const innerH = 78;
+  const innerW = 172;
+  const innerH = 74;
   const pulse = Math.floor(t / 140) % 6;
   const orbit = (t / 52) % 360;
 
@@ -633,9 +633,9 @@ function drawCityHall(ctx, x, y, t = 0) {
   rect(ctx, cx - 102, cy + 54, 58, 7, '#314334'); rect(ctx, cx + 48, cy + 54, 58, 7, '#314334');
 
   // Inner courtyard cuts the building into a clear ring.
-  ellipse(ctx, cx, cy + 12, innerW + 24, innerH + 20, '#152819');
-  ellipse(ctx, cx, cy + 8, innerW, innerH, '#2b5231');
-  ellipse(ctx, cx, cy + 5, innerW - 42, innerH - 28, '#65a867');
+  ellipse(ctx, cx, cy + 10, innerW + 22, innerH + 18, '#152819');
+  ellipse(ctx, cx, cy + 7, innerW, innerH, '#2b5231');
+  ellipse(ctx, cx, cy + 5, innerW - 38, innerH - 26, '#65a867');
   ellipse(ctx, cx, cy + 5, 46, 22, '#58c0d2');
   ellipse(ctx, cx, cy + 3, 28, 12, '#b8f4ff');
   for (let i = 0; i < 5; i++) rect(ctx, cx - 21 + i * 10, cy + 1 + ((i + pulse) % 3) * 3, 6, 2, '#eafaff');
@@ -709,9 +709,9 @@ function drawPixelEcosystem(t = performance.now()) {
   for (const [x, y, w, h, vertical] of driveways) drawDriveway(ctx, x, y, w, h, vertical);
 
   // Organized civic district: rounded layered park pad kept inside the road grid.
-  ellipse(ctx, 1280, 666, 560, 318, '#101812');
-  ellipse(ctx, 1280, 658, 532, 292, '#182719');
-  ellipse(ctx, 1280, 654, 486, 252, '#213a25');
+  ellipse(ctx, 1280, 668, 548, 306, '#101812');
+  ellipse(ctx, 1280, 664, 520, 280, '#182719');
+  ellipse(ctx, 1280, 664, 474, 244, '#213a25');
   // Pixel lawn pockets soften the edges but stay clear of road lanes and junctions.
   for (const [px, py, w, h] of [[1046,548,74,44],[1440,548,74,44],[1046,744,74,44],[1440,744,74,44]]) {
     ellipse(ctx, px + w / 2, py + h / 2, w, h, '#294d2f');
@@ -720,10 +720,10 @@ function drawPixelEcosystem(t = performance.now()) {
   for (const [px, py] of [[1038,674],[1522,674],[1280,528],[1280,806]]) ellipse(ctx, px, py, 48, 26, '#1f3b25');
 
   // Apple Park-inspired civic campus blended into the same pad/road language as the departments.
-  ellipse(ctx, 1280, 676, 476, 250, '#101812');
-  ellipse(ctx, 1280, 668, 448, 226, '#1a2f20');
-  ellipse(ctx, 1280, 660, 402, 198, '#294d2f');
-  ellipse(ctx, 1280, 660, 286, 128, '#315f38');
+  ellipse(ctx, 1280, 674, 468, 242, '#101812');
+  ellipse(ctx, 1280, 668, 440, 220, '#1a2f20');
+  ellipse(ctx, 1280, 666, 396, 194, '#294d2f');
+  ellipse(ctx, 1280, 666, 276, 122, '#315f38');
   // Tan pads and short walks match the surrounding building bases instead of a floating oval.
   rect(ctx, 1210, 810, 140, 14, '#111b17'); rect(ctx, 1218, 802, 124, 16, '#d0b77d');
   rect(ctx, 1267, 548, 26, 244, '#8a704a'); rect(ctx, 1273, 548, 14, 244, '#c4aa76');
