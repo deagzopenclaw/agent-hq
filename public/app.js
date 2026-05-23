@@ -447,7 +447,15 @@ function agentPosition(agent, index, t) {
   const centerX = slot.x + slot.w / 2;
   const baseY = slot.y + slot.h - 12 + lane * 9;
   if (active) {
-    const route = seed % 3;
+    const route = seed % 4;
+    // Some real active agents walk the new park approach instead of only pacing at their building.
+    if (route === 3) {
+      const k = ((t * speed * 22 + seed) % 100) / 100;
+      if (k < .42) return { x: 1280, y: 874 - k / .42 * 178 + lane * 2, working: true };
+      if (k < .68) return { x: 1280 + (k - .42) / .26 * (lane * 32), y: 696 + lane * 3, working: true };
+      const a = (k - .68) / .32 * Math.PI * 2;
+      return { x: 1280 + Math.cos(a + phase) * 122, y: 674 + Math.sin(a + phase) * 48, working: true };
+    }
     if (route === 0) return { x: centerX + Math.sin(t * speed + phase) * Math.min(90, slot.w * 0.42), y: baseY + Math.cos(t * speed * 1.5 + phase) * 16, working: true };
     if (route === 1) return { x: slot.x + 20 + ((t * speed * 55 + seed) % Math.max(40, slot.w - 40)), y: baseY + Math.sin(t * speed + phase) * 8, working: true };
     return { x: centerX + Math.cos(t * speed + phase) * Math.min(78, slot.w * 0.36), y: slot.y + slot.h * .55 + Math.sin(t * speed + phase) * Math.min(42, slot.h * .24), working: true };
@@ -714,11 +722,15 @@ function drawPixelEcosystem(t = performance.now()) {
   ellipse(ctx, civicCx, civicCy, 376, 158, '#294d2f');
   // A soft inner grass patch supports the Apple Park building without competing with its ring.
   ellipse(ctx, civicCx, civicCy + 2, 276, 106, '#315f38');
-  // Tan pads and short walks match the surrounding building bases instead of a floating oval.
+  // Tan walkways connect the road grid into the park without covering road lanes.
   rect(ctx, 1210, 810, 140, 14, '#111b17'); rect(ctx, 1218, 802, 124, 16, '#d0b77d');
-  rect(ctx, 1267, 548, 26, 244, '#8a704a'); rect(ctx, 1273, 548, 14, 244, '#c4aa76');
-  rect(ctx, 1098, 710, 364, 22, '#8a704a'); rect(ctx, 1098, 716, 364, 10, '#c4aa76');
-  for (const [gx, gy, gw, gh] of [[1098,566,88,28],[1374,566,88,28],[1098,760,88,28],[1374,760,88,28]]) { rect(ctx, gx, gy, gw, gh, '#24452b'); drawFlowerBed(ctx, gx + 8, gy + 6, gw - 16, 16); }
+  rect(ctx, 1262, 844, 36, 30, '#111b17'); rect(ctx, 1269, 844, 22, 30, '#d0b77d');
+  rect(ctx, 1265, 696, 30, 122, '#8a704a'); rect(ctx, 1272, 696, 16, 122, '#c4aa76');
+  rect(ctx, 1267, 548, 26, 132, '#8a704a'); rect(ctx, 1273, 548, 14, 132, '#c4aa76');
+  rect(ctx, 1110, 710, 340, 22, '#8a704a'); rect(ctx, 1118, 716, 324, 10, '#c4aa76');
+  rect(ctx, 1168, 766, 74, 16, '#8a704a'); rect(ctx, 1175, 770, 60, 8, '#c4aa76');
+  rect(ctx, 1318, 766, 74, 16, '#8a704a'); rect(ctx, 1325, 770, 60, 8, '#c4aa76');
+  for (const [gx, gy, gw, gh] of [[1098,566,88,28],[1374,566,88,28],[1098,760,62,24],[1400,760,62,24]]) { rect(ctx, gx, gy, gw, gh, '#24452b'); drawFlowerBed(ctx, gx + 8, gy + 6, gw - 16, 14); }
 
   drawCityHall(ctx, 1134, 558, t);
   for (const [lx, ly] of [[1040,544],[1520,544],[1040,804],[1520,804],[1110,688],[1450,688]]) drawLamp(ctx, lx, ly, true);
